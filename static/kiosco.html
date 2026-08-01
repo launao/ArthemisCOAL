@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arthemis Health · Kiosco</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{
+  --w:#FFFFFF;--iv:#FAF8F4;--iv2:#F2EFE9;--bg:#E6E1D8;--bg2:#D8D2C7;
+  --ink:#1C1916;--ink2:#3D3834;--ink3:#6B6460;--ink4:#A09890;
+  --acc:#5147C4;--al:#7269D8;--abg:rgba(81,71,196,.07);--abd:rgba(81,71,196,.22);
+  --grn:#2D7A4F;--gbg:rgba(45,122,79,.08);--gbd:rgba(45,122,79,.25);
+  --amb:#A06020;--ambg:rgba(160,96,32,.08);
+  --font:'DM Sans',system-ui,sans-serif;--serif:'DM Serif Display',Georgia,serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{width:100%;height:100vh;background:var(--iv);font-family:var(--font);color:var(--ink);overflow:hidden}
+
+/* HEADER */
+.hdr{height:64px;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--bg);display:flex;align-items:center;
+  justify-content:space-between;padding:0 32px;position:relative;z-index:10}
+.logo{display:flex;align-items:center;gap:12px}
+.lm{width:36px;height:36px;border-radius:10px;background:linear-gradient(145deg,var(--acc),var(--al));
+  display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff}
+.ln{font-family:var(--serif);font-size:18px}
+.ll{font-size:10px;color:var(--ink4);text-transform:uppercase;letter-spacing:.7px;margin-top:1px}
+.hdr-center{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink3)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--grn);
+  animation:pulse 2.5s ease-in-out infinite;box-shadow:0 0 0 2px var(--gbg)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 2px rgba(45,122,79,.12)}50%{box-shadow:0 0 0 5px rgba(45,122,79,.06)}}
+.hdr-clock{font-size:14px;color:var(--ink3);font-variant-numeric:tabular-nums}
+
+/* BODY */
+.body{height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;
+  padding:24px;position:relative}
+
+/* CARD */
+.card{background:var(--w);border:1px solid var(--bg);border-radius:24px;
+  box-shadow:0 8px 40px rgba(28,25,22,.09),0 2px 8px rgba(28,25,22,.05);
+  width:100%;overflow:hidden;transition:all .4s cubic-bezier(.4,0,.2,1)}
+
+/* SCREENS */
+.screen{display:none;padding:40px 44px;animation:fadein .3s ease}
+.screen.on{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+
+/* SCREEN 1 — CEDULA */
+.s1 .card{max-width:520px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--acc);margin-bottom:8px;display:block}
+.ttl{font-family:var(--serif);font-size:28px;letter-spacing:-.3px;margin-bottom:6px}
+.sub{font-size:14px;color:var(--ink3);margin-bottom:28px;line-height:1.65}
+.doc-chips{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap}
+.chip{padding:8px 16px;border-radius:9px;border:1px solid var(--bg2);background:var(--iv);
+  font-size:13px;font-weight:500;color:var(--ink3);cursor:pointer;transition:all .18s}
+.chip.on{background:var(--abg);border-color:var(--abd);color:var(--acc);font-weight:600}
+.inp-wrap{background:var(--iv);border:1.5px solid var(--bg2);border-radius:14px;
+  display:flex;align-items:center;padding:0 20px;min-height:66px;margin-bottom:16px;
+  transition:all .2s}
+.inp-wrap.focus{border-color:var(--al);background:var(--w);box-shadow:0 0 0 3px rgba(91,79,207,.12)}
+.inp-val{font-size:30px;font-weight:500;letter-spacing:7px;color:var(--ink);font-variant-numeric:tabular-nums}
+.inp-ph{font-size:15px;color:var(--ink4)}
+.cur{display:inline-block;width:2px;height:30px;background:var(--acc);
+  margin-left:4px;vertical-align:middle;animation:bl 1s step-end infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:0}}
+.kb{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.key{height:56px;border-radius:12px;background:var(--iv);border:1px solid var(--bg);
+  font-size:20px;font-weight:500;color:var(--ink);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;transition:all .12s;
+  box-shadow:0 1px 3px rgba(28,25,22,.05)}
+.key:hover{background:var(--iv2);border-color:var(--bg2)}
+.key:active{background:var(--bg);transform:scale(.96)}
+.ks{font-size:9px;color:var(--ink4);letter-spacing:.8px;margin-top:2px}
+.key-del:hover{background:rgba(184,50,50,.05);border-color:rgba(184,50,50,.18)}
+.cta{width:100%;height:54px;border-radius:13px;
+  background:linear-gradient(135deg,var(--acc),var(--al));border:none;
+  font-size:15px;font-weight:600;color:#fff;cursor:pointer;margin-top:16px;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 6px 18px rgba(91,79,207,.26)}
+.cta:disabled{background:var(--iv2);box-shadow:none;color:var(--ink4);cursor:not-allowed}
+.cta:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(91,79,207,.32)}
+
+/* SCREEN 2 — PRIORIDAD */
+.s2 .card{max-width:800px}
+.prio-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:0}
+.pcol{padding:24px 20px;border-radius:16px;border:1.5px solid var(--bg);background:var(--iv)}
+.pcol.pref{border-color:var(--gbd);background:rgba(45,122,79,.03)}
+.pcol h3{font-size:14px;font-weight:700;margin-bottom:14px}
+.pi{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;
+  background:var(--w);margin-bottom:6px;font-size:13px;color:var(--ink2);border:1px solid var(--bg)}
+.pie{font-size:18px}
+.btn-pref{width:100%;height:46px;border-radius:11px;background:var(--gbg);
+  border:1.5px solid var(--gbd);color:var(--grn);font-size:13px;font-weight:700;
+  cursor:pointer;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .18s}
+.btn-pref:hover{background:rgba(45,122,79,.14)}
+.btn-reg{width:100%;height:46px;border-radius:11px;
+  background:linear-gradient(135deg,var(--acc),var(--al));border:none;
+  color:#fff;font-size:13px;font-weight:700;cursor:pointer;margin-top:14px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  box-shadow:0 4px 14px rgba(91,79,207,.25);transition:all .18s}
+.btn-reg:hover{transform:translateY(-1px)}
+.sol-note{background:var(--iv2);border:1px solid var(--bg);border-radius:11px;
+  padding:14px;font-size:13px;color:var(--ink3);line-height:1.65}
+
+/* PAC INFO BANNER */
+.pac-banner{background:var(--abg);border:1px solid var(--abd);border-radius:12px;
+  padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.pac-av{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--acc),var(--al));
+  display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
+.pac-name{font-size:14px;font-weight:600}
+.pac-det{font-size:12px;color:var(--ink3);margin-top:2px}
+
+/* SCREEN 3 — TURNO */
+.s3 .card{max-width:460px}
+.ticket-wrap{text-align:center;padding:8px 0 16px}
+.t-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;
+  letter-spacing:1.4px;text-transform:uppercase;padding:5px 14px;border-radius:99px;margin-bottom:18px}
+.t-badge.pref{background:var(--gbg);color:var(--grn);border:1px solid var(--gbd)}
+.t-badge.gen{background:var(--abg);color:var(--acc);border:1px solid var(--abd)}
+.t-num{font-family:var(--serif);font-size:88px;line-height:1;letter-spacing:-3px;margin-bottom:6px}
+.t-num.pref{color:var(--grn)}.t-num.gen{color:var(--acc)}
+.t-msg{font-size:15px;color:var(--ink3);margin-bottom:24px;line-height:1.65}
+.t-modulo{display:inline-flex;align-items:center;gap:8px;background:var(--iv2);
+  border:1px solid var(--bg);border-radius:12px;padding:12px 20px;
+  font-size:14px;font-weight:600;color:var(--ink);margin-bottom:20px}
+.wait-ring{display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.wr{position:relative;width:80px;height:80px}
+.wr svg{transform:rotate(-90deg)}
+.wrbg{fill:none;stroke:var(--bg);stroke-width:5}
+.wrp{fill:none;stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)}
+.wt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.wt-n{font-size:20px;font-weight:700;line-height:1}
+.wt-l{font-size:10px;color:var(--ink4);letter-spacing:.4px;margin-top:2px}
+
+/* CONFETTI */
+.cp{position:fixed;width:7px;height:7px;border-radius:2px;pointer-events:none;z-index:500;
+  animation:cf 2.8s ease-in forwards}
+@keyframes cf{0%{transform:translateY(-20px) rotate(0deg);opacity:1}
+  100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+/* NUEVA ATENCION BTN */
+.nueva-btn{background:none;border:1px solid var(--bg2);color:var(--ink3);
+  font-size:13px;font-weight:500;padding:10px 24px;border-radius:10px;
+  cursor:pointer;margin-top:16px;font-family:var(--font);transition:all .18s}
+.nueva-btn:hover{background:var(--iv2);color:var(--ink)}
+
+/* SCREEN 2B — CITA ENCONTRADA */
+.cita-banner{background:var(--gbg);border:1.5px solid var(--gbd);border-radius:16px;padding:18px 20px;margin-bottom:20px}
+.cita-banner-ttl{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--grn);margin-bottom:10px}
+.cita-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(45,122,79,.12);font-size:13px}
+.cita-row:last-child{border-bottom:none}
+.cita-row-lbl{color:var(--ink3)}
+.cita-row-val{font-weight:600;color:var(--ink2)}
+.cita-hora{font-family:var(--serif);font-size:28px;color:var(--grn);font-weight:600}
+
+/* SCREEN — HABEAS DATA */
+.hd-text{background:var(--iv2);border:1px solid var(--bg);border-radius:12px;padding:16px;font-size:12px;color:var(--ink3);line-height:1.75;max-height:150px;overflow-y:auto;margin-bottom:20px}
+
+/* SCREEN — NOTIFICACIÓN */
+.notif-opts{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.notif-opt{flex:1;min-width:120px;padding:16px 12px;border:1.5px solid var(--bg);border-radius:14px;background:var(--iv);cursor:pointer;text-align:center;transition:all .18s;font-size:13px;color:var(--ink3)}
+.notif-opt:hover{border-color:var(--abd);background:var(--abg)}
+.notif-opt.on{border-color:var(--abd);background:var(--abg);color:var(--acc);font-weight:600}
+.notif-opt .opt-ico{font-size:24px;margin-bottom:6px}
+.cel-inp{width:100%;padding:12px 16px;border-radius:11px;border:1.5px solid var(--bg2);background:var(--iv);font-size:16px;font-family:var(--font);text-align:center;margin-top:8px;transition:all .2s;outline:none}
+.cel-inp:focus{border-color:var(--al);background:var(--w);box-shadow:0 0 0 3px rgba(91,79,207,.12)}
+
+/* SCREEN — SIN CÁMARA (custom, sin alert nativo) */
+.cam-block{background:var(--rbg);border:1.5px solid rgba(147,34,34,.2);border-radius:14px;padding:20px;text-align:center;margin-bottom:16px}
+
+/* ERROR FEEDBACK */
+.err-msg{background:rgba(147,34,34,.06);border:1.5px solid rgba(147,34,34,.2);border-radius:12px;
+  padding:12px 16px;font-size:13px;color:#932222;text-align:center;margin-top:12px;
+  display:none;animation:fadein .3s ease}
+.err-msg.on{display:block}
+
+/* AUTO-RESET COUNTDOWN */
+.countdown-bar{position:fixed;bottom:0;left:0;right:0;height:4px;background:var(--bg);z-index:100}
+.countdown-fill{height:100%;background:var(--acc);transition:width .5s linear;width:100%}
+.countdown-text{position:fixed;bottom:10px;right:24px;font-size:12px;color:var(--ink4);
+  font-variant-numeric:tabular-nums;z-index:100}
+
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="logo">
+    <div class="lm">A</div>
+    <div><div class="ln">Arthemis Health</div><div class="ll">Centro Ocular</div></div>
+  </div>
+  <div class="hdr-center"><div class="dot"></div><span>Sistema activo</span></div>
+  <div class="hdr-clock" id="clk"></div>
+</div>
+
+<div class="body">
+
+  <!-- SCREEN 1: CEDULA -->
+  <div class="screen s1 on" id="sc1">
+    <div class="card">
+      <div class="screen" style="display:block">
+        <span class="eyebrow">Bienvenido</span>
+        <h1 class="ttl">Ingresa tu número de documento</h1>
+        <p class="sub">Para comenzar tu atención en el centro ocular</p>
+        <div class="doc-chips">
+          <button class="chip on" onclick="selDoc('CC',this)">Cédula CC</button>
+          <button class="chip" onclick="selDoc('TI',this)">Tarjeta TI</button>
+          <button class="chip" onclick="selDoc('PP',this)">Pasaporte</button>
+          <button class="chip" onclick="selDoc('CE',this)">Cédula Ext.</button>
+        </div>
+        <div class="inp-wrap focus" id="iw">
+          <div id="ic"><span class="inp-ph">Número de documento</span></div>
+        </div>
+        <div class="kb" role="group" aria-label="Teclado numérico">
+          <button class="key" onclick="kp('1')" aria-label="1">1</button>
+          <button class="key" onclick="kp('2')" aria-label="2, A B C">2<span class="ks">ABC</span></button>
+          <button class="key" onclick="kp('3')" aria-label="3, D E F">3<span class="ks">DEF</span></button>
+          <button class="key" onclick="kp('4')" aria-label="4, G H I">4<span class="ks">GHI</span></button>
+          <button class="key" onclick="kp('5')" aria-label="5, J K L">5<span class="ks">JKL</span></button>
+          <button class="key" onclick="kp('6')" aria-label="6, M N O">6<span class="ks">MNO</span></button>
+          <button class="key" onclick="kp('7')" aria-label="7, P Q R S">7<span class="ks">PQRS</span></button>
+          <button class="key" onclick="kp('8')" aria-label="8, T U V">8<span class="ks">TUV</span></button>
+          <button class="key" onclick="kp('9')" aria-label="9, W X Y Z">9<span class="ks">WXYZ</span></button>
+          <button class="key" style="font-size:12px;color:var(--ink4)" aria-label="Más opciones">•••</button>
+          <button class="key" onclick="kp('0')" aria-label="0">0</button>
+          <button class="key key-del" onclick="kdel()" aria-label="Borrar último dígito">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="13" y2="14"/><line x1="13" y1="9" x2="18" y2="14"/></svg>
+          </button>
+        </div>
+        <button class="cta" id="cta1" onclick="goStep2()" disabled>
+          Continuar
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN — NOMBRE Y MOTIVO (pacientes nuevos / sin cita) -->
+  <div class="screen" id="sc-nombre">
+    <div class="card" style="max-width:560px">
+      <div class="screen" style="display:block;padding:36px 40px">
+        <span class="eyebrow">Bienvenido</span>
+        <h1 class="ttl" style="margin-bottom:8px">Cuéntanos quién eres</h1>
+        <p class="sub" style="margin-bottom:20px">No te encontramos registrado. Ingresa tus datos para continuar.</p>
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:6px">Nombre completo:</div>
+        <input class="cel-inp" type="text" id="nuevo-nombre" placeholder="Nombre y apellidos" style="text-align:left;margin-top:0;margin-bottom:22px;letter-spacing:0">
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:8px">¿A qué vienes hoy?</div>
+        <div class="notif-opts">
+          <div class="notif-opt on" id="mot-consulta" onclick="selMotivo('consulta')">
+            <div class="opt-ico">🩺</div>Consulta médica
+          </div>
+          <div class="notif-opt" id="mot-autorizacion" onclick="selMotivo('autorizacion')">
+            <div class="opt-ico">📄</div>Autorización
+          </div>
+          <div class="notif-opt" id="mot-cita" onclick="selMotivo('cita')">
+            <div class="opt-ico">📅</div>Cita
+          </div>
+        </div>
+        <button class="btn-reg" style="width:100%" id="btn-nombre" onclick="continuarNombre()">
+          Continuar →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: PRIORIDAD -->
+  <div class="screen s2" id="sc2">
+    <div class="card">
+      <div class="screen" style="display:block;padding:36px 40px">
+        <span class="eyebrow">Prioridad en la atención</span>
+        <h1 class="ttl" style="margin-bottom:16px">¿Aplica alguna de estas condiciones?</h1>
+        <div id="pac-banner" style="display:none" class="pac-banner">
+          <div class="pac-av" id="pac-ini">?</div>
+          <div>
+            <div class="pac-name" id="pac-nom">Paciente</div>
+            <div class="pac-det" id="pac-det">Identificado en el sistema</div>
+          </div>
+        </div>
+        <div class="prio-grid">
+          <div class="pcol pref">
+            <h3 style="color:var(--grn)">🌿 Atención preferencial</h3>
+            <div class="pi"><span class="pie">🤰</span><span>Mujer en embarazo</span></div>
+            <div class="pi"><span class="pie">♿</span><span>Persona con discapacidad</span></div>
+            <div class="pi"><span class="pie">👴</span><span>Adulto mayor de 65 años</span></div>
+            <div class="pi"><span class="pie">🧒</span><span>Niños menores de 5 años</span></div>
+            <button class="btn-pref" onclick="asignarTurno('preferencial')">
+              ⭐ Sí, requiero atención preferencial
+            </button>
+          </div>
+          <div class="pcol">
+            <h3 style="color:var(--ink2)">Turno regular</h3>
+            <div class="sol-note">
+              Al elegir turno regular permites que quienes más lo necesitan sean atendidos primero.<br><br>
+              Gracias por tu solidaridad. 🤝
+            </div>
+            <button class="btn-reg" onclick="asignarTurno('general')">
+              Continuar con turno regular →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: TURNO ASIGNADO -->
+  <div class="screen s3" id="sc3">
+    <div class="card">
+      <div class="screen" style="display:block;text-align:center;padding:40px 44px">
+        <div class="ticket-wrap">
+          <div class="t-badge" id="t-badge">Turno general</div>
+          <div class="t-num" id="t-num">PC1</div>
+          <div class="wait-ring">
+            <div class="wr">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle class="wrbg" cx="40" cy="40" r="33"/>
+                <circle class="wrp" id="wrp" cx="40" cy="40" r="33"
+                  stroke="var(--acc)" stroke-dasharray="207" stroke-dashoffset="52"/>
+              </svg>
+              <div class="wt"><div class="wt-n" id="wt-n">~</div><div class="wt-l">MIN</div></div>
+            </div>
+          </div>
+          <div class="t-msg" id="t-msg">
+            Toma asiento en la sala de espera.<br>
+            Te llamaremos por pantalla cuando sea tu turno.
+          </div>
+          <div class="t-modulo" id="t-modulo" style="display:none">
+            📍 Dirígete a <strong id="t-mod-nombre">Recepción</strong>
+          </div>
+        </div>
+        <button class="nueva-btn" onclick="reset()">Nueva atención</button>
+        <div class="countdown-bar" id="cd-bar" style="display:none"><div class="countdown-fill" id="cd-fill"></div></div>
+        <div class="countdown-text" id="cd-text" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2B: CITA ENCONTRADA -->
+  <div class="screen s2" id="sc-cita" style="">
+    <div class="card">
+      <div class="screen" style="display:block;padding:36px 40px">
+        <span class="eyebrow">Cita programada</span>
+        <h1 class="ttl" style="margin-bottom:16px">Tienes una cita para hoy</h1>
+        <div id="cita-banner-content" class="cita-banner"></div>
+        <p style="font-size:13px;color:var(--ink3);margin-bottom:20px;line-height:1.6">¿Es correcta tu cita? Confirma tu asistencia para pasar a recepción.</p>
+        <div id="pac-banner-cita" style="display:none" class="pac-banner"></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn-pref" style="flex:1" onclick="irSinCita()">No es mi cita</button>
+          <button class="btn-reg" style="flex:1" onclick="irHabeas('cita')">✓ Confirmar cita →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN — HABEAS DATA -->
+  <div class="screen" id="sc-habeas">
+    <div class="card" style="max-width:560px">
+      <div class="screen" style="display:block;padding:36px 40px">
+        <span class="eyebrow">Paso 3 de 4 — Datos personales</span>
+        <h1 class="ttl" style="margin-bottom:12px">Autorización Habeas Data</h1>
+        <div class="hd-text">
+          Autorizo a <strong>Centro Ocular Arthemis Health</strong> para recolectar, almacenar y tratar mis datos personales —nombre, documento de identidad, datos de salud visual, información de contacto— con las finalidades de: prestar servicios de atención médica, generar y mantener mi historia clínica electrónica, enviar resultados de exámenes y recordatorios de citas, y emitir facturas y cobros por los servicios. Todo conforme a la <strong>Ley 1581 de 2012</strong> de Protección de Datos Personales de Colombia. Puedo revocar esta autorización en cualquier momento contactando a <strong>privacidad@arthemishealth.co</strong>. Mis datos no serán vendidos ni cedidos a terceros salvo obligación legal.
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn-pref" style="flex:1;border-color:rgba(147,34,34,.3);color:var(--red,#932222);background:rgba(147,34,34,.04)" onclick="irNotif(false)">Continuar sin autorizar</button>
+          <button class="btn-reg" style="flex:1" onclick="irNotif(true)">✓ Autorizo mis datos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN — NOTIFICACIÓN -->
+  <div class="screen" id="sc-notif">
+    <div class="card" style="max-width:560px">
+      <div class="screen" style="display:block;padding:36px 40px">
+        <span class="eyebrow">Paso 4 de 4 — Notificación</span>
+        <h1 class="ttl" style="margin-bottom:8px">¿Cómo te avisamos?</h1>
+        <p class="sub" style="margin-bottom:20px">Elige cómo quieres recibir el llamado cuando sea tu turno</p>
+        <div class="notif-opts">
+          <div class="notif-opt on" id="nopt-pantalla" onclick="selNotif('pantalla')">
+            <div class="opt-ico">📺</div>Pantalla del salón
+          </div>
+          <div class="notif-opt" id="nopt-whatsapp" onclick="selNotif('whatsapp')">
+            <div class="opt-ico">💬</div>WhatsApp
+          </div>
+          <div class="notif-opt" id="nopt-sms" onclick="selNotif('sms')">
+            <div class="opt-ico">📲</div>SMS
+          </div>
+          <div class="notif-opt" id="nopt-ticket" onclick="selNotif('ticket')">
+            <div class="opt-ico">🎫</div>Ticket impreso
+          </div>
+        </div>
+        <div id="cel-wrap" style="display:none;margin-bottom:16px">
+          <div id="cel-label" style="font-size:12px;color:var(--ink3);margin-bottom:6px">Número de celular para el llamado:</div>
+          <input class="cel-inp" type="tel" id="notif-cel" placeholder="300 000 0000">
+        </div>
+        <button class="btn-reg" style="width:100%" id="btn-generar" onclick="generarTurnoFinal()">
+          Obtener mi turno →
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API = window.location.origin;
+let DOC_TYPE = 'CC';
+let DOC_NUM = '';
+let PAC = null;
+let TURNO_COUNTER = { PP: 1, PC: 4, PS: 7 };
+let ES_NUEVO = false;
+let NOMBRE_NUEVO = '';
+let MOTIVO = 'consulta';
+
+// CLOCK
+function tick() {
+  document.getElementById('clk').textContent =
+    new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}
+setInterval(tick, 1000); tick();
+
+// DOC TYPE
+function selDoc(t, el) {
+  DOC_TYPE = t;
+  document.querySelectorAll('.doc-chips .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// KEYBOARD
+function kp(v) {
+  if (DOC_NUM.length >= 12) return;
+  DOC_NUM += v; updInp();
+}
+function kdel() { DOC_NUM = DOC_NUM.slice(0,-1); updInp(); }
+function updInp() {
+  document.getElementById('ic').innerHTML = DOC_NUM.length === 0
+    ? '<span class="inp-ph">Número de documento</span>'
+    : `<span class="inp-val">${DOC_NUM}<span class="cur"></span></span>`;
+  document.getElementById('cta1').disabled = DOC_NUM.length < 5;
+}
+
+// STEP 2: buscar paciente y mostrar prioridad
+async function goStep2() {
+  if (DOC_NUM.length < 5) return;
+
+  // Buscar en DB. Si no existe (404/error) => paciente nuevo.
+  ES_NUEVO = false;
+  try {
+    const r = await fetch(`${API}/api/pacientes/${DOC_NUM}`);
+    if (r.ok) {
+      PAC = await r.json();
+      if (!PAC.error) {
+        const ini = (PAC.nombres||'?').split(' ').map(w=>w[0]).slice(0,2).join('');
+        document.getElementById('pac-ini').textContent = ini;
+        document.getElementById('pac-nom').textContent = `${PAC.nombres||''} ${PAC.apellidos||''}`.trim();
+        document.getElementById('pac-det').textContent = `${DOC_TYPE} ${DOC_NUM} · ${PAC.eps||'Sistema'}`;
+        document.getElementById('pac-banner').style.display = 'flex';
+      } else {
+        // Paciente no registrado — flujo nuevo
+        ES_NUEVO = true;
+        PAC = { id: null, num_doc: DOC_NUM };
+      }
+    } else {
+      // 404 u otro error — paciente nuevo
+      ES_NUEVO = true;
+      PAC = { id: null, num_doc: DOC_NUM };
+    }
+  } catch(e) {
+    ES_NUEVO = true;
+    PAC = { id: null, num_doc: DOC_NUM };
+  }
+
+  // ¿Tiene cita programada hoy?
+  const hoy = new Date().toISOString().split('T')[0];
+  const citaHoy = (PAC?.citas_futuras||[]).find(ct=>ct.fecha===hoy&&ct.estado==='programada');
+  if(citaHoy){
+    CITA = citaHoy;
+    document.getElementById('cita-banner-content').innerHTML = `
+      <div class="cita-row"><span class="cita-row-lbl">Hora</span><span class="cita-hora">${citaHoy.hora_inicio}</span></div>
+      <div class="cita-row"><span class="cita-row-lbl">Médico</span><span class="cita-row-val">${citaHoy.medico_nombre||'—'}</span></div>
+      <div class="cita-row"><span class="cita-row-lbl">Servicio</span><span class="cita-row-val">${citaHoy.servicio_nombre||'Consulta'}</span></div>
+    `;
+    if(PAC?.id){
+      const ini=(PAC.nombres||'?').split(' ').map(w=>w[0]).slice(0,2).join('');
+      document.getElementById('pac-banner-cita').style.display='flex';
+      document.getElementById('pac-banner-cita').innerHTML=`<div class="pac-av">${ini}</div><div><div class="pac-name">${PAC.nombres} ${PAC.apellidos}</div><div class="pac-det">${DOC_TYPE} ${DOC_NUM} · ${PAC.eps||'—'}</div></div>`;
+    }
+    ES_NUEVO = false; // tiene cita: no es nuevo
+    document.getElementById('sc1').classList.remove('on');
+    document.getElementById('sc-cita').classList.add('on');
+  } else if (ES_NUEVO) {
+    // Paciente nuevo / sin cita: pedir nombre y motivo
+    document.getElementById('sc1').classList.remove('on');
+    document.getElementById('sc-nombre').classList.add('on');
+  } else {
+    // Paciente registrado: directo a habeas data
+    document.getElementById('sc1').classList.remove('on');
+    document.getElementById('sc-habeas').classList.add('on');
+  }
+}
+
+let CITA = null;
+let HABEAS = false;
+let NOTIF = 'pantalla';
+let TIPO_TURNO = 'general';
+
+// "No es mi cita" => tratar como sin cita: pedir nombre y motivo
+function irSinCita(){ CITA=null; ES_NUEVO=true; document.getElementById('sc-cita').classList.remove('on'); document.getElementById('sc-nombre').classList.add('on'); }
+function irHabeas(origen){ document.querySelectorAll('.screen.on').forEach(s=>s.classList.remove('on')); document.getElementById('sc-habeas').classList.add('on'); }
+// Tras aceptar habeas => elegir tipo de turno (#sc2)
+function irNotif(autorizo){ HABEAS=autorizo; document.getElementById('sc-habeas').classList.remove('on'); document.getElementById('sc2').classList.add('on'); }
+
+// Motivo (pantalla nombre)
+function selMotivo(m){
+  MOTIVO=m;
+  document.querySelectorAll('#sc-nombre .notif-opt').forEach(o=>o.classList.remove('on'));
+  document.getElementById('mot-'+m).classList.add('on');
+}
+function continuarNombre(){
+  const inp=document.getElementById('nuevo-nombre');
+  const nom=inp.value.trim();
+  if(!nom){ inp.focus(); return; }
+  NOMBRE_NUEVO=nom;
+  document.getElementById('sc-nombre').classList.remove('on');
+  document.getElementById('sc-habeas').classList.add('on');
+}
+
+function selNotif(tipo){
+  NOTIF=tipo;
+  document.querySelectorAll('#sc-notif .notif-opt').forEach(o=>o.classList.remove('on'));
+  document.getElementById('nopt-'+tipo).classList.add('on');
+  const necesitaCel = (tipo==='whatsapp'||tipo==='sms');
+  document.getElementById('cel-wrap').style.display=necesitaCel?'block':'none';
+  const lbl=document.getElementById('cel-label');
+  if(lbl) lbl.textContent = tipo==='sms' ? 'Número de celular para SMS:' : 'Número de WhatsApp para el llamado:';
+}
+
+async function generarTurnoFinal(){
+  const btn=document.getElementById('btn-generar');
+  const cel=document.getElementById('notif-cel').value.trim();
+  if((NOTIF==='whatsapp'||NOTIF==='sms')&&!cel){document.getElementById('notif-cel').focus();return;}
+  btn.disabled=true; btn.textContent='Generando turno…';
+  try{
+    let tipoAtencion='sin_cita';
+    if(CITA) tipoAtencion='cita_programada';
+    else if(MOTIVO==='autorizacion') tipoAtencion='autorizacion_previa';
+    const body={
+      paciente_id:PAC?.id||null, doc_num:DOC_NUM, doc_type:DOC_TYPE,
+      nombre:ES_NUEVO?NOMBRE_NUEVO:null,
+      tipo_atencion:tipoAtencion,
+      turno_tipo:TIPO_TURNO, habeas_data:HABEAS,
+      notif:NOTIF==='ticket'?['print']:NOTIF==='whatsapp'?['wa']:NOTIF==='sms'?['sms']:[],
+      celular:cel||PAC?.celular||null, cita_id:CITA?.id||null,
+    };
+    const r=await fetch(`${API}/api/kiosco/anuncio`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(d.success) mostrarTurnoFinal(d);
+    else{ btn.disabled=false; btn.textContent='Obtener mi turno →'; showError('btn-generar', d.error||'No se pudo generar el turno. Intenta de nuevo o pide ayuda al personal.'); }
+  }catch(e){ btn.disabled=false; btn.textContent='Obtener mi turno →'; showError('btn-generar', 'Error de conexión. Verifica que estés conectado e intenta de nuevo.'); }
+}
+
+function mostrarTurnoFinal(d){
+  const badge=document.getElementById('t-badge');
+  const tnum=document.getElementById('t-num');
+  const wtn=document.getElementById('wt-n');
+  const wrp=document.getElementById('wrp');
+  const mins=d.turno_tipo==='preferencial'?5:12;
+  badge.textContent=d.turno_tipo==='preferencial'?'Turno preferencial ⭐':(CITA?'Cita confirmada 📅':'Turno general');
+  badge.className='t-badge '+(d.turno_tipo==='preferencial'?'pref':'gen');
+  tnum.textContent=d.turno; tnum.className='t-num '+(d.turno_tipo==='preferencial'?'pref':'gen');
+  wtn.textContent=mins;
+  wrp.style.strokeDashoffset=207-(207*(1-mins/30));
+  wrp.style.stroke=d.turno_tipo==='preferencial'?'var(--grn)':'var(--acc)';
+  document.querySelectorAll('.screen.on').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sc3').classList.add('on');
+  confetti();
+  startCountdown(60);
+  autoReset=setTimeout(reset,60000);
+}
+
+// ASIGNAR TURNO — tras elegir tipo de turno, va a notificación
+function asignarTurno(tipo) {
+  TIPO_TURNO = tipo;
+  document.getElementById('sc2').classList.remove('on');
+  document.getElementById('sc-notif').classList.add('on');
+}
+
+// CONFETTI
+function confetti() {
+  const cols = ['#5147C4','#2D7A4F','#A06020','#7269D8','#3DA868'];
+  for (let i = 0; i < 32; i++) {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:${-10+Math.random()*-20}px;
+      background:${cols[~~(Math.random()*cols.length)]};
+      animation-delay:${Math.random()*.7}s;animation-duration:${2+Math.random()}s;
+      transform:rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3600);
+  }
+}
+
+// RESET
+function reset() {
+  clearTimeout(autoReset);
+  stopCountdown();
+  const errEl = document.getElementById('err-feedback');
+  if (errEl) errEl.classList.remove('on');
+  DOC_NUM = ''; DOC_TYPE = 'CC'; PAC = null;
+  document.getElementById('ic').innerHTML = '<span class="inp-ph">Número de documento</span>';
+  document.getElementById('cta1').disabled = true;
+  document.getElementById('pac-banner').style.display = 'none';
+  document.querySelectorAll('.doc-chips .chip').forEach((c,i) => c.classList.toggle('on', i===0));
+  document.querySelectorAll('.screen.on').forEach(s => s.classList.remove('on'));
+  document.getElementById('sc1').classList.add('on');
+  CITA=null; HABEAS=false; NOTIF='pantalla'; TIPO_TURNO='general';
+  ES_NUEVO=false; NOMBRE_NUEVO=''; MOTIVO='consulta';
+  document.querySelectorAll('#sc-notif .notif-opt').forEach(o=>o.classList.remove('on'));
+  document.getElementById('nopt-pantalla').classList.add('on');
+  document.querySelectorAll('#sc-nombre .notif-opt').forEach(o=>o.classList.remove('on'));
+  document.getElementById('mot-consulta').classList.add('on');
+  const nn=document.getElementById('nuevo-nombre'); if(nn) nn.value='';
+  document.getElementById('cel-wrap').style.display='none';
+  document.getElementById('notif-cel').value='';
+  const bg=document.getElementById('btn-generar');if(bg){bg.disabled=false;bg.textContent='Obtener mi turno →';}
+}
+
+// Error feedback
+function showError(afterId, msg) {
+  let el = document.getElementById('err-feedback');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'err-feedback';
+    el.className = 'err-msg';
+    el.setAttribute('role', 'alert');
+  }
+  el.textContent = msg;
+  el.classList.add('on');
+  const ref = document.getElementById(afterId);
+  if (ref && ref.parentNode) {
+    ref.parentNode.insertBefore(el, ref.nextSibling);
+  }
+  setTimeout(() => el.classList.remove('on'), 8000);
+}
+
+// Auto-reset with countdown timer
+let autoReset;
+let countdownInterval;
+
+function startCountdown(seconds) {
+  const bar = document.getElementById('cd-bar');
+  const fill = document.getElementById('cd-fill');
+  const text = document.getElementById('cd-text');
+  if (!bar || !fill || !text) return;
+  bar.style.display = 'block';
+  text.style.display = 'block';
+  let remaining = seconds;
+  fill.style.width = '100%';
+  text.textContent = `Nueva atención en ${remaining}s`;
+  clearInterval(countdownInterval);
+  countdownInterval = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(countdownInterval);
+      bar.style.display = 'none';
+      text.style.display = 'none';
+      return;
+    }
+    fill.style.width = ((remaining / seconds) * 100) + '%';
+    text.textContent = `Nueva atención en ${remaining}s`;
+  }, 1000);
+}
+
+function stopCountdown() {
+  clearInterval(countdownInterval);
+  const bar = document.getElementById('cd-bar');
+  const text = document.getElementById('cd-text');
+  if (bar) bar.style.display = 'none';
+  if (text) text.style.display = 'none';
+}
+</script>
+</body>
+</html>
