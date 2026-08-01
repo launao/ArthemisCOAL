@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arthemis Health — Sala de Espera</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --dark-bg: #0D2137;
+    --card-bg: #1A3550;
+    --card-bg-2: #163049;
+    --primary: #00B0A6;
+    --primary-2: #14C8BC;
+    --orange: #FF8A3D;
+    --text: #FFFFFF;
+    --text-dim: #9FB3C8;
+    --border: rgba(255,255,255,0.08);
+    --success: #35D07F;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    font-family: 'DM Sans', Arial, sans-serif;
+    background: var(--dark-bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* ===================== HEADER ===================== */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 40px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .logo-wrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 26px;
+    color: #fff;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .logo-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .clinic-name {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+
+  .clinic-sub {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--primary-2);
+    margin-top: 2px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .clock-wrap {
+    text-align: right;
+  }
+
+  .clock-time {
+    font-size: 30px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+  }
+
+  .clock-date {
+    font-size: 13px;
+    color: var(--text-dim);
+    text-transform: capitalize;
+    margin-top: 2px;
+  }
+
+  .admin-btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+  }
+
+  .admin-btn:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+
+  /* ===================== MAIN LAYOUT ===================== */
+  main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    padding: 24px 40px;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .panel-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+  }
+
+  .panel-title h2 {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+  }
+
+  .panel-title .count-badge {
+    background: var(--primary);
+    color: #fff;
+    font-weight: 800;
+    font-size: 14px;
+    padding: 4px 14px;
+    border-radius: 20px;
+  }
+
+  /* ===================== LLAMANDO (LEFT) ===================== */
+  .calling-card {
+    flex: 1;
+    background: var(--card-bg);
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .calling-card.active {
+    background: linear-gradient(160deg, var(--card-bg) 0%, rgba(0,176,166,0.18) 100%);
+    border: 2px solid var(--primary);
+  }
+
+  .calling-card.flash {
+    animation: flashBg 0.85s ease-in-out 3;
+  }
+
+  @keyframes flashBg {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .calling-label {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    color: var(--primary-2);
+    margin-bottom: 18px;
+  }
+
+  .calling-turno {
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 2px;
+    color: #fff;
+    text-shadow: 0 0 40px rgba(0,176,166,0.5);
+  }
+
+  .calling-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 24px;
+  }
+
+  .calling-service {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-dim);
+    margin-top: 8px;
+  }
+
+  .calling-priority-badge {
+    margin-top: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--orange);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    padding: 8px 18px;
+    border-radius: 20px;
+  }
+
+  .calling-empty-icon {
+    font-size: 64px;
+    opacity: 0.25;
+    margin-bottom: 20px;
+  }
+
+  .calling-empty-text {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-dim);
+  }
+
+  .calling-empty-sub {
+    font-size: 14px;
+    color: var(--text-dim);
+    opacity: 0.6;
+    margin-top: 8px;
+  }
+
+  /* ===================== QUEUE (RIGHT) ===================== */
+  .queue-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 20px;
+  }
+
+  .queue-list {
+    flex: 1 1 60%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 4px;
+    min-height: 0;
+  }
+
+  .queue-list::-webkit-scrollbar,
+  .attended-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  .queue-list::-webkit-scrollbar-thumb,
+  .attended-list::-webkit-scrollbar-thumb {
+    background: var(--card-bg-2);
+    border-radius: 8px;
+  }
+  .queue-list::-webkit-scrollbar-track,
+  .attended-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .turn-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--primary);
+    border-radius: 14px;
+    padding: 14px 18px;
+  }
+
+  .turn-card.priority {
+    border-left: 4px solid var(--orange);
+    background: linear-gradient(90deg, rgba(255,138,61,0.08), var(--card-bg) 20%);
+  }
+
+  .turn-code-wrap {
+    min-width: 92px;
+  }
+
+  .turn-code {
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: 1px;
+  }
+
+  .turn-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .turn-name {
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .turn-service {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .turn-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .turn-time {
+    font-size: 11px;
+    color: var(--text-dim);
+    opacity: 0.7;
+  }
+
+  .priority-badge {
+    background: var(--orange);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 3px 9px;
+    border-radius: 10px;
+  }
+
+  .llamar-btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    padding: 12px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  .llamar-btn:hover {
+    background: var(--primary-2);
+    transform: translateY(-1px);
+  }
+
+  .llamar-btn:active {
+    transform: translateY(0);
+  }
+
+  .empty-queue {
+    text-align: center;
+    color: var(--text-dim);
+    opacity: 0.6;
+    padding: 40px 0;
+    font-size: 14px;
+  }
+
+  /* ===================== ATENDIDOS ===================== */
+  .attended-wrap {
+    flex: 1 1 35%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .attended-list {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+  }
+
+  .attended-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card-bg-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    opacity: 0.55;
+  }
+
+  .attended-code {
+    font-size: 16px;
+    font-weight: 800;
+  }
+
+  .attended-name {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .attended-check {
+    color: var(--success);
+    font-size: 16px;
+  }
+
+  /* ===================== ADS STRIP ===================== */
+  .ads-strip {
+    flex-shrink: 0;
+    display: none;
+    align-items: center;
+    gap: 22px;
+    background: var(--card-bg);
+    border-top: 1px solid var(--border);
+    padding: 14px 40px;
+  }
+
+  .ads-strip.visible {
+    display: flex;
+  }
+
+  .ads-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .ads-content {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .ads-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--primary-2);
+  }
+
+  .ads-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ads-dots {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .ads-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.3s ease;
+  }
+
+  .ads-dot.active {
+    background: var(--primary);
+  }
+
+  /* ===================== SSE STATUS DOT ===================== */
+  .sse-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 8px var(--success);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .sse-dot.offline {
+    background: #E14F4F;
+    box-shadow: 0 0 8px #E14F4F;
+  }
+
+  @media (max-width: 1100px) {
+    main { grid-template-columns: 1fr; }
+    .calling-card { min-height: 320px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo-wrap" id="logoWrap">AH</div>
+    <div>
+      <div class="clinic-name" id="clinicName">Arthemis Health</div>
+      <div class="clinic-sub">SALA DE ESPERA</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="sse-dot" id="sseDot" title="Estado de conexión"></span>
+    <div class="clock-wrap">
+      <div class="clock-time" id="clockTime">00:00:00</div>
+      <div class="clock-date" id="clockDate">-</div>
+    </div>
+    <a href="/kiosco/admin" class="admin-btn">ADMIN</a>
+  </div>
+</header>
+
+<main>
+  <!-- LEFT: LLAMANDO AHORA -->
+  <section class="panel">
+    <div class="panel-title">
+      <h2>LLAMANDO AHORA</h2>
+    </div>
+    <div class="calling-card" id="callingCard">
+      <div class="calling-empty-icon">🔔</div>
+      <div class="calling-empty-text">Sin llamados activos</div>
+      <div class="calling-empty-sub">Los turnos llamados aparecerán aquí</div>
+    </div>
+  </section>
+
+  <!-- RIGHT: QUEUE + ATENDIDOS -->
+  <section class="panel queue-panel">
+    <div>
+      <div class="panel-title">
+        <h2 id="queueTitle">EN ESPERA — 0 turnos</h2>
+      </div>
+      <div class="queue-list" id="queueList">
+        <div class="empty-queue">No hay turnos en espera</div>
+      </div>
+    </div>
+
+    <div class="attended-wrap">
+      <div class="panel-title">
+        <h2 id="attendedTitle">ATENDIDOS — 0</h2>
+      </div>
+      <div class="attended-list" id="attendedList">
+        <div class="empty-queue">Sin turnos atendidos aún</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="ads-strip" id="adsStrip">
+  <div class="ads-icon">📢</div>
+  <div class="ads-content">
+    <div class="ads-title" id="adsTitle"></div>
+    <div class="ads-desc" id="adsDesc"></div>
+  </div>
+  <div class="ads-dots" id="adsDots"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ===================== STATE =====================
+  var state = {
+    config: null,
+    cola: [],
+    anuncios: [],
+    currentAdIndex: 0,
+    adTimer: null,
+    lastCalledId: null,
+    sse: null,
+    pollTimer: null,
+    sseConnected: false
+  };
+
+  var API_CONFIG = '/api/kiosco/config';
+  var API_COLA = '/api/kiosco/cola';
+  var API_LLAMAR = '/api/kiosco/llamar-turno';
+  var API_ATENDER = '/api/kiosco/atender-turno';
+  var API_ANUNCIOS = '/api/kiosco/anuncios';
+  var API_SSE = '/api/sse';
+
+  // ===================== UTIL =====================
+  function el(id) { return document.getElementById(id); }
+
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function formatTime(dateStr) {
+    if (!dateStr) return '--:--';
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '--:--';
+    return d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function isPriority(turno) {
+    return turno.prioritario === true || turno.prioritario === 1 || turno.prioritario === '1';
+  }
+
+  // ===================== CLOCK =====================
+  function updateClock() {
+    var now = new Date();
+    el('clockTime').textContent = now.toLocaleTimeString('es-CO', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+    });
+    el('clockDate').textContent = now.toLocaleDateString('es-CO', {
+      weekday: 'long', day: 'numeric', month: 'long'
+    });
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // ===================== CONFIG =====================
+  function loadConfig() {
+    fetch(API_CONFIG)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var branding = (data && data.branding) || {};
+        state.config = branding;
+        applyBranding(branding);
+      })
+      .catch(function (err) {
+        console.error('Error cargando config:', err);
+      });
+  }
+
+  function applyBranding(branding) {
+    var root = document.documentElement.style;
+    if (branding.darkBg) root.setProperty('--dark-bg', branding.darkBg);
+    if (branding.primaryColor) {
+      root.setProperty('--primary', branding.primaryColor);
+      root.setProperty('--primary-2', branding.primaryColor);
+    }
+    if (branding.clinicName) {
+      el('clinicName').textContent = branding.clinicName;
+      document.title = branding.clinicName + ' — Sala de Espera';
+    }
+    var logoWrap = el('logoWrap');
+    var logoUrl = branding.logo || branding.logo_url;
+    if (logoUrl) {
+      logoWrap.innerHTML = '<img src="' + escapeHtml(logoUrl) + '" alt="Logo" onerror="this.parentNode.textContent=\'AH\';">';
+    }
+  }
+
+  // ===================== COLA (QUEUE) =====================
+  function fetchCola() {
+    return fetch(API_COLA)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        state.cola = (data && data.cola) || [];
+        renderAll();
+      })
+      .catch(function (err) {
+        console.error('Error cargando cola:', err);
+      });
+  }
+
+  function renderAll() {
+    renderCalling();
+    renderQueue();
+    renderAttended();
+  }
+
+  function renderCalling() {
+    var card = el('callingCard');
+    var llamando = state.cola.filter(function (t) { return t.estado === 'llamando'; });
+    // Most recently called first
+    llamando.sort(function (a, b) {
+      return new Date(b.fecha_llamado || 0) - new Date(a.fecha_llamado || 0);
+    });
+    var current = llamando[0];
+
+    if (!current) {
+      card.className = 'calling-card';
+      card.innerHTML =
+        '<div class="calling-empty-icon">🔔</div>' +
+        '<div class="calling-empty-text">Sin llamados activos</div>' +
+        '<div class="calling-empty-sub">Los turnos llamados aparecerán aquí</div>';
+      return;
+    }
+
+    card.className = 'calling-card active';
+    var priorityBadge = isPriority(current)
+      ? '<div class="calling-priority-badge">⚡ PRIORITARIO</div>'
+      : '';
+
+    card.innerHTML =
+      '<div class="calling-label">TURNO</div>' +
+      '<div class="calling-turno">' + escapeHtml(current.turno) + '</div>' +
+      '<div class="calling-name">' + escapeHtml(current.nombre || 'Paciente') + '</div>' +
+      '<div class="calling-service">' + escapeHtml(current.servicio || '') + '</div>' +
+      priorityBadge;
+  }
+
+  function renderQueue() {
+    var waiting = state.cola.filter(function (t) { return t.estado === 'espera' || t.estado === 'esperando' || t.estado === 'pendiente'; });
+    // If no explicit waiting states matched, fall back to anything not llamando/atendido
+    if (waiting.length === 0) {
+      waiting = state.cola.filter(function (t) {
+        return t.estado !== 'llamando' && t.estado !== 'atendido' && t.estado !== 'completado';
+      });
+    }
+
+    // Priority first, then oldest first
+    waiting.sort(function (a, b) {
+      var pa = isPriority(a) ? 1 : 0;
+      var pb = isPriority(b) ? 1 : 0;
+      if (pa !== pb) return pb - pa;
+      return new Date(a.creado_en || 0) - new Date(b.creado_en || 0);
+    });
+
+    el('queueTitle').textContent = 'EN ESPERA — ' + waiting.length + (waiting.length === 1 ? ' turno' : ' turnos');
+
+    var list = el('queueList');
+    if (waiting.length === 0) {
+      list.innerHTML = '<div class="empty-queue">No hay turnos en espera</div>';
+      return;
+    }
+
+    var html = '';
+    for (var i = 0; i < waiting.length; i++) {
+      var t = waiting[i];
+      var priority = isPriority(t);
+      html +=
+        '<div class="turn-card' + (priority ? ' priority' : '') + '">' +
+          '<div class="turn-code-wrap">' +
+            '<div class="turn-code">' + escapeHtml(t.turno) + '</div>' +
+          '</div>' +
+          '<div class="turn-info">' +
+            '<div class="turn-name">' + escapeHtml(t.nombre || 'Paciente') + '</div>' +
+            '<div class="turn-service">' + escapeHtml(t.servicio || '') + '</div>' +
+            '<div class="turn-meta">' +
+              '<span class="turn-time">Registrado ' + formatTime(t.creado_en) + '</span>' +
+              (priority ? '<span class="priority-badge">PRIORITARIO</span>' : '') +
+            '</div>' +
+          '</div>' +
+          '<button class="llamar-btn" data-id="' + escapeHtml(t.id) + '">LLAMAR</button>' +
+        '</div>';
+    }
+    list.innerHTML = html;
+
+    var btns = list.querySelectorAll('.llamar-btn');
+    for (var j = 0; j < btns.length; j++) {
+      btns[j].addEventListener('click', onLlamarClick);
+    }
+  }
+
+  function renderAttended() {
+    var attended = state.cola.filter(function (t) { return t.estado === 'atendido' || t.estado === 'completado'; });
+    attended.sort(function (a, b) {
+      return new Date(b.fecha_llamado || b.creado_en || 0) - new Date(a.fecha_llamado || a.creado_en || 0);
+    });
+    var last5 = attended.slice(0, 5);
+
+    el('attendedTitle').textContent = 'ATENDIDOS — ' + attended.length;
+
+    var list = el('attendedList');
+    if (last5.length === 0) {
+      list.innerHTML = '<div class="empty-queue">Sin turnos atendidos aún</div>';
+      return;
+    }
+
+    var html = '';
+    for (var i = 0; i < last5.length; i++) {
+      var t = last5[i];
+      html +=
+        '<div class="attended-card">' +
+          '<div>' +
+            '<span class="attended-code">' + escapeHtml(t.turno) + '</span> ' +
+            '<span class="attended-name">' + escapeHtml(t.nombre || '') + '</span>' +
+          '</div>' +
+          '<span class="attended-check">✓</span>' +
+        '</div>';
+    }
+    list.innerHTML = html;
+  }
+
+  function onLlamarClick(e) {
+    var id = e.currentTarget.getAttribute('data-id');
+    if (!id) return;
+    e.currentTarget.disabled = true;
+    llamarTurno(id).finally(function () {
+      if (e.currentTarget) e.currentTarget.disabled = false;
+    });
+  }
+
+  function llamarTurno(id) {
+    return fetch(API_LLAMAR, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id })
+    })
+      .then(function (r) { return r.json(); })
+      .catch(function (err) { console.error('Error al llamar turno:', err); })
+      .finally(function () { fetchCola(); });
+  }
+
+  // ===================== SPEECH =====================
+  function speak(text) {
+    if (!('speechSynthesis' in window)) return;
+    try {
+      var utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'es-CO';
+      utter.rate = 0.85;
+      window.speechSynthesis.speak(utter);
+    } catch (err) {
+      console.error('Error en speech synthesis:', err);
+    }
+  }
+
+  function announceTurn(turno) {
+    var code = (turno && turno.turno) || '';
+    var name = (turno && turno.nombre) || 'paciente';
+    var text = 'Turno ' + code + ', ' + name + ', por favor acérquese';
+    speak(text);
+    setTimeout(function () { speak(text); }, 2000);
+  }
+
+  function flashCallingCard() {
+    var card = el('callingCard');
+    card.classList.remove('flash');
+    // force reflow to restart animation
+    void card.offsetWidth;
+    card.classList.add('flash');
+    setTimeout(function () { card.classList.remove('flash'); }, 2600);
+  }
+
+  function findTurnoById(id) {
+    for (var i = 0; i < state.cola.length; i++) {
+      if (String(state.cola[i].id) === String(id)) return state.cola[i];
+    }
+    return null;
+  }
+
+  // ===================== SSE =====================
+  function setSseStatus(connected) {
+    state.sseConnected = connected;
+    var dot = el('sseDot');
+    if (connected) {
+      dot.classList.remove('offline');
+    } else {
+      dot.classList.add('offline');
+    }
+  }
+
+  function connectSSE() {
+    if (!('EventSource' in window)) {
+      setSseStatus(false);
+      return;
+    }
+
+    try {
+      state.sse = new EventSource(API_SSE);
+    } catch (err) {
+      console.error('Error creando EventSource:', err);
+      setSseStatus(false);
+      scheduleReconnect();
+      return;
+    }
+
+    state.sse.onopen = function () {
+      setSseStatus(true);
+    };
+
+    state.sse.onmessage = function (evt) {
+      handleSseMessage(evt);
+    };
+
+    state.sse.onerror = function () {
+      setSseStatus(false);
+      if (state.sse) {
+        state.sse.close();
+        state.sse = null;
+      }
+      scheduleReconnect();
+    };
+  }
+
+  var reconnectTimer = null;
+  function scheduleReconnect() {
+    if (reconnectTimer) return;
+    reconnectTimer = setTimeout(function () {
+      reconnectTimer = null;
+      connectSSE();
+    }, 4000);
+  }
+
+  function handleSseMessage(evt) {
+    var payload;
+    try {
+      payload = JSON.parse(evt.data);
+    } catch (err) {
+      return;
+    }
+    if (!payload || !payload.tipo) return;
+
+    switch (payload.tipo) {
+      case 'nuevo_turno':
+        fetchCola();
+        break;
+      case 'llamar_turno':
+        fetchCola().then(function () {
+          var turno = payload.turno || (payload.id ? findTurnoById(payload.id) : null);
+          flashCallingCard();
+          if (turno) {
+            announceTurn(turno);
+          } else {
+            // Fallback: use the freshest calling turn from state
+            var llamando = state.cola.filter(function (t) { return t.estado === 'llamando'; });
+            llamando.sort(function (a, b) {
+              return new Date(b.fecha_llamado || 0) - new Date(a.fecha_llamado || 0);
+            });
+            if (llamando[0]) announceTurn(llamando[0]);
+          }
+        });
+        break;
+      case 'turno_atendido':
+        fetchCola();
+        break;
+      default:
+        break;
+    }
+  }
+
+  // ===================== POLLING FALLBACK =====================
+  function startPolling() {
+    if (state.pollTimer) clearInterval(state.pollTimer);
+    state.pollTimer = setInterval(function () {
+      fetchCola();
+    }, 15000);
+  }
+
+  // ===================== ANUNCIOS (ADS) =====================
+  function loadAnuncios() {
+    fetch(API_ANUNCIOS)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var anuncios = (data && data.anuncios) || [];
+        state.anuncios = anuncios.filter(function (a) { return a.activo !== false; });
+        setupAdsCarousel();
+      })
+      .catch(function (err) {
+        console.error('Error cargando anuncios:', err);
+      });
+  }
+
+  function setupAdsCarousel() {
+    var strip = el('adsStrip');
+    var dotsWrap = el('adsDots');
+
+    if (!state.anuncios.length) {
+      strip.classList.remove('visible');
+      if (state.adTimer) clearInterval(state.adTimer);
+      return;
+    }
+
+    strip.classList.add('visible');
+    state.currentAdIndex = 0;
+
+    var dotsHtml = '';
+    for (var i = 0; i < state.anuncios.length; i++) {
+      dotsHtml += '<span class="ads-dot' + (i === 0 ? ' active' : '') + '"></span>';
+    }
+    dotsWrap.innerHTML = dotsHtml;
+
+    renderCurrentAd();
+
+    var rotationSeconds = (state.config && state.config.adRotationSeconds) || 6;
+    if (state.adTimer) clearInterval(state.adTimer);
+    if (state.anuncios.length > 1) {
+      state.adTimer = setInterval(function () {
+        state.currentAdIndex = (state.currentAdIndex + 1) % state.anuncios.length;
+        renderCurrentAd();
+      }, rotationSeconds * 1000);
+    }
+  }
+
+  function renderCurrentAd() {
+    var ad = state.anuncios[state.currentAdIndex];
+    if (!ad) return;
+    el('adsTitle').textContent = ad.titulo || '';
+    el('adsDesc').textContent = ad.descripcion || '';
+
+    var dots = document.querySelectorAll('.ads-dot');
+    for (var i = 0; i < dots.length; i++) {
+      dots[i].classList.toggle('active', i === state.currentAdIndex);
+    }
+  }
+
+  // ===================== INIT =====================
+  function init() {
+    loadConfig();
+    loadAnuncios();
+    fetchCola();
+    connectSSE();
+    startPolling();
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') {
+      fetchCola();
+      if (!state.sseConnected) connectSSE();
+    }
+  });
+})();
+</script>
+</body>
+</html>

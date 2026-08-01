@@ -1,686 +1,1131 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" id="htmlRoot">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Arthemis Health · Kiosco</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --w:#FFFFFF;--iv:#FAF8F4;--iv2:#F2EFE9;--bg:#E6E1D8;--bg2:#D8D2C7;
-  --ink:#1C1916;--ink2:#3D3834;--ink3:#6B6460;--ink4:#A09890;
-  --acc:#5147C4;--al:#7269D8;--abg:rgba(81,71,196,.07);--abd:rgba(81,71,196,.22);
-  --grn:#2D7A4F;--gbg:rgba(45,122,79,.08);--gbd:rgba(45,122,79,.25);
-  --amb:#A06020;--ambg:rgba(160,96,32,.08);
-  --font:'DM Sans',system-ui,sans-serif;--serif:'DM Serif Display',Georgia,serif;
+  --primary:#5147C4;
+  --accent:#7269D8;
+  --bg:#FAF8F4;
+  --dark:#1C1916;
+  --white:#FFFFFF;
+  --iv2:#F2EFE9;
+  --line:#E6E1D8;
+  --line2:#D8D2C7;
+  --ink:#1C1916;
+  --ink2:#3D3834;
+  --ink3:#6B6460;
+  --ink4:#A09890;
+  --grn:#2D7A4F;
+  --gbg:rgba(45,122,79,.09);
+  --gbd:rgba(45,122,79,.28);
+  --red:#932222;
+  --rbg:rgba(147,34,34,.08);
+  --rbd:rgba(147,34,34,.25);
+  --amb:#A06020;
+  --font:'DM Sans',system-ui,-apple-system,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
-html,body{width:100%;height:100vh;background:var(--iv);font-family:var(--font);color:var(--ink);overflow:hidden}
+html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font);color:var(--ink);background:var(--bg)}
+button,input{font-family:var(--font)}
+.app{width:100vw;height:100vh;display:flex;flex-direction:column;background:var(--bg)}
 
-/* HEADER */
-.hdr{height:64px;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--bg);display:flex;align-items:center;
-  justify-content:space-between;padding:0 32px;position:relative;z-index:10}
-.logo{display:flex;align-items:center;gap:12px}
-.lm{width:36px;height:36px;border-radius:10px;background:linear-gradient(145deg,var(--acc),var(--al));
-  display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff}
-.ln{font-family:var(--serif);font-size:18px}
-.ll{font-size:10px;color:var(--ink4);text-transform:uppercase;letter-spacing:.7px;margin-top:1px}
-.hdr-center{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink3)}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--grn);
-  animation:pulse 2.5s ease-in-out infinite;box-shadow:0 0 0 2px var(--gbg)}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 2px rgba(45,122,79,.12)}50%{box-shadow:0 0 0 5px rgba(45,122,79,.06)}}
-.hdr-clock{font-size:14px;color:var(--ink3);font-variant-numeric:tabular-nums}
+/* ===== HEADER ===== */
+.hdr{height:76px;flex-shrink:0;background:var(--dark);display:flex;align-items:center;
+  justify-content:space-between;padding:0 32px;position:relative;z-index:20;
+  box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.hdr-logo{display:flex;align-items:center;gap:14px}
+.hdr-mark{width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(145deg,var(--primary),var(--accent));
+  display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;flex-shrink:0}
+.hdr-name{font-size:19px;font-weight:700;color:#fff;letter-spacing:.4px}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:1.4px;text-transform:uppercase;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:14px}
+.lang-toggle{display:flex;background:rgba(255,255,255,.08);border-radius:10px;padding:3px;gap:2px}
+.lang-btn{padding:7px 14px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,.55);
+  font-size:12px;font-weight:700;cursor:pointer;transition:all .18s}
+.lang-btn.on{background:rgba(255,255,255,.14);color:#fff}
+.admin-btn{padding:10px 18px;border-radius:10px;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);font-size:12px;font-weight:600;
+  letter-spacing:.5px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:6px}
+.admin-btn:hover{background:rgba(255,255,255,.12);color:#fff}
 
-/* BODY */
-.body{height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;
-  padding:24px;position:relative}
+/* ===== PROGRESS BAR ===== */
+.progress{flex-shrink:0;background:var(--white);border-bottom:1px solid var(--line);
+  padding:16px 32px;display:flex;align-items:center;justify-content:center;gap:0;z-index:15;
+  transition:all .3s}
+.progress.hide{display:none}
+.pstep{display:flex;align-items:center}
+.pdot-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:96px}
+.pdot{width:30px;height:30px;border-radius:50%;background:var(--iv2);border:2px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--ink4);
+  transition:all .3s}
+.pdot-wrap.active .pdot{background:var(--primary);border-color:var(--primary);color:#fff;
+  box-shadow:0 0 0 5px rgba(81,71,196,.14);transform:scale(1.05)}
+.pdot-wrap.done .pdot{background:var(--grn);border-color:var(--grn);color:#fff}
+.plabel{font-size:11px;font-weight:600;color:var(--ink4);letter-spacing:.2px;text-align:center}
+.pdot-wrap.active .plabel{color:var(--primary);font-weight:700}
+.pdot-wrap.done .plabel{color:var(--grn)}
+.pline{width:52px;height:2px;background:var(--line2);margin-bottom:22px;transition:all .3s}
+.pline.done{background:var(--grn)}
 
-/* CARD */
-.card{background:var(--w);border:1px solid var(--bg);border-radius:24px;
-  box-shadow:0 8px 40px rgba(28,25,22,.09),0 2px 8px rgba(28,25,22,.05);
-  width:100%;overflow:hidden;transition:all .4s cubic-bezier(.4,0,.2,1)}
+/* ===== MAIN ===== */
+.main{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;
+  padding:24px;overflow:hidden}
+.screen{display:none;width:100%;max-width:100%;height:100%;animation:fadeIn .35s ease}
+.screen.on{display:flex;flex-direction:column;align-items:center;justify-content:center}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card{background:var(--white);border-radius:24px;border:1px solid var(--line);
+  box-shadow:0 8px 40px rgba(28,25,22,.08),0 2px 10px rgba(28,25,22,.04);
+  width:100%;padding:40px 46px;max-height:100%;overflow-y:auto}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;
+  color:var(--primary);margin-bottom:10px;display:block}
+.ttl{font-size:30px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px;line-height:1.2}
+.sub{font-size:15px;color:var(--ink3);line-height:1.6;margin-bottom:22px}
 
-/* SCREENS */
-.screen{display:none;padding:40px 44px;animation:fadein .3s ease}
-.screen.on{display:block}
-@keyframes fadein{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+/* ===== WELCOME SCREEN ===== */
+.w-wrap{width:100%;max-width:1100px;height:100%;display:flex;flex-direction:column;gap:20px}
+.w-hero{text-align:center;padding:6px 0 4px}
+.w-title{font-size:34px;font-weight:800;letter-spacing:-.6px;margin-bottom:6px}
+.w-sub{font-size:15px;color:var(--ink3)}
+.w-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;flex-shrink:0}
+.w-btn{background:var(--white);border:1.5px solid var(--line);border-radius:20px;
+  padding:26px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;
+  cursor:pointer;transition:all .2s;min-height:150px;justify-content:center;
+  box-shadow:0 2px 10px rgba(28,25,22,.04)}
+.w-btn:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(81,71,196,.14);border-color:var(--accent)}
+.w-btn:active{transform:translateY(0) scale(.98)}
+.w-ico{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--accent));
+  display:flex;align-items:center;justify-content:center;font-size:26px}
+.w-btn.urg .w-ico{background:linear-gradient(135deg,#932222,#C24444)}
+.w-lbl{font-size:14.5px;font-weight:700;color:var(--ink);text-align:center;line-height:1.3}
+.w-ads{flex:1;min-height:0;border-radius:20px;overflow:hidden;position:relative;background:var(--dark)}
+.ad-slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:flex-end;
+  animation:fadeIn .5s ease}
+.ad-slide.on{display:flex}
+.ad-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55}
+.ad-content{position:relative;z-index:2;padding:26px 32px;color:#fff}
+.ad-ttl{font-size:20px;font-weight:700;margin-bottom:4px}
+.ad-desc{font-size:13px;color:rgba(255,255,255,.75);max-width:600px;line-height:1.5}
+.ad-dots{position:absolute;bottom:14px;right:24px;display:flex;gap:6px;z-index:3}
+.ad-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.35);transition:all .25s}
+.ad-dot.on{background:#fff;width:20px;border-radius:4px}
+.ad-empty{display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,.4);font-size:13px}
 
-/* SCREEN 1 — CEDULA */
-.s1 .card{max-width:520px}
-.eyebrow{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;
-  color:var(--acc);margin-bottom:8px;display:block}
-.ttl{font-family:var(--serif);font-size:28px;letter-spacing:-.3px;margin-bottom:6px}
-.sub{font-size:14px;color:var(--ink3);margin-bottom:28px;line-height:1.65}
-.doc-chips{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap}
-.chip{padding:8px 16px;border-radius:9px;border:1px solid var(--bg2);background:var(--iv);
-  font-size:13px;font-weight:500;color:var(--ink3);cursor:pointer;transition:all .18s}
-.chip.on{background:var(--abg);border-color:var(--abd);color:var(--acc);font-weight:600}
-.inp-wrap{background:var(--iv);border:1.5px solid var(--bg2);border-radius:14px;
-  display:flex;align-items:center;padding:0 20px;min-height:66px;margin-bottom:16px;
+/* ===== IDENTIFY SCREEN ===== */
+.id-wrap{width:100%;max-width:480px}
+.doc-input{background:var(--iv2);border:1.5px solid var(--line2);border-radius:16px;
+  display:flex;align-items:center;justify-content:center;min-height:72px;margin-bottom:18px;
   transition:all .2s}
-.inp-wrap.focus{border-color:var(--al);background:var(--w);box-shadow:0 0 0 3px rgba(91,79,207,.12)}
-.inp-val{font-size:30px;font-weight:500;letter-spacing:7px;color:var(--ink);font-variant-numeric:tabular-nums}
-.inp-ph{font-size:15px;color:var(--ink4)}
-.cur{display:inline-block;width:2px;height:30px;background:var(--acc);
-  margin-left:4px;vertical-align:middle;animation:bl 1s step-end infinite}
-@keyframes bl{0%,100%{opacity:1}50%{opacity:0}}
-.kb{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-.key{height:56px;border-radius:12px;background:var(--iv);border:1px solid var(--bg);
-  font-size:20px;font-weight:500;color:var(--ink);cursor:pointer;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  position:relative;overflow:hidden;transition:all .12s;
+.doc-input.focus{border-color:var(--accent);background:var(--white);box-shadow:0 0 0 4px rgba(114,105,216,.12)}
+.doc-val{font-size:32px;font-weight:600;letter-spacing:8px;color:var(--ink);font-variant-numeric:tabular-nums}
+.doc-ph{font-size:15px;color:var(--ink4)}
+.doc-cursor{display:inline-block;width:2px;height:32px;background:var(--primary);
+  margin-left:5px;vertical-align:middle;animation:blink 1s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.key{height:64px;border-radius:14px;background:var(--iv2);border:1px solid var(--line);
+  font-size:22px;font-weight:600;color:var(--ink);cursor:pointer;transition:all .12s;
+  display:flex;align-items:center;justify-content:center;
   box-shadow:0 1px 3px rgba(28,25,22,.05)}
-.key:hover{background:var(--iv2);border-color:var(--bg2)}
-.key:active{background:var(--bg);transform:scale(.96)}
-.ks{font-size:9px;color:var(--ink4);letter-spacing:.8px;margin-top:2px}
-.key-del:hover{background:rgba(184,50,50,.05);border-color:rgba(184,50,50,.18)}
-.cta{width:100%;height:54px;border-radius:13px;
-  background:linear-gradient(135deg,var(--acc),var(--al));border:none;
-  font-size:15px;font-weight:600;color:#fff;cursor:pointer;margin-top:16px;
-  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;
-  box-shadow:0 6px 18px rgba(91,79,207,.26)}
-.cta:disabled{background:var(--iv2);box-shadow:none;color:var(--ink4);cursor:not-allowed}
-.cta:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(91,79,207,.32)}
+.key:hover{background:var(--white);border-color:var(--line2)}
+.key:active{transform:scale(.94);background:var(--line)}
+.key-clear{background:rgba(147,34,34,.05);border-color:rgba(147,34,34,.18);color:var(--red);font-size:14px;font-weight:700}
+.key-del{font-size:20px}
+.id-actions{display:flex;gap:10px}
+.btn{height:56px;border-radius:14px;border:none;font-size:15px;font-weight:700;cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font)}
+.btn-primary{flex:1;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;
+  box-shadow:0 6px 18px rgba(81,71,196,.28)}
+.btn-primary:disabled{background:var(--iv2);box-shadow:none;color:var(--ink4);cursor:not-allowed}
+.btn-primary:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(81,71,196,.34)}
+.btn-secondary{background:var(--iv2);border:1px solid var(--line2);color:var(--ink3);padding:0 22px}
+.btn-secondary:hover{background:var(--line);color:var(--ink)}
+.hint{font-size:12px;color:var(--ink4);text-align:center;margin-top:14px}
 
-/* SCREEN 2 — PRIORIDAD */
-.s2 .card{max-width:800px}
-.prio-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:0}
-.pcol{padding:24px 20px;border-radius:16px;border:1.5px solid var(--bg);background:var(--iv)}
-.pcol.pref{border-color:var(--gbd);background:rgba(45,122,79,.03)}
-.pcol h3{font-size:14px;font-weight:700;margin-bottom:14px}
-.pi{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;
-  background:var(--w);margin-bottom:6px;font-size:13px;color:var(--ink2);border:1px solid var(--bg)}
-.pie{font-size:18px}
-.btn-pref{width:100%;height:46px;border-radius:11px;background:var(--gbg);
-  border:1.5px solid var(--gbd);color:var(--grn);font-size:13px;font-weight:700;
-  cursor:pointer;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .18s}
-.btn-pref:hover{background:rgba(45,122,79,.14)}
-.btn-reg{width:100%;height:46px;border-radius:11px;
-  background:linear-gradient(135deg,var(--acc),var(--al));border:none;
-  color:#fff;font-size:13px;font-weight:700;cursor:pointer;margin-top:14px;
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  box-shadow:0 4px 14px rgba(91,79,207,.25);transition:all .18s}
-.btn-reg:hover{transform:translateY(-1px)}
-.sol-note{background:var(--iv2);border:1px solid var(--bg);border-radius:11px;
-  padding:14px;font-size:13px;color:var(--ink3);line-height:1.65}
+/* ===== VERIFYING SCREEN ===== */
+.ver-wrap{width:100%;max-width:460px;text-align:center}
+.ver-ring{width:110px;height:110px;margin:0 auto 28px;position:relative}
+.ver-ring svg{transform:rotate(-90deg);width:100%;height:100%}
+.ver-bg{fill:none;stroke:var(--line);stroke-width:6}
+.ver-fg{fill:none;stroke:var(--primary);stroke-width:6;stroke-linecap:round;
+  transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1)}
+.ver-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:26px;font-weight:800;color:var(--primary)}
+.ver-steps{text-align:left;margin-top:8px}
+.ver-step{display:flex;align-items:center;gap:12px;padding:10px 0;opacity:.3;transition:all .3s}
+.ver-step.active{opacity:1}
+.ver-step.done{opacity:.6}
+.vs-dot{width:22px;height:22px;border-radius:50%;background:var(--iv2);border:2px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:var(--ink4);transition:all .3s}
+.ver-step.active .vs-dot{background:var(--primary);border-color:var(--primary);color:#fff;animation:pulse2 1s ease-in-out infinite}
+.ver-step.done .vs-dot{background:var(--grn);border-color:var(--grn);color:#fff}
+@keyframes pulse2{0%,100%{box-shadow:0 0 0 0 rgba(81,71,196,.35)}50%{box-shadow:0 0 0 6px rgba(81,71,196,0)}}
+.vs-label{font-size:14px;color:var(--ink3);font-weight:500}
+.ver-step.active .vs-label{color:var(--ink);font-weight:600}
 
-/* PAC INFO BANNER */
-.pac-banner{background:var(--abg);border:1px solid var(--abd);border-radius:12px;
-  padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:20px}
-.pac-av{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--acc),var(--al));
-  display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
-.pac-name{font-size:14px;font-weight:600}
-.pac-det{font-size:12px;color:var(--ink3);margin-top:2px}
+/* ===== CONSENT SCREEN ===== */
+.consent-wrap{width:100%;max-width:640px}
+.consent-body{background:var(--iv2);border:1px solid var(--line);border-radius:14px;padding:20px;
+  font-size:13.5px;color:var(--ink3);line-height:1.8;max-height:260px;overflow-y:auto;margin-bottom:18px}
+.consent-check{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--white);
+  border:1.5px solid var(--line2);border-radius:12px;cursor:pointer;margin-bottom:18px;transition:all .18s}
+.consent-check.checked{border-color:var(--accent);background:rgba(114,105,216,.05)}
+.cc-box{width:24px;height:24px;border-radius:7px;border:2px solid var(--line2);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;transition:all .18s;margin-top:1px}
+.consent-check.checked .cc-box{background:var(--primary);border-color:var(--primary)}
+.cc-label{font-size:13.5px;color:var(--ink2);line-height:1.5}
 
-/* SCREEN 3 — TURNO */
-.s3 .card{max-width:460px}
-.ticket-wrap{text-align:center;padding:8px 0 16px}
-.t-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;
-  letter-spacing:1.4px;text-transform:uppercase;padding:5px 14px;border-radius:99px;margin-bottom:18px}
-.t-badge.pref{background:var(--gbg);color:var(--grn);border:1px solid var(--gbd)}
-.t-badge.gen{background:var(--abg);color:var(--acc);border:1px solid var(--abd)}
-.t-num{font-family:var(--serif);font-size:88px;line-height:1;letter-spacing:-3px;margin-bottom:6px}
-.t-num.pref{color:var(--grn)}.t-num.gen{color:var(--acc)}
-.t-msg{font-size:15px;color:var(--ink3);margin-bottom:24px;line-height:1.65}
-.t-modulo{display:inline-flex;align-items:center;gap:8px;background:var(--iv2);
-  border:1px solid var(--bg);border-radius:12px;padding:12px 20px;
-  font-size:14px;font-weight:600;color:var(--ink);margin-bottom:20px}
-.wait-ring{display:flex;align-items:center;justify-content:center;margin-bottom:16px}
-.wr{position:relative;width:80px;height:80px}
-.wr svg{transform:rotate(-90deg)}
-.wrbg{fill:none;stroke:var(--bg);stroke-width:5}
-.wrp{fill:none;stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)}
-.wt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.wt-n{font-size:20px;font-weight:700;line-height:1}
-.wt-l{font-size:10px;color:var(--ink4);letter-spacing:.4px;margin-top:2px}
-
-/* CONFETTI */
-.cp{position:fixed;width:7px;height:7px;border-radius:2px;pointer-events:none;z-index:500;
-  animation:cf 2.8s ease-in forwards}
-@keyframes cf{0%{transform:translateY(-20px) rotate(0deg);opacity:1}
-  100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
-
-/* NUEVA ATENCION BTN */
-.nueva-btn{background:none;border:1px solid var(--bg2);color:var(--ink3);
-  font-size:13px;font-weight:500;padding:10px 24px;border-radius:10px;
-  cursor:pointer;margin-top:16px;font-family:var(--font);transition:all .18s}
-.nueva-btn:hover{background:var(--iv2);color:var(--ink)}
-
-/* SCREEN 2B — CITA ENCONTRADA */
-.cita-banner{background:var(--gbg);border:1.5px solid var(--gbd);border-radius:16px;padding:18px 20px;margin-bottom:20px}
-.cita-banner-ttl{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--grn);margin-bottom:10px}
-.cita-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(45,122,79,.12);font-size:13px}
+/* ===== ROUTE / CITA FOUND ===== */
+.route-wrap{width:100%;max-width:520px}
+.cita-banner{background:var(--gbg);border:1.5px solid var(--gbd);border-radius:16px;padding:20px;margin-bottom:20px}
+.cita-lbl{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--grn);margin-bottom:12px}
+.cita-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(45,122,79,.14);font-size:13.5px}
 .cita-row:last-child{border-bottom:none}
-.cita-row-lbl{color:var(--ink3)}
-.cita-row-val{font-weight:600;color:var(--ink2)}
-.cita-hora{font-family:var(--serif);font-size:28px;color:var(--grn);font-weight:600}
+.cita-k{color:var(--ink3)}
+.cita-v{font-weight:600;color:var(--ink2)}
 
-/* SCREEN — HABEAS DATA */
-.hd-text{background:var(--iv2);border:1px solid var(--bg);border-radius:12px;padding:16px;font-size:12px;color:var(--ink3);line-height:1.75;max-height:150px;overflow-y:auto;margin-bottom:20px}
+/* ===== SERVICE GRID ===== */
+.svc-wrap{width:100%;max-width:760px}
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.svc-btn{background:var(--white);border:1.5px solid var(--line);border-radius:18px;padding:24px 14px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:all .18s;min-height:120px;justify-content:center}
+.svc-btn:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 20px rgba(81,71,196,.12)}
+.svc-ico{font-size:28px}
+.svc-name{font-size:13px;font-weight:700;text-align:center;color:var(--ink2)}
 
-/* SCREEN — NOTIFICACIÓN */
-.notif-opts{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
-.notif-opt{flex:1;min-width:120px;padding:16px 12px;border:1.5px solid var(--bg);border-radius:14px;background:var(--iv);cursor:pointer;text-align:center;transition:all .18s;font-size:13px;color:var(--ink3)}
-.notif-opt:hover{border-color:var(--abd);background:var(--abg)}
-.notif-opt.on{border-color:var(--abd);background:var(--abg);color:var(--acc);font-weight:600}
-.notif-opt .opt-ico{font-size:24px;margin-bottom:6px}
-.cel-inp{width:100%;padding:12px 16px;border-radius:11px;border:1.5px solid var(--bg2);background:var(--iv);font-size:16px;font-family:var(--font);text-align:center;margin-top:8px;transition:all .2s;outline:none}
-.cel-inp:focus{border-color:var(--al);background:var(--w);box-shadow:0 0 0 3px rgba(91,79,207,.12)}
+/* ===== URGENCY ===== */
+.urg-wrap{width:100%;max-width:560px}
+.urg-msg{background:var(--rbg);border:1.5px solid var(--rbd);border-radius:14px;padding:16px 18px;
+  font-size:13.5px;color:var(--red);line-height:1.6;margin-bottom:20px}
+.urg-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.urg-opt{display:flex;align-items:center;gap:10px;padding:14px 16px;border:1.5px solid var(--line2);
+  border-radius:13px;cursor:pointer;transition:all .18s;background:var(--white)}
+.urg-opt.checked{border-color:var(--grn);background:var(--gbg)}
+.uo-box{width:22px;height:22px;border-radius:6px;border:2px solid var(--line2);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;transition:all .18s}
+.urg-opt.checked .uo-box{background:var(--grn);border-color:var(--grn)}
+.uo-ico{font-size:17px}
+.uo-label{font-size:13px;font-weight:600;color:var(--ink2)}
+.priority-badge{display:inline-flex;align-items:center;gap:6px;background:var(--gbg);border:1.5px solid var(--gbd);
+  color:var(--grn);padding:8px 16px;border-radius:99px;font-size:12.5px;font-weight:700;margin-bottom:16px;
+  animation:fadeIn .3s ease}
 
-/* SCREEN — SIN CÁMARA (custom, sin alert nativo) */
-.cam-block{background:var(--rbg);border:1.5px solid rgba(147,34,34,.2);border-radius:14px;padding:20px;text-align:center;margin-bottom:16px}
+/* ===== TURNO SCREEN ===== */
+.turno-wrap{width:100%;max-width:480px;text-align:center}
+.tk-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
+  letter-spacing:1.4px;text-transform:uppercase;padding:6px 16px;border-radius:99px;margin-bottom:18px}
+.tk-badge.pref{background:var(--gbg);color:var(--grn);border:1px solid var(--gbd)}
+.tk-badge.gen{background:rgba(81,71,196,.08);color:var(--primary);border:1px solid rgba(81,71,196,.22)}
+.tk-num-box{border-radius:22px;padding:30px 20px;margin-bottom:18px;color:#fff}
+.tk-num{font-size:72px;font-weight:800;letter-spacing:-2px;line-height:1}
+.tk-svc{font-size:14px;opacity:.85;margin-top:8px;font-weight:500}
+.tk-msg{font-size:15px;color:var(--ink3);margin-bottom:22px;line-height:1.6}
+.wa-box{display:flex;gap:8px;margin-bottom:14px}
+.wa-input{flex:1;height:52px;border-radius:12px;border:1.5px solid var(--line2);background:var(--iv2);
+  padding:0 16px;font-size:15px;text-align:center;outline:none;transition:all .2s}
+.wa-input:focus{border-color:var(--accent);background:var(--white);box-shadow:0 0 0 3px rgba(114,105,216,.12)}
+.turno-actions{display:flex;gap:10px;margin-top:8px}
+.turno-actions .btn{flex:1}
+.btn-wa{background:#25D366;color:#fff;box-shadow:0 6px 16px rgba(37,211,102,.28)}
+.btn-print{background:var(--iv2);border:1px solid var(--line2);color:var(--ink2)}
+.btn-finish{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;width:100%;margin-top:12px}
 
-/* ERROR FEEDBACK */
-.err-msg{background:rgba(147,34,34,.06);border:1.5px solid rgba(147,34,34,.2);border-radius:12px;
-  padding:12px 16px;font-size:13px;color:#932222;text-align:center;margin-top:12px;
-  display:none;animation:fadein .3s ease}
-.err-msg.on{display:block}
+/* ===== FOOTER ===== */
+.ftr{height:38px;flex-shrink:0;background:var(--white);border-top:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:12px;color:var(--ink4)}
+.ftr-clock{font-variant-numeric:tabular-nums;font-weight:600}
 
-/* AUTO-RESET COUNTDOWN */
-.countdown-bar{position:fixed;bottom:0;left:0;right:0;height:4px;background:var(--bg);z-index:100}
-.countdown-fill{height:100%;background:var(--acc);transition:width .5s linear;width:100%}
-.countdown-text{position:fixed;bottom:10px;right:24px;font-size:12px;color:var(--ink4);
-  font-variant-numeric:tabular-nums;z-index:100}
+/* ===== OVERLAYS ===== */
+.overlay{position:fixed;inset:0;background:rgba(28,25,22,.72);z-index:100;
+  display:none;align-items:center;justify-content:center;animation:fadeIn .25s ease}
+.overlay.on{display:flex}
+.ov-card{background:var(--white);border-radius:24px;padding:40px 44px;max-width:420px;width:90%;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.3)}
 
+/* idle overlay */
+.idle-ring{width:120px;height:120px;margin:0 auto 20px;position:relative}
+.idle-ring svg{transform:rotate(-90deg);width:100%;height:100%}
+.idle-bg{fill:none;stroke:var(--line);stroke-width:6}
+.idle-fg{fill:none;stroke:var(--primary);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+.idle-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;color:var(--primary)}
+
+/* admin pin overlay */
+.pin-dots{display:flex;gap:12px;justify-content:center;margin:20px 0 24px}
+.pin-dot{width:16px;height:16px;border-radius:50%;background:var(--iv2);border:2px solid var(--line2);transition:all .18s}
+.pin-dot.filled{background:var(--primary);border-color:var(--primary)}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.pin-key{height:54px;border-radius:12px;background:var(--iv2);border:1px solid var(--line);
+  font-size:18px;font-weight:600;cursor:pointer;transition:all .12s}
+.pin-key:hover{background:var(--white)}
+.pin-key:active{transform:scale(.94)}
+.pin-actions{display:flex;gap:8px}
+.pin-error{color:var(--red);font-size:13px;font-weight:600;height:18px;margin-bottom:6px}
+
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:8px}
 </style>
 </head>
 <body>
+<div class="app">
 
-<div class="hdr">
-  <div class="logo">
-    <div class="lm">A</div>
-    <div><div class="ln">Arthemis Health</div><div class="ll">Centro Ocular</div></div>
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-mark" id="logoMark">A</div>
+      <div>
+        <div class="hdr-name" id="clinicNameEl">Arthemis Health</div>
+        <div class="hdr-sub" id="clinicSubEl">Kiosco de autoservicio</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="lang-toggle">
+        <button class="lang-btn" id="langEs" onclick="setLang('es')">ES</button>
+        <button class="lang-btn" id="langEn" onclick="setLang('en')">EN</button>
+      </div>
+      <button class="admin-btn" onclick="openAdmin()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span id="adminLabel">Admin</span>
+      </button>
+    </div>
   </div>
-  <div class="hdr-center"><div class="dot"></div><span>Sistema activo</span></div>
-  <div class="hdr-clock" id="clk"></div>
-</div>
 
-<div class="body">
+  <!-- PROGRESS BAR -->
+  <div class="progress" id="progressBar">
+    <div class="pstep">
+      <div class="pdot-wrap" id="pstep-0"><div class="pdot">1</div><div class="plabel" data-t="pInicio">Inicio</div></div>
+    </div>
+    <div class="pline" id="pline-0"></div>
+    <div class="pstep">
+      <div class="pdot-wrap" id="pstep-1"><div class="pdot">2</div><div class="plabel" data-t="pIdent">Identificación</div></div>
+    </div>
+    <div class="pline" id="pline-1"></div>
+    <div class="pstep">
+      <div class="pdot-wrap" id="pstep-2"><div class="pdot">3</div><div class="plabel" data-t="pAuth">Autorización</div></div>
+    </div>
+    <div class="pline" id="pline-2"></div>
+    <div class="pstep">
+      <div class="pdot-wrap" id="pstep-3"><div class="pdot">4</div><div class="plabel" data-t="pServ">Servicio</div></div>
+    </div>
+    <div class="pline" id="pline-3"></div>
+    <div class="pstep">
+      <div class="pdot-wrap" id="pstep-4"><div class="pdot">5</div><div class="plabel" data-t="pTurno">Turno</div></div>
+    </div>
+  </div>
 
-  <!-- SCREEN 1: CEDULA -->
-  <div class="screen s1 on" id="sc1">
-    <div class="card">
-      <div class="screen" style="display:block">
-        <span class="eyebrow">Bienvenido</span>
-        <h1 class="ttl">Ingresa tu número de documento</h1>
-        <p class="sub">Para comenzar tu atención en el centro ocular</p>
-        <div class="doc-chips">
-          <button class="chip on" onclick="selDoc('CC',this)">Cédula CC</button>
-          <button class="chip" onclick="selDoc('TI',this)">Tarjeta TI</button>
-          <button class="chip" onclick="selDoc('PP',this)">Pasaporte</button>
-          <button class="chip" onclick="selDoc('CE',this)">Cédula Ext.</button>
+  <!-- MAIN -->
+  <div class="main" id="mainArea">
+
+    <!-- WELCOME -->
+    <div class="screen on" id="scr-welcome">
+      <div class="w-wrap">
+        <div class="w-hero">
+          <div class="w-title" data-t="welcome">Bienvenido a Arthemis Health</div>
+          <div class="w-sub" data-t="selectOption">Seleccione una opción para comenzar</div>
         </div>
-        <div class="inp-wrap focus" id="iw">
-          <div id="ic"><span class="inp-ph">Número de documento</span></div>
+        <div class="w-grid">
+          <div class="w-btn" onclick="startFlow('cita')">
+            <div class="w-ico">📅</div>
+            <div class="w-lbl" data-t="haveCita">Tengo cita</div>
+          </div>
+          <div class="w-btn" onclick="startFlow('sin_cita')">
+            <div class="w-ico">🩺</div>
+            <div class="w-lbl" data-t="noCita">Sin cita previa</div>
+          </div>
+          <div class="w-btn" onclick="startFlow('resultados')">
+            <div class="w-ico">📋</div>
+            <div class="w-lbl" data-t="results">Resultados</div>
+          </div>
+          <div class="w-btn urg" onclick="startFlow('urgencias')">
+            <div class="w-ico">🚨</div>
+            <div class="w-lbl" data-t="urgency">Urgencias</div>
+          </div>
+          <div class="w-btn" onclick="startFlow('otros')">
+            <div class="w-ico">✨</div>
+            <div class="w-lbl" data-t="other">Otros</div>
+          </div>
         </div>
-        <div class="kb" role="group" aria-label="Teclado numérico">
-          <button class="key" onclick="kp('1')" aria-label="1">1</button>
-          <button class="key" onclick="kp('2')" aria-label="2, A B C">2<span class="ks">ABC</span></button>
-          <button class="key" onclick="kp('3')" aria-label="3, D E F">3<span class="ks">DEF</span></button>
-          <button class="key" onclick="kp('4')" aria-label="4, G H I">4<span class="ks">GHI</span></button>
-          <button class="key" onclick="kp('5')" aria-label="5, J K L">5<span class="ks">JKL</span></button>
-          <button class="key" onclick="kp('6')" aria-label="6, M N O">6<span class="ks">MNO</span></button>
-          <button class="key" onclick="kp('7')" aria-label="7, P Q R S">7<span class="ks">PQRS</span></button>
-          <button class="key" onclick="kp('8')" aria-label="8, T U V">8<span class="ks">TUV</span></button>
-          <button class="key" onclick="kp('9')" aria-label="9, W X Y Z">9<span class="ks">WXYZ</span></button>
-          <button class="key" style="font-size:12px;color:var(--ink4)" aria-label="Más opciones">•••</button>
-          <button class="key" onclick="kp('0')" aria-label="0">0</button>
-          <button class="key key-del" onclick="kdel()" aria-label="Borrar último dígito">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="13" y2="14"/><line x1="13" y1="9" x2="18" y2="14"/></svg>
+        <div class="w-ads" id="adCarousel">
+          <div class="ad-empty" data-t="noAds">Arthemis Health · Su salud, nuestra prioridad</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IDENTIFY -->
+    <div class="screen" id="scr-identify">
+      <div class="card id-wrap">
+        <span class="eyebrow" data-t="identify">Identificación</span>
+        <h1 class="ttl" data-t="scanOrType">Ingrese su número de documento</h1>
+        <p class="sub" data-t="typeDoc">Use el teclado para digitar su documento</p>
+        <div class="doc-input" id="docInputWrap">
+          <div id="docDisplay"><span class="doc-ph" data-t="minDigits">Mínimo 6 dígitos</span></div>
+        </div>
+        <div class="keypad">
+          <button class="key" onclick="kp('1')">1</button>
+          <button class="key" onclick="kp('2')">2</button>
+          <button class="key" onclick="kp('3')">3</button>
+          <button class="key" onclick="kp('4')">4</button>
+          <button class="key" onclick="kp('5')">5</button>
+          <button class="key" onclick="kp('6')">6</button>
+          <button class="key" onclick="kp('7')">7</button>
+          <button class="key" onclick="kp('8')">8</button>
+          <button class="key" onclick="kp('9')">9</button>
+          <button class="key key-clear" onclick="clearDoc()" data-t="clearAll">Borrar todo</button>
+          <button class="key" onclick="kp('0')">0</button>
+          <button class="key key-del" onclick="kdel()">⌫</button>
+        </div>
+        <div class="id-actions">
+          <button class="btn btn-secondary" onclick="goScreen('welcome')" data-t="cancel2">Cancelar</button>
+          <button class="btn btn-primary" id="btnIdentContinue" disabled onclick="submitIdentify()">
+            <span data-t="continue">Continuar</span>
           </button>
         </div>
-        <button class="cta" id="cta1" onclick="goStep2()" disabled>
-          Continuar
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </div>
+
+    <!-- VERIFYING -->
+    <div class="screen" id="scr-verifying">
+      <div class="ver-wrap">
+        <div class="ver-ring">
+          <svg viewBox="0 0 110 110">
+            <circle class="ver-bg" cx="55" cy="55" r="48"/>
+            <circle class="ver-fg" id="verCircle" cx="55" cy="55" r="48" stroke-dasharray="301.6" stroke-dashoffset="301.6"/>
+          </svg>
+          <div class="ver-pct" id="verPct">0%</div>
+        </div>
+        <h1 class="ttl" style="text-align:center" data-t="verifying">Verificando...</h1>
+        <p class="sub" style="text-align:center" data-t="checkingData">Estamos comprobando sus datos, un momento</p>
+        <div class="ver-steps">
+          <div class="ver-step" id="vstep-1"><div class="vs-dot">1</div><div class="vs-label" data-t="readingDoc">Leyendo documento...</div></div>
+          <div class="ver-step" id="vstep-2"><div class="vs-dot">2</div><div class="vs-label" data-t="checkingAdres">Consultando ADRES...</div></div>
+          <div class="ver-step" id="vstep-3"><div class="vs-dot">3</div><div class="vs-label" data-t="validating">Validando derechos...</div></div>
+          <div class="ver-step" id="vstep-4"><div class="vs-dot">4</div><div class="vs-label" data-t="verified">Verificación exitosa</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONSENT -->
+    <div class="screen" id="scr-consent">
+      <div class="card consent-wrap">
+        <span class="eyebrow" data-t="dataAuth">Autorización de datos</span>
+        <h1 class="ttl" id="consentTitle">Autorización para el tratamiento de datos personales</h1>
+        <div class="consent-body" id="consentBody"></div>
+        <div class="consent-check" id="consentCheckBox" onclick="toggleConsent()">
+          <div class="cc-box" id="consentBoxIcon"></div>
+          <div class="cc-label" id="consentCheckLabel" data-t="dataConsent">Acepto el tratamiento de mis datos personales y de salud</div>
+        </div>
+        <button class="btn btn-primary" style="width:100%" id="btnConsentContinue" disabled onclick="acceptConsent()">
+          <span data-t="acceptContinue">Aceptar y continuar</span>
         </button>
       </div>
     </div>
-  </div>
 
-  <!-- SCREEN — NOMBRE Y MOTIVO (pacientes nuevos / sin cita) -->
-  <div class="screen" id="sc-nombre">
-    <div class="card" style="max-width:560px">
-      <div class="screen" style="display:block;padding:36px 40px">
-        <span class="eyebrow">Bienvenido</span>
-        <h1 class="ttl" style="margin-bottom:8px">Cuéntanos quién eres</h1>
-        <p class="sub" style="margin-bottom:20px">No te encontramos registrado. Ingresa tus datos para continuar.</p>
-        <div style="font-size:12px;color:var(--ink3);margin-bottom:6px">Nombre completo:</div>
-        <input class="cel-inp" type="text" id="nuevo-nombre" placeholder="Nombre y apellidos" style="text-align:left;margin-top:0;margin-bottom:22px;letter-spacing:0">
-        <div style="font-size:12px;color:var(--ink3);margin-bottom:8px">¿A qué vienes hoy?</div>
-        <div class="notif-opts">
-          <div class="notif-opt on" id="mot-consulta" onclick="selMotivo('consulta')">
-            <div class="opt-ico">🩺</div>Consulta médica
+    <!-- ROUTE / CITA FOUND -->
+    <div class="screen" id="scr-route">
+      <div class="card route-wrap">
+        <span class="eyebrow" data-t="citaFound">Cita encontrada</span>
+        <h1 class="ttl" data-t="confirmCita">CITA ENCONTRADA</h1>
+        <div class="cita-banner" id="citaBannerContent"></div>
+        <div class="id-actions">
+          <button class="btn btn-secondary" onclick="goScreen('service')" data-t="otherService">Otro servicio</button>
+          <button class="btn btn-primary" onclick="confirmCita()"><span data-t="confirmCita">Confirmar cita</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SELECT SERVICE -->
+    <div class="screen" id="scr-service">
+      <div class="card svc-wrap">
+        <span class="eyebrow" data-t="whatNeed">¿Qué necesita hoy?</span>
+        <h1 class="ttl" data-t="selectService">Seleccione un servicio</h1>
+        <div class="svc-grid" id="svcGrid"></div>
+      </div>
+    </div>
+
+    <!-- URGENCY / TRIAGE -->
+    <div class="screen" id="scr-urgency">
+      <div class="card urg-wrap">
+        <span class="eyebrow" data-t="urgTriage">Triage de urgencias</span>
+        <h1 class="ttl" data-t="urgency">Urgencias</h1>
+        <div class="urg-msg" data-t="urgMessage">Si presenta alguna de estas condiciones, será atendido con prioridad. Si su situación es de riesgo vital, informe de inmediato al personal.</div>
+        <div id="priorityBadgeWrap" style="display:none">
+          <div class="priority-badge">⭐ <span data-t="priorityActive">Atención prioritaria activada</span></div>
+        </div>
+        <div class="urg-opts">
+          <div class="urg-opt" id="uopt-embarazo" onclick="toggleUrg('embarazo')">
+            <div class="uo-box"></div><div class="uo-ico">🤰</div><div class="uo-label" data-t="pregnant">Embarazo</div>
           </div>
-          <div class="notif-opt" id="mot-autorizacion" onclick="selMotivo('autorizacion')">
-            <div class="opt-ico">📄</div>Autorización
+          <div class="urg-opt" id="uopt-mayor60" onclick="toggleUrg('mayor60')">
+            <div class="uo-box"></div><div class="uo-ico">👴</div><div class="uo-label" data-t="over60">Mayor de 60</div>
           </div>
-          <div class="notif-opt" id="mot-cita" onclick="selMotivo('cita')">
-            <div class="opt-ico">📅</div>Cita
+          <div class="urg-opt" id="uopt-ninos" onclick="toggleUrg('ninos')">
+            <div class="uo-box"></div><div class="uo-ico">🧒</div><div class="uo-label" data-t="withChildren">Niños menores de 5</div>
+          </div>
+          <div class="urg-opt" id="uopt-discapacidad" onclick="toggleUrg('discapacidad')">
+            <div class="uo-box"></div><div class="uo-ico">♿</div><div class="uo-label" data-t="disability">Discapacidad</div>
           </div>
         </div>
-        <button class="btn-reg" style="width:100%" id="btn-nombre" onclick="continuarNombre()">
-          Continuar →
+        <div class="consent-check" id="urgConsentBox" onclick="toggleUrgConsent()">
+          <div class="cc-box" id="urgConsentIcon"></div>
+          <div class="cc-label" data-t="dataConsent">Acepto el tratamiento de mis datos personales y de salud</div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;background:linear-gradient(135deg,#932222,#C24444)" id="btnUrgSubmit" disabled onclick="submitUrgency()">
+          <span data-t="requestUrgent">Solicitar atención urgente</span>
         </button>
       </div>
     </div>
-  </div>
 
-  <!-- SCREEN 2: PRIORIDAD -->
-  <div class="screen s2" id="sc2">
-    <div class="card">
-      <div class="screen" style="display:block;padding:36px 40px">
-        <span class="eyebrow">Prioridad en la atención</span>
-        <h1 class="ttl" style="margin-bottom:16px">¿Aplica alguna de estas condiciones?</h1>
-        <div id="pac-banner" style="display:none" class="pac-banner">
-          <div class="pac-av" id="pac-ini">?</div>
-          <div>
-            <div class="pac-name" id="pac-nom">Paciente</div>
-            <div class="pac-det" id="pac-det">Identificado en el sistema</div>
-          </div>
+    <!-- TURNO -->
+    <div class="screen" id="scr-turno">
+      <div class="card turno-wrap">
+        <div class="tk-badge gen" id="tkBadge" data-t="yourTurn">Su turno</div>
+        <div class="tk-num-box" id="tkNumBox" style="background:linear-gradient(135deg,var(--primary),var(--accent))">
+          <div class="tk-num" id="tkNum">—</div>
+          <div class="tk-svc" id="tkSvc"></div>
         </div>
-        <div class="prio-grid">
-          <div class="pcol pref">
-            <h3 style="color:var(--grn)">🌿 Atención preferencial</h3>
-            <div class="pi"><span class="pie">🤰</span><span>Mujer en embarazo</span></div>
-            <div class="pi"><span class="pie">♿</span><span>Persona con discapacidad</span></div>
-            <div class="pi"><span class="pie">👴</span><span>Adulto mayor de 65 años</span></div>
-            <div class="pi"><span class="pie">🧒</span><span>Niños menores de 5 años</span></div>
-            <button class="btn-pref" onclick="asignarTurno('preferencial')">
-              ⭐ Sí, requiero atención preferencial
-            </button>
+        <p class="tk-msg" data-t="goWaiting">Diríjase a la sala de espera. Le llamaremos por pantalla cuando sea su turno.</p>
+        <div id="waSection" style="display:none">
+          <div class="wa-box">
+            <input class="wa-input" id="waPhone" type="tel" placeholder="300 000 0000" data-tph="enterPhone">
+            <button class="btn btn-wa" onclick="sendWhatsapp()" style="padding:0 18px"><span data-t="sendWa">Enviar por WhatsApp</span></button>
           </div>
-          <div class="pcol">
-            <h3 style="color:var(--ink2)">Turno regular</h3>
-            <div class="sol-note">
-              Al elegir turno regular permites que quienes más lo necesitan sean atendidos primero.<br><br>
-              Gracias por tu solidaridad. 🤝
-            </div>
-            <button class="btn-reg" onclick="asignarTurno('general')">
-              Continuar con turno regular →
-            </button>
-          </div>
+          <div class="pin-error" id="waMsg"></div>
+        </div>
+        <div class="turno-actions">
+          <button class="btn btn-print" onclick="window.print()"><span data-t="print">Imprimir turno</span></button>
+          <button class="btn btn-secondary" style="flex:1" onclick="resetKiosk()"><span data-t="finish">Finalizar</span></button>
         </div>
       </div>
     </div>
+
   </div>
 
-  <!-- SCREEN 3: TURNO ASIGNADO -->
-  <div class="screen s3" id="sc3">
-    <div class="card">
-      <div class="screen" style="display:block;text-align:center;padding:40px 44px">
-        <div class="ticket-wrap">
-          <div class="t-badge" id="t-badge">Turno general</div>
-          <div class="t-num" id="t-num">PC1</div>
-          <div class="wait-ring">
-            <div class="wr">
-              <svg width="80" height="80" viewBox="0 0 80 80">
-                <circle class="wrbg" cx="40" cy="40" r="33"/>
-                <circle class="wrp" id="wrp" cx="40" cy="40" r="33"
-                  stroke="var(--acc)" stroke-dasharray="207" stroke-dashoffset="52"/>
-              </svg>
-              <div class="wt"><div class="wt-n" id="wt-n">~</div><div class="wt-l">MIN</div></div>
-            </div>
-          </div>
-          <div class="t-msg" id="t-msg">
-            Toma asiento en la sala de espera.<br>
-            Te llamaremos por pantalla cuando sea tu turno.
-          </div>
-          <div class="t-modulo" id="t-modulo" style="display:none">
-            📍 Dirígete a <strong id="t-mod-nombre">Recepción</strong>
-          </div>
-        </div>
-        <button class="nueva-btn" onclick="reset()">Nueva atención</button>
-        <div class="countdown-bar" id="cd-bar" style="display:none"><div class="countdown-fill" id="cd-fill"></div></div>
-        <div class="countdown-text" id="cd-text" style="display:none"></div>
-      </div>
+  <!-- FOOTER -->
+  <div class="ftr">
+    <div id="ftrMsg">Su salud, nuestra prioridad</div>
+    <div class="ftr-clock" id="ftrClock"></div>
+  </div>
+</div>
+
+<!-- IDLE OVERLAY -->
+<div class="overlay" id="idleOverlay" onclick="cancelIdleReset()">
+  <div class="ov-card">
+    <h2 class="ttl" data-t="sessionExpiring">¿Sigue ahí?</h2>
+    <p class="sub" data-t="sessionMsg">Su sesión se cerrará por inactividad</p>
+    <div class="idle-ring">
+      <svg viewBox="0 0 120 120">
+        <circle class="idle-bg" cx="60" cy="60" r="52"/>
+        <circle class="idle-fg" id="idleCircle" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="0"/>
+      </svg>
+      <div class="idle-num" id="idleNum">10</div>
+    </div>
+    <p class="sub" style="margin-bottom:0" data-t="touchContinue">Toque aquí para continuar</p>
+  </div>
+</div>
+
+<!-- ADMIN PIN OVERLAY -->
+<div class="overlay" id="adminOverlay">
+  <div class="ov-card" onclick="event.stopPropagation()">
+    <h2 class="ttl" data-t="admin">Acceso administrador</h2>
+    <p class="sub" style="margin-bottom:6px" data-t="enterPin">Ingrese el PIN de 4 a 6 dígitos</p>
+    <div class="pin-dots" id="pinDots"></div>
+    <div class="pin-error" id="pinError"></div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key" onclick="pinClear()">C</button>
+      <button class="pin-key" onclick="pinPress('0')">0</button>
+      <button class="pin-key" onclick="pinBack()">⌫</button>
+    </div>
+    <div class="pin-actions">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeAdmin()" data-t="cancel2">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="pinEnter()">Enter</button>
     </div>
   </div>
-
-  <!-- SCREEN 2B: CITA ENCONTRADA -->
-  <div class="screen s2" id="sc-cita" style="">
-    <div class="card">
-      <div class="screen" style="display:block;padding:36px 40px">
-        <span class="eyebrow">Cita programada</span>
-        <h1 class="ttl" style="margin-bottom:16px">Tienes una cita para hoy</h1>
-        <div id="cita-banner-content" class="cita-banner"></div>
-        <p style="font-size:13px;color:var(--ink3);margin-bottom:20px;line-height:1.6">¿Es correcta tu cita? Confirma tu asistencia para pasar a recepción.</p>
-        <div id="pac-banner-cita" style="display:none" class="pac-banner"></div>
-        <div style="display:flex;gap:10px">
-          <button class="btn-pref" style="flex:1" onclick="irSinCita()">No es mi cita</button>
-          <button class="btn-reg" style="flex:1" onclick="irHabeas('cita')">✓ Confirmar cita →</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SCREEN — HABEAS DATA -->
-  <div class="screen" id="sc-habeas">
-    <div class="card" style="max-width:560px">
-      <div class="screen" style="display:block;padding:36px 40px">
-        <span class="eyebrow">Paso 3 de 4 — Datos personales</span>
-        <h1 class="ttl" style="margin-bottom:12px">Autorización Habeas Data</h1>
-        <div class="hd-text">
-          Autorizo a <strong>Centro Ocular Arthemis Health</strong> para recolectar, almacenar y tratar mis datos personales —nombre, documento de identidad, datos de salud visual, información de contacto— con las finalidades de: prestar servicios de atención médica, generar y mantener mi historia clínica electrónica, enviar resultados de exámenes y recordatorios de citas, y emitir facturas y cobros por los servicios. Todo conforme a la <strong>Ley 1581 de 2012</strong> de Protección de Datos Personales de Colombia. Puedo revocar esta autorización en cualquier momento contactando a <strong>privacidad@arthemishealth.co</strong>. Mis datos no serán vendidos ni cedidos a terceros salvo obligación legal.
-        </div>
-        <div style="display:flex;gap:10px">
-          <button class="btn-pref" style="flex:1;border-color:rgba(147,34,34,.3);color:var(--red,#932222);background:rgba(147,34,34,.04)" onclick="irNotif(false)">Continuar sin autorizar</button>
-          <button class="btn-reg" style="flex:1" onclick="irNotif(true)">✓ Autorizo mis datos</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SCREEN — NOTIFICACIÓN -->
-  <div class="screen" id="sc-notif">
-    <div class="card" style="max-width:560px">
-      <div class="screen" style="display:block;padding:36px 40px">
-        <span class="eyebrow">Paso 4 de 4 — Notificación</span>
-        <h1 class="ttl" style="margin-bottom:8px">¿Cómo te avisamos?</h1>
-        <p class="sub" style="margin-bottom:20px">Elige cómo quieres recibir el llamado cuando sea tu turno</p>
-        <div class="notif-opts">
-          <div class="notif-opt on" id="nopt-pantalla" onclick="selNotif('pantalla')">
-            <div class="opt-ico">📺</div>Pantalla del salón
-          </div>
-          <div class="notif-opt" id="nopt-whatsapp" onclick="selNotif('whatsapp')">
-            <div class="opt-ico">💬</div>WhatsApp
-          </div>
-          <div class="notif-opt" id="nopt-sms" onclick="selNotif('sms')">
-            <div class="opt-ico">📲</div>SMS
-          </div>
-          <div class="notif-opt" id="nopt-ticket" onclick="selNotif('ticket')">
-            <div class="opt-ico">🎫</div>Ticket impreso
-          </div>
-        </div>
-        <div id="cel-wrap" style="display:none;margin-bottom:16px">
-          <div id="cel-label" style="font-size:12px;color:var(--ink3);margin-bottom:6px">Número de celular para el llamado:</div>
-          <input class="cel-inp" type="tel" id="notif-cel" placeholder="300 000 0000">
-        </div>
-        <button class="btn-reg" style="width:100%" id="btn-generar" onclick="generarTurnoFinal()">
-          Obtener mi turno →
-        </button>
-      </div>
-    </div>
-  </div>
-
 </div>
 
 <script>
 const API = window.location.origin;
-let DOC_TYPE = 'CC';
+
+/* ===================== TRANSLATIONS ===================== */
+const I18N = {
+  es:{
+    welcome:'Bienvenido a Arthemis Health', selectOption:'Seleccione una opción para comenzar',
+    haveCita:'Tengo cita', noCita:'Sin cita previa', results:'Resultados', urgency:'Urgencias', other:'Otros',
+    identify:'Identificación', scanOrType:'Ingrese su número de documento', typeDoc:'Use el teclado para digitar su documento',
+    minDigits:'Mínimo 6 dígitos', continue:'Continuar', clearAll:'Borrar todo',
+    verifying:'Verificando...', checkingData:'Estamos comprobando sus datos, un momento',
+    readingDoc:'Leyendo documento...', checkingAdres:'Consultando ADRES...', validating:'Validando derechos...', verified:'Verificación exitosa',
+    dataAuth:'Autorización de datos', dataConsent:'Acepto el tratamiento de mis datos personales y de salud',
+    acceptContinue:'Aceptar y continuar', citaFound:'Cita encontrada', confirmCita:'Confirmar cita',
+    otherService:'Otro servicio', selectService:'Seleccione un servicio', whatNeed:'¿Qué necesita hoy?',
+    schedule:'Agendar', reschedule:'Reprogramar', cancel:'Cancelar', consultation:'Consulta',
+    urgTriage:'Triage de urgencias', urgMessage:'Si presenta alguna de estas condiciones, será atendido con prioridad. Si su situación es de riesgo vital, informe de inmediato al personal.',
+    pregnant:'Embarazo', over60:'Mayor de 60', withChildren:'Niños menores de 5', disability:'Discapacidad',
+    requestUrgent:'Solicitar atención urgente', priorityActive:'Atención prioritaria activada', priorityMsg:'Su atención ha sido priorizada',
+    success:'¡Listo!', yourTurn:'Su turno', service:'Servicio', goWaiting:'Diríjase a la sala de espera. Le llamaremos por pantalla cuando sea su turno.',
+    wellCall:'Le llamaremos pronto', finish:'Finalizar', sendWa:'Enviar por WhatsApp', print:'Imprimir turno',
+    enterPhone:'Número de celular', waSent:'Enviado por WhatsApp ✓', backToStart:'Volver al inicio',
+    admin:'Acceso administrador', sessionExpiring:'¿Sigue ahí?', resetting:'Reiniciando...',
+    sessionMsg:'Su sesión se cerrará por inactividad', seconds:'segundos', dataWillClear:'Los datos se borrarán automáticamente',
+    touchContinue:'Toque aquí para continuar',
+    pInicio:'Inicio', pIdent:'Identificación', pAuth:'Autorización', pServ:'Servicio', pTurno:'Turno',
+    cancel2:'Cancelar', noAds:'Arthemis Health · Su salud, nuestra prioridad', enterPin:'Ingrese el PIN de 4 a 6 dígitos', pinWrong:'PIN incorrecto', notFound:'No encontramos su documento. Verifique e intente de nuevo.', connError:'Error de conexión. Intente de nuevo.'
+  },
+  en:{
+    welcome:'Welcome to Arthemis Health', selectOption:'Select an option to begin',
+    haveCita:'I have an appointment', noCita:'No appointment', results:'Results', urgency:'Emergency', other:'Other',
+    identify:'Identification', scanOrType:'Enter your document number', typeDoc:'Use the keypad to type your document',
+    minDigits:'Minimum 6 digits', continue:'Continue', clearAll:'Clear all',
+    verifying:'Verifying...', checkingData:'We are checking your information, one moment',
+    readingDoc:'Reading document...', checkingAdres:'Checking ADRES...', validating:'Validating coverage...', verified:'Verification successful',
+    dataAuth:'Data authorization', dataConsent:'I accept the processing of my personal and health data',
+    acceptContinue:'Accept and continue', citaFound:'Appointment found', confirmCita:'Confirm appointment',
+    otherService:'Other service', selectService:'Select a service', whatNeed:'What do you need today?',
+    schedule:'Schedule', reschedule:'Reschedule', cancel:'Cancel', consultation:'Consultation',
+    urgTriage:'Emergency triage', urgMessage:'If any of these conditions apply to you, you will be attended with priority. If this is life-threatening, notify staff immediately.',
+    pregnant:'Pregnant', over60:'Over 60', withChildren:'Children under 5', disability:'Disability',
+    requestUrgent:'Request urgent care', priorityActive:'Priority care activated', priorityMsg:'Your care has been prioritized',
+    success:'Done!', yourTurn:'Your turn', service:'Service', goWaiting:'Please go to the waiting room. We will call you on screen when it is your turn.',
+    wellCall:"We'll call you soon", finish:'Finish', sendWa:'Send via WhatsApp', print:'Print ticket',
+    enterPhone:'Phone number', waSent:'Sent via WhatsApp ✓', backToStart:'Back to start',
+    admin:'Administrator access', sessionExpiring:'Still there?', resetting:'Resetting...',
+    sessionMsg:'Your session will close due to inactivity', seconds:'seconds', dataWillClear:'Data will be cleared automatically',
+    touchContinue:'Touch here to continue',
+    pInicio:'Start', pIdent:'Identification', pAuth:'Authorization', pServ:'Service', pTurno:'Turn',
+    cancel2:'Cancel', noAds:'Arthemis Health · Your health, our priority', enterPin:'Enter the 4-6 digit PIN', pinWrong:'Incorrect PIN', notFound:'We could not find your document. Please check and try again.', connError:'Connection error. Please try again.'
+  }
+};
+
+/* ===================== STATE ===================== */
+let CONFIG = null;
+let ANUNCIOS = [];
+let SERVICIOS = [];
+let LANG = 'es';
 let DOC_NUM = '';
-let PAC = null;
-let TURNO_COUNTER = { PP: 1, PC: 4, PS: 7 };
-let ES_NUEVO = false;
-let NOMBRE_NUEVO = '';
-let MOTIVO = 'consulta';
-
-// CLOCK
-function tick() {
-  document.getElementById('clk').textContent =
-    new Date().toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-}
-setInterval(tick, 1000); tick();
-
-// DOC TYPE
-function selDoc(t, el) {
-  DOC_TYPE = t;
-  document.querySelectorAll('.doc-chips .chip').forEach(c => c.classList.remove('on'));
-  el.classList.add('on');
-}
-
-// KEYBOARD
-function kp(v) {
-  if (DOC_NUM.length >= 12) return;
-  DOC_NUM += v; updInp();
-}
-function kdel() { DOC_NUM = DOC_NUM.slice(0,-1); updInp(); }
-function updInp() {
-  document.getElementById('ic').innerHTML = DOC_NUM.length === 0
-    ? '<span class="inp-ph">Número de documento</span>'
-    : `<span class="inp-val">${DOC_NUM}<span class="cur"></span></span>`;
-  document.getElementById('cta1').disabled = DOC_NUM.length < 5;
-}
-
-// STEP 2: buscar paciente y mostrar prioridad
-async function goStep2() {
-  if (DOC_NUM.length < 5) return;
-
-  // Buscar en DB. Si no existe (404/error) => paciente nuevo.
-  ES_NUEVO = false;
-  try {
-    const r = await fetch(`${API}/api/pacientes/${DOC_NUM}`);
-    if (r.ok) {
-      PAC = await r.json();
-      if (!PAC.error) {
-        const ini = (PAC.nombres||'?').split(' ').map(w=>w[0]).slice(0,2).join('');
-        document.getElementById('pac-ini').textContent = ini;
-        document.getElementById('pac-nom').textContent = `${PAC.nombres||''} ${PAC.apellidos||''}`.trim();
-        document.getElementById('pac-det').textContent = `${DOC_TYPE} ${DOC_NUM} · ${PAC.eps||'Sistema'}`;
-        document.getElementById('pac-banner').style.display = 'flex';
-      } else {
-        // Paciente no registrado — flujo nuevo
-        ES_NUEVO = true;
-        PAC = { id: null, num_doc: DOC_NUM };
-      }
-    } else {
-      // 404 u otro error — paciente nuevo
-      ES_NUEVO = true;
-      PAC = { id: null, num_doc: DOC_NUM };
-    }
-  } catch(e) {
-    ES_NUEVO = true;
-    PAC = { id: null, num_doc: DOC_NUM };
-  }
-
-  // ¿Tiene cita programada hoy?
-  const hoy = new Date().toISOString().split('T')[0];
-  const citaHoy = (PAC?.citas_futuras||[]).find(ct=>ct.fecha===hoy&&ct.estado==='programada');
-  if(citaHoy){
-    CITA = citaHoy;
-    document.getElementById('cita-banner-content').innerHTML = `
-      <div class="cita-row"><span class="cita-row-lbl">Hora</span><span class="cita-hora">${citaHoy.hora_inicio}</span></div>
-      <div class="cita-row"><span class="cita-row-lbl">Médico</span><span class="cita-row-val">${citaHoy.medico_nombre||'—'}</span></div>
-      <div class="cita-row"><span class="cita-row-lbl">Servicio</span><span class="cita-row-val">${citaHoy.servicio_nombre||'Consulta'}</span></div>
-    `;
-    if(PAC?.id){
-      const ini=(PAC.nombres||'?').split(' ').map(w=>w[0]).slice(0,2).join('');
-      document.getElementById('pac-banner-cita').style.display='flex';
-      document.getElementById('pac-banner-cita').innerHTML=`<div class="pac-av">${ini}</div><div><div class="pac-name">${PAC.nombres} ${PAC.apellidos}</div><div class="pac-det">${DOC_TYPE} ${DOC_NUM} · ${PAC.eps||'—'}</div></div>`;
-    }
-    ES_NUEVO = false; // tiene cita: no es nuevo
-    document.getElementById('sc1').classList.remove('on');
-    document.getElementById('sc-cita').classList.add('on');
-  } else if (ES_NUEVO) {
-    // Paciente nuevo / sin cita: pedir nombre y motivo
-    document.getElementById('sc1').classList.remove('on');
-    document.getElementById('sc-nombre').classList.add('on');
-  } else {
-    // Paciente registrado: directo a habeas data
-    document.getElementById('sc1').classList.remove('on');
-    document.getElementById('sc-habeas').classList.add('on');
-  }
-}
-
+let PACIENTE = null;
 let CITA = null;
-let HABEAS = false;
-let NOTIF = 'pantalla';
-let TIPO_TURNO = 'general';
+let SELECTED_SERVICE = null;
+let CONSENT_CHECKED = false;
+let URG_FLAGS = {embarazo:false, mayor60:false, ninos:false, discapacidad:false};
+let URG_CONSENT = false;
+let TURNO_DATA = null;
+let INTENT = 'sin_cita'; // cita, sin_cita, resultados, urgencias, otros
+let AD_TIMER = null;
+let AD_IDX = 0;
 
-// "No es mi cita" => tratar como sin cita: pedir nombre y motivo
-function irSinCita(){ CITA=null; ES_NUEVO=true; document.getElementById('sc-cita').classList.remove('on'); document.getElementById('sc-nombre').classList.add('on'); }
-function irHabeas(origen){ document.querySelectorAll('.screen.on').forEach(s=>s.classList.remove('on')); document.getElementById('sc-habeas').classList.add('on'); }
-// Tras aceptar habeas => elegir tipo de turno (#sc2)
-function irNotif(autorizo){ HABEAS=autorizo; document.getElementById('sc-habeas').classList.remove('on'); document.getElementById('sc2').classList.add('on'); }
-
-// Motivo (pantalla nombre)
-function selMotivo(m){
-  MOTIVO=m;
-  document.querySelectorAll('#sc-nombre .notif-opt').forEach(o=>o.classList.remove('on'));
-  document.getElementById('mot-'+m).classList.add('on');
-}
-function continuarNombre(){
-  const inp=document.getElementById('nuevo-nombre');
-  const nom=inp.value.trim();
-  if(!nom){ inp.focus(); return; }
-  NOMBRE_NUEVO=nom;
-  document.getElementById('sc-nombre').classList.remove('on');
-  document.getElementById('sc-habeas').classList.add('on');
+/* ===================== INIT ===================== */
+async function init(){
+  await Promise.all([loadConfig(), loadAnuncios(), loadServicios()]);
+  applyBranding();
+  setLang(CONFIG?.lang || 'es');
+  buildServiceGrid();
+  buildAdCarousel();
+  setupIdleWatcher();
+  tickClock(); setInterval(tickClock, 1000);
 }
 
-function selNotif(tipo){
-  NOTIF=tipo;
-  document.querySelectorAll('#sc-notif .notif-opt').forEach(o=>o.classList.remove('on'));
-  document.getElementById('nopt-'+tipo).classList.add('on');
-  const necesitaCel = (tipo==='whatsapp'||tipo==='sms');
-  document.getElementById('cel-wrap').style.display=necesitaCel?'block':'none';
-  const lbl=document.getElementById('cel-label');
-  if(lbl) lbl.textContent = tipo==='sms' ? 'Número de celular para SMS:' : 'Número de WhatsApp para el llamado:';
-}
-
-async function generarTurnoFinal(){
-  const btn=document.getElementById('btn-generar');
-  const cel=document.getElementById('notif-cel').value.trim();
-  if((NOTIF==='whatsapp'||NOTIF==='sms')&&!cel){document.getElementById('notif-cel').focus();return;}
-  btn.disabled=true; btn.textContent='Generando turno…';
+async function loadConfig(){
   try{
-    let tipoAtencion='sin_cita';
-    if(CITA) tipoAtencion='cita_programada';
-    else if(MOTIVO==='autorizacion') tipoAtencion='autorizacion_previa';
-    const body={
-      paciente_id:PAC?.id||null, doc_num:DOC_NUM, doc_type:DOC_TYPE,
-      nombre:ES_NUEVO?NOMBRE_NUEVO:null,
-      tipo_atencion:tipoAtencion,
-      turno_tipo:TIPO_TURNO, habeas_data:HABEAS,
-      notif:NOTIF==='ticket'?['print']:NOTIF==='whatsapp'?['wa']:NOTIF==='sms'?['sms']:[],
-      celular:cel||PAC?.celular||null, cita_id:CITA?.id||null,
-    };
-    const r=await fetch(`${API}/api/kiosco/anuncio`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    const d=await r.json();
-    if(d.success) mostrarTurnoFinal(d);
-    else{ btn.disabled=false; btn.textContent='Obtener mi turno →'; showError('btn-generar', d.error||'No se pudo generar el turno. Intenta de nuevo o pide ayuda al personal.'); }
-  }catch(e){ btn.disabled=false; btn.textContent='Obtener mi turno →'; showError('btn-generar', 'Error de conexión. Verifica que estés conectado e intenta de nuevo.'); }
+    const r = await fetch(`${API}/api/kiosco/config`);
+    CONFIG = await r.json();
+  }catch(e){
+    CONFIG = {branding:{clinicName:'Arthemis Health', primaryColor:'#5147C4', accentColor:'#7269D8', darkBg:'#1C1916', footerMsg:'Su salud, nuestra prioridad'},
+      consent:{title:'Autorización para el tratamiento de datos personales', body:'', checkboxLabel:'Acepto el tratamiento de mis datos personales y de salud', nit:'', email:''},
+      whatsapp:{enabled:false, countryCode:'+57', businessNumber:''}, lang:'es', adminPin:'1234',
+      adRotationSeconds:6, idleTimeoutMs:50000, countdownSeconds:10};
+  }
+}
+async function loadAnuncios(){
+  try{ const r = await fetch(`${API}/api/kiosco/anuncios`); const d = await r.json(); ANUNCIOS = (d.anuncios||[]).filter(a=>a.activo); }
+  catch(e){ ANUNCIOS = []; }
+}
+async function loadServicios(){
+  try{ const r = await fetch(`${API}/api/kiosco/servicios`); const d = await r.json(); SERVICIOS = (d.servicios||[]).filter(s=>s.activo); }
+  catch(e){ SERVICIOS = []; }
 }
 
-function mostrarTurnoFinal(d){
-  const badge=document.getElementById('t-badge');
-  const tnum=document.getElementById('t-num');
-  const wtn=document.getElementById('wt-n');
-  const wrp=document.getElementById('wrp');
-  const mins=d.turno_tipo==='preferencial'?5:12;
-  badge.textContent=d.turno_tipo==='preferencial'?'Turno preferencial ⭐':(CITA?'Cita confirmada 📅':'Turno general');
-  badge.className='t-badge '+(d.turno_tipo==='preferencial'?'pref':'gen');
-  tnum.textContent=d.turno; tnum.className='t-num '+(d.turno_tipo==='preferencial'?'pref':'gen');
-  wtn.textContent=mins;
-  wrp.style.strokeDashoffset=207-(207*(1-mins/30));
-  wrp.style.stroke=d.turno_tipo==='preferencial'?'var(--grn)':'var(--acc)';
-  document.querySelectorAll('.screen.on').forEach(s=>s.classList.remove('on'));
-  document.getElementById('sc3').classList.add('on');
-  confetti();
-  startCountdown(60);
-  autoReset=setTimeout(reset,60000);
+function applyBranding(){
+  const b = CONFIG.branding || {};
+  const root = document.documentElement.style;
+  if(b.primaryColor) root.setProperty('--primary', b.primaryColor);
+  if(b.accentColor) root.setProperty('--accent', b.accentColor);
+  if(b.bgColor) root.setProperty('--bg', b.bgColor);
+  if(b.darkBg) root.setProperty('--dark', b.darkBg);
+  document.getElementById('clinicNameEl').textContent = b.clinicName || 'Arthemis Health';
+  document.getElementById('logoMark').textContent = (b.clinicName||'A').charAt(0).toUpperCase();
+  document.getElementById('ftrMsg').textContent = b.footerMsg || 'Su salud, nuestra prioridad';
+  document.title = (b.clinicName || 'Arthemis Health') + ' · Kiosco';
+
+  const consent = CONFIG.consent || {};
+  const clinicName = b.clinicName || 'Arthemis Health';
+  const nit = consent.nit || '';
+  const email = consent.email || '';
+  const title = (consent.title || 'Autorización para el tratamiento de datos personales')
+    .replace(/{{clinicName}}/g, clinicName).replace(/{{nit}}/g, nit).replace(/{{email}}/g, email);
+  let body = (consent.body || '')
+    .replace(/{{clinicName}}/g, clinicName).replace(/{{nit}}/g, nit).replace(/{{email}}/g, email);
+  if(!body){
+    body = `En cumplimiento de la Ley Estatutaria 1581 de 2012, autorizo a ${clinicName} (NIT ${nit}) para recolectar, almacenar, usar y tratar mis datos personales y datos sensibles de salud para la prestación de servicios de salud, gestión administrativa, y cumplimiento de obligaciones legales. Podré ejercer mis derechos de acceso, actualización, rectificación y supresión escribiendo a ${email}.`;
+  }
+  document.getElementById('consentTitle').textContent = title;
+  document.getElementById('consentBody').textContent = body;
+  if(consent.checkboxLabel) document.getElementById('consentCheckLabel').textContent = consent.checkboxLabel;
 }
 
-// ASIGNAR TURNO — tras elegir tipo de turno, va a notificación
-function asignarTurno(tipo) {
-  TIPO_TURNO = tipo;
-  document.getElementById('sc2').classList.remove('on');
-  document.getElementById('sc-notif').classList.add('on');
+/* ===================== LANGUAGE ===================== */
+function setLang(l){
+  LANG = l;
+  document.documentElement.lang = l;
+  document.getElementById('langEs').classList.toggle('on', l==='es');
+  document.getElementById('langEn').classList.toggle('on', l==='en');
+  document.querySelectorAll('[data-t]').forEach(el=>{
+    const key = el.getAttribute('data-t');
+    if(I18N[l][key]) el.textContent = I18N[l][key];
+  });
+  document.querySelectorAll('[data-tph]').forEach(el=>{
+    const key = el.getAttribute('data-tph');
+    if(I18N[l][key]) el.placeholder = I18N[l][key];
+  });
+  document.getElementById('adminLabel').textContent = l==='es' ? 'Admin' : 'Admin';
+  updateDocDisplay();
+}
+function t(key){ return (I18N[LANG] && I18N[LANG][key]) || key; }
+
+/* ===================== CLOCK ===================== */
+function tickClock(){
+  document.getElementById('ftrClock').textContent = new Date().toLocaleTimeString(LANG==='es'?'es-CO':'en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
 }
 
-// CONFETTI
-function confetti() {
-  const cols = ['#5147C4','#2D7A4F','#A06020','#7269D8','#3DA868'];
-  for (let i = 0; i < 32; i++) {
-    const el = document.createElement('div');
-    el.className = 'cp';
-    el.style.cssText = `left:${Math.random()*100}vw;top:${-10+Math.random()*-20}px;
-      background:${cols[~~(Math.random()*cols.length)]};
-      animation-delay:${Math.random()*.7}s;animation-duration:${2+Math.random()}s;
-      transform:rotate(${Math.random()*360}deg)`;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 3600);
+/* ===================== PROGRESS BAR ===================== */
+const STEP_MAP = {welcome:0, identify:1, verifying:1, consent:2, route:3, service:3, urgency:3, turno:4};
+function updateProgress(screen){
+  const idx = STEP_MAP[screen] ?? 0;
+  const progressBar = document.getElementById('progressBar');
+  progressBar.classList.toggle('hide', screen==='welcome' || screen==='verifying');
+  for(let i=0;i<5;i++){
+    const dot = document.getElementById('pstep-'+i);
+    dot.classList.remove('active','done');
+    if(i<idx) dot.classList.add('done');
+    else if(i===idx) dot.classList.add('active');
+  }
+  for(let i=0;i<4;i++){
+    document.getElementById('pline-'+i).classList.toggle('done', i<idx);
   }
 }
 
-// RESET
-function reset() {
-  clearTimeout(autoReset);
-  stopCountdown();
-  const errEl = document.getElementById('err-feedback');
-  if (errEl) errEl.classList.remove('on');
-  DOC_NUM = ''; DOC_TYPE = 'CC'; PAC = null;
-  document.getElementById('ic').innerHTML = '<span class="inp-ph">Número de documento</span>';
-  document.getElementById('cta1').disabled = true;
-  document.getElementById('pac-banner').style.display = 'none';
-  document.querySelectorAll('.doc-chips .chip').forEach((c,i) => c.classList.toggle('on', i===0));
-  document.querySelectorAll('.screen.on').forEach(s => s.classList.remove('on'));
-  document.getElementById('sc1').classList.add('on');
-  CITA=null; HABEAS=false; NOTIF='pantalla'; TIPO_TURNO='general';
-  ES_NUEVO=false; NOMBRE_NUEVO=''; MOTIVO='consulta';
-  document.querySelectorAll('#sc-notif .notif-opt').forEach(o=>o.classList.remove('on'));
-  document.getElementById('nopt-pantalla').classList.add('on');
-  document.querySelectorAll('#sc-nombre .notif-opt').forEach(o=>o.classList.remove('on'));
-  document.getElementById('mot-consulta').classList.add('on');
-  const nn=document.getElementById('nuevo-nombre'); if(nn) nn.value='';
-  document.getElementById('cel-wrap').style.display='none';
-  document.getElementById('notif-cel').value='';
-  const bg=document.getElementById('btn-generar');if(bg){bg.disabled=false;bg.textContent='Obtener mi turno →';}
+/* ===================== SCREEN NAV ===================== */
+let CURRENT_SCREEN = 'welcome';
+function goScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('scr-'+name).classList.add('on');
+  CURRENT_SCREEN = name;
+  updateProgress(name);
+  if(name==='welcome'){ startAdRotation(); } else { stopAdRotation(); }
+  resetIdleTimer();
 }
 
-// Error feedback
-function showError(afterId, msg) {
-  let el = document.getElementById('err-feedback');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'err-feedback';
-    el.className = 'err-msg';
-    el.setAttribute('role', 'alert');
-  }
-  el.textContent = msg;
-  el.classList.add('on');
-  const ref = document.getElementById(afterId);
-  if (ref && ref.parentNode) {
-    ref.parentNode.insertBefore(el, ref.nextSibling);
-  }
-  setTimeout(() => el.classList.remove('on'), 8000);
+function startFlow(intent){
+  INTENT = intent;
+  goScreen('identify');
 }
 
-// Auto-reset with countdown timer
-let autoReset;
-let countdownInterval;
+/* ===================== IDENTIFY / DOC ENTRY ===================== */
+function kp(v){
+  if(DOC_NUM.length >= 15) return;
+  DOC_NUM += v; updateDocDisplay(); resetIdleTimer();
+}
+function kdel(){ DOC_NUM = DOC_NUM.slice(0,-1); updateDocDisplay(); resetIdleTimer(); }
+function clearDoc(){ DOC_NUM=''; updateDocDisplay(); resetIdleTimer(); }
+function updateDocDisplay(){
+  const disp = document.getElementById('docDisplay');
+  if(!disp) return;
+  disp.innerHTML = DOC_NUM.length===0
+    ? `<span class="doc-ph">${t('minDigits')}</span>`
+    : `<span class="doc-val">${DOC_NUM}<span class="doc-cursor"></span></span>`;
+  const btn = document.getElementById('btnIdentContinue');
+  if(btn) btn.disabled = DOC_NUM.length < 6;
+}
 
-function startCountdown(seconds) {
-  const bar = document.getElementById('cd-bar');
-  const fill = document.getElementById('cd-fill');
-  const text = document.getElementById('cd-text');
-  if (!bar || !fill || !text) return;
-  bar.style.display = 'block';
-  text.style.display = 'block';
-  let remaining = seconds;
-  fill.style.width = '100%';
-  text.textContent = `Nueva atención en ${remaining}s`;
-  clearInterval(countdownInterval);
-  countdownInterval = setInterval(() => {
-    remaining--;
-    if (remaining <= 0) {
-      clearInterval(countdownInterval);
-      bar.style.display = 'none';
-      text.style.display = 'none';
-      return;
+async function submitIdentify(){
+  if(DOC_NUM.length < 6) return;
+  goScreen('verifying');
+  runVerifySteps();
+  try{
+    const r = await fetch(`${API}/api/pacientes/${DOC_NUM}`);
+    if(r.ok){
+      const d = await r.json();
+      PACIENTE = d && !d.error ? d : null;
+    } else {
+      PACIENTE = null;
     }
-    fill.style.width = ((remaining / seconds) * 100) + '%';
-    text.textContent = `Nueva atención en ${remaining}s`;
+  }catch(e){
+    PACIENTE = null;
+  }
+  setTimeout(()=>{ afterVerify(); }, 3200);
+}
+
+function runVerifySteps(){
+  const circle = document.getElementById('verCircle');
+  const pctEl = document.getElementById('verPct');
+  const circumference = 301.6;
+  document.querySelectorAll('.ver-step').forEach(s=>s.classList.remove('active','done'));
+  const stages = [
+    {pct:20, id:'vstep-1', delay:0},
+    {pct:50, id:'vstep-2', delay:700},
+    {pct:80, id:'vstep-3', delay:1400},
+    {pct:100, id:'vstep-4', delay:2100},
+  ];
+  stages.forEach((s, i)=>{
+    setTimeout(()=>{
+      if(i>0){ document.getElementById(stages[i-1].id).classList.remove('active'); document.getElementById(stages[i-1].id).classList.add('done'); }
+      document.getElementById(s.id).classList.add('active');
+      circle.style.strokeDashoffset = circumference - (circumference * s.pct/100);
+      pctEl.textContent = s.pct + '%';
+      if(s.pct===100){
+        setTimeout(()=>{ document.getElementById(s.id).classList.remove('active'); document.getElementById(s.id).classList.add('done'); }, 500);
+      }
+    }, s.delay);
+  });
+}
+
+function afterVerify(){
+  goScreen('consent');
+}
+
+/* ===================== CONSENT ===================== */
+function toggleConsent(){
+  CONSENT_CHECKED = !CONSENT_CHECKED;
+  document.getElementById('consentCheckBox').classList.toggle('checked', CONSENT_CHECKED);
+  document.getElementById('consentBoxIcon').innerHTML = CONSENT_CHECKED ? checkSvg() : '';
+  document.getElementById('btnConsentContinue').disabled = !CONSENT_CHECKED;
+  resetIdleTimer();
+}
+function checkSvg(){
+  return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>';
+}
+function acceptConsent(){
+  if(!CONSENT_CHECKED) return;
+  routeAfterConsent();
+}
+
+function routeAfterConsent(){
+  const hoy = new Date().toISOString().split('T')[0];
+  const citas = (PACIENTE && PACIENTE.citas_futuras) || [];
+  const citaHoy = citas.find(c => (c.fecha===hoy) && (!c.estado || c.estado==='programada'));
+  if(citaHoy && INTENT !== 'urgencias'){
+    CITA = citaHoy;
+    renderCita(citaHoy);
+    goScreen('route');
+  } else if(INTENT === 'urgencias'){
+    goScreen('urgency');
+  } else {
+    goScreen('service');
+  }
+}
+
+function renderCita(c){
+  const html = `
+    <div class="cita-lbl">${t('citaFound')}</div>
+    <div class="cita-row"><span class="cita-k">${LANG==='es'?'Hora':'Time'}</span><span class="cita-v">${c.hora_inicio||'—'}</span></div>
+    <div class="cita-row"><span class="cita-k">${LANG==='es'?'Médico':'Doctor'}</span><span class="cita-v">${c.medico_nombre||'—'}</span></div>
+    <div class="cita-row"><span class="cita-k">${LANG==='es'?'Servicio':'Service'}</span><span class="cita-v">${c.servicio_nombre||t('consultation')}</span></div>
+  `;
+  document.getElementById('citaBannerContent').innerHTML = html;
+}
+
+function confirmCita(){
+  SELECTED_SERVICE = { codigo: 'cita', nombre: CITA?.servicio_nombre || t('consultation') };
+  registrarTurno('cita_programada');
+}
+
+/* ===================== SERVICES ===================== */
+function buildServiceGrid(){
+  const grid = document.getElementById('svcGrid');
+  grid.innerHTML = '';
+  const list = SERVICIOS.length ? SERVICIOS : [
+    {codigo:'general', nombre: LANG==='es'?'Consulta general':'General consultation', icono:'🩺'},
+    {codigo:'lab', nombre: LANG==='es'?'Laboratorio':'Laboratory', icono:'🧪'},
+    {codigo:'imagenes', nombre: LANG==='es'?'Imágenes':'Imaging', icono:'🩻'},
+  ];
+  list.forEach(s=>{
+    const btn = document.createElement('div');
+    btn.className = 'svc-btn';
+    btn.innerHTML = `<div class="svc-ico">${s.icono||'●'}</div><div class="svc-name">${s.nombre}</div>`;
+    btn.onclick = ()=> selectService(s);
+    grid.appendChild(btn);
+  });
+}
+function selectService(s){
+  SELECTED_SERVICE = s;
+  registrarTurno('sin_cita');
+}
+
+/* ===================== URGENCY ===================== */
+function toggleUrg(key){
+  URG_FLAGS[key] = !URG_FLAGS[key];
+  document.getElementById('uopt-'+key).classList.toggle('checked', URG_FLAGS[key]);
+  const anyFlag = Object.values(URG_FLAGS).some(v=>v);
+  document.getElementById('priorityBadgeWrap').style.display = anyFlag ? 'block' : 'none';
+  resetIdleTimer();
+}
+function toggleUrgConsent(){
+  URG_CONSENT = !URG_CONSENT;
+  document.getElementById('urgConsentBox').classList.toggle('checked', URG_CONSENT);
+  document.getElementById('urgConsentIcon').innerHTML = URG_CONSENT ? checkSvg() : '';
+  document.getElementById('btnUrgSubmit').disabled = !URG_CONSENT;
+  resetIdleTimer();
+}
+function submitUrgency(){
+  if(!URG_CONSENT) return;
+  SELECTED_SERVICE = { codigo:'urgencias', nombre: t('urgency') };
+  registrarTurno('urgencias');
+}
+
+/* ===================== REGISTER / TURNO ===================== */
+async function registrarTurno(tipoAtencion){
+  const anyFlag = Object.values(URG_FLAGS).some(v=>v);
+  const turnoTipo = anyFlag ? 'preferencial' : 'general';
+  const body = {
+    doc_num: DOC_NUM,
+    doc_type: PACIENTE?.doc_type || 'CC',
+    nombre: PACIENTE ? `${PACIENTE.nombres||''} ${PACIENTE.apellidos||''}`.trim() : null,
+    paciente_id: PACIENTE?.id || null,
+    tipo_atencion: tipoAtencion,
+    turno_tipo: turnoTipo,
+    habeas_data: CONSENT_CHECKED,
+    celular: PACIENTE?.celular || null,
+    servicio_nombre: SELECTED_SERVICE?.nombre || null,
+  };
+  try{
+    const r = await fetch(`${API}/api/kiosco/anuncio`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    const d = await r.json();
+    if(d.success || d.turno){
+      TURNO_DATA = d;
+      renderTurno(d);
+      goScreen('turno');
+    } else {
+      renderTurno({turno:'—', color_alerta:'yellow'});
+      goScreen('turno');
+    }
+  }catch(e){
+    renderTurno({turno:'—', color_alerta:'yellow'});
+    goScreen('turno');
+  }
+}
+
+function renderTurno(d){
+  const anyFlag = Object.values(URG_FLAGS).some(v=>v);
+  const isPref = anyFlag || d.turno_tipo === 'preferencial' || d.color_alerta==='red';
+  const badge = document.getElementById('tkBadge');
+  badge.textContent = isPref ? '⭐ ' + t('yourTurn') : t('yourTurn');
+  badge.className = 'tk-badge ' + (isPref ? 'pref' : 'gen');
+  document.getElementById('tkNum').textContent = d.turno || '—';
+  document.getElementById('tkSvc').textContent = SELECTED_SERVICE?.nombre || '';
+  const box = document.getElementById('tkNumBox');
+  box.style.background = isPref ? 'linear-gradient(135deg,var(--grn),#3DA868)' : 'linear-gradient(135deg,var(--primary),var(--accent))';
+
+  const wa = CONFIG?.whatsapp || {};
+  const waSection = document.getElementById('waSection');
+  waSection.style.display = wa.enabled ? 'block' : 'none';
+  document.getElementById('waMsg').textContent = '';
+  const phoneInput = document.getElementById('waPhone');
+  if(PACIENTE?.celular) phoneInput.value = PACIENTE.celular;
+  else phoneInput.value = '';
+}
+
+function sendWhatsapp(){
+  const wa = CONFIG?.whatsapp || {};
+  const phone = document.getElementById('waPhone').value.trim().replace(/\D/g,'');
+  const msgEl = document.getElementById('waMsg');
+  if(!phone){ msgEl.style.color = 'var(--red)'; msgEl.textContent = t('enterPhone'); return; }
+  const cc = (wa.countryCode || '+57').replace(/\D/g,'');
+  const clinicName = CONFIG?.branding?.clinicName || 'Arthemis Health';
+  const text = encodeURIComponent(`${clinicName}: su turno es ${TURNO_DATA?.turno || ''}. ${t('goWaiting')}`);
+  const url = `https://wa.me/${cc}${phone}?text=${text}`;
+  window.open(url, '_blank');
+  msgEl.style.color = 'var(--grn)';
+  msgEl.textContent = t('waSent');
+}
+
+/* ===================== AD CAROUSEL ===================== */
+function buildAdCarousel(){
+  const wrap = document.getElementById('adCarousel');
+  if(!ANUNCIOS.length){
+    wrap.innerHTML = `<div class="ad-empty">${t('noAds')}</div>`;
+    return;
+  }
+  let html = '';
+  ANUNCIOS.forEach((a,i)=>{
+    let media = '';
+    if(a.media_type === 'image' && a.media_url) media = `<img class="ad-media" src="${a.media_url}" alt="">`;
+    else if(a.media_type === 'video' && a.media_url) media = `<video class="ad-media" src="${a.media_url}" autoplay muted loop playsinline></video>`;
+    html += `<div class="ad-slide ${i===0?'on':''}" data-idx="${i}">
+      ${media}
+      <div class="ad-content">
+        <div class="ad-ttl">${a.titulo||''}</div>
+        <div class="ad-desc">${a.descripcion||''}</div>
+      </div>
+    </div>`;
+  });
+  html += `<div class="ad-dots">${ANUNCIOS.map((_,i)=>`<div class="ad-dot ${i===0?'on':''}" data-dot="${i}"></div>`).join('')}</div>`;
+  wrap.innerHTML = html;
+  AD_IDX = 0;
+  startAdRotation();
+}
+function startAdRotation(){
+  stopAdRotation();
+  if(!ANUNCIOS.length) return;
+  const secs = (CONFIG?.adRotationSeconds || 6) * 1000;
+  AD_TIMER = setInterval(()=>{
+    const slides = document.querySelectorAll('.ad-slide');
+    const dots = document.querySelectorAll('.ad-dot');
+    if(!slides.length) return;
+    slides[AD_IDX].classList.remove('on');
+    dots[AD_IDX]?.classList.remove('on');
+    AD_IDX = (AD_IDX + 1) % slides.length;
+    slides[AD_IDX].classList.add('on');
+    dots[AD_IDX]?.classList.add('on');
+  }, secs);
+}
+function stopAdRotation(){ if(AD_TIMER){ clearInterval(AD_TIMER); AD_TIMER = null; } }
+
+/* ===================== IDLE / INACTIVITY ===================== */
+let idleTimer = null;
+let countdownTimer = null;
+let idleActive = false;
+
+function setupIdleWatcher(){
+  ['mousemove','mousedown','touchstart','keydown','click'].forEach(evt=>{
+    document.addEventListener(evt, resetIdleTimer, {passive:true});
+  });
+  resetIdleTimer();
+}
+
+function resetIdleTimer(){
+  if(idleActive) return; // handled by cancelIdleReset
+  clearTimeout(idleTimer);
+  if(CURRENT_SCREEN === 'welcome' || CURRENT_SCREEN === 'verifying') return;
+  const timeout = CONFIG?.idleTimeoutMs || 50000;
+  idleTimer = setTimeout(showIdleOverlay, timeout);
+}
+
+function showIdleOverlay(){
+  if(CURRENT_SCREEN === 'welcome' || CURRENT_SCREEN === 'verifying') return;
+  idleActive = true;
+  document.getElementById('idleOverlay').classList.add('on');
+  let secs = CONFIG?.countdownSeconds || 10;
+  const circumference = 326.7;
+  const circle = document.getElementById('idleCircle');
+  const numEl = document.getElementById('idleNum');
+  numEl.textContent = secs;
+  circle.style.strokeDashoffset = 0;
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(()=>{
+    secs--;
+    numEl.textContent = secs;
+    circle.style.strokeDashoffset = circumference * (1 - secs/(CONFIG?.countdownSeconds||10));
+    if(secs<=0){
+      clearInterval(countdownTimer);
+      hideIdleOverlay();
+      resetKiosk();
+    }
   }, 1000);
 }
 
-function stopCountdown() {
-  clearInterval(countdownInterval);
-  const bar = document.getElementById('cd-bar');
-  const text = document.getElementById('cd-text');
-  if (bar) bar.style.display = 'none';
-  if (text) text.style.display = 'none';
+function cancelIdleReset(){
+  clearInterval(countdownTimer);
+  hideIdleOverlay();
+  idleActive = false;
+  resetIdleTimer();
 }
+function hideIdleOverlay(){
+  document.getElementById('idleOverlay').classList.remove('on');
+}
+
+/* ===================== ADMIN PIN ===================== */
+let PIN_ENTERED = '';
+function openAdmin(){
+  PIN_ENTERED = '';
+  document.getElementById('pinError').textContent = '';
+  renderPinDots();
+  document.getElementById('adminOverlay').classList.add('on');
+}
+function closeAdmin(){
+  document.getElementById('adminOverlay').classList.remove('on');
+}
+function pinPress(d){
+  if(PIN_ENTERED.length >= 6) return;
+  PIN_ENTERED += d;
+  document.getElementById('pinError').textContent = '';
+  renderPinDots();
+}
+function pinBack(){ PIN_ENTERED = PIN_ENTERED.slice(0,-1); renderPinDots(); }
+function pinClear(){ PIN_ENTERED = ''; renderPinDots(); }
+function renderPinDots(){
+  const wrap = document.getElementById('pinDots');
+  const max = Math.max(6, PIN_ENTERED.length);
+  wrap.innerHTML = '';
+  for(let i=0;i<6;i++){
+    const dot = document.createElement('div');
+    dot.className = 'pin-dot' + (i < PIN_ENTERED.length ? ' filled' : '');
+    wrap.appendChild(dot);
+  }
+}
+function pinEnter(){
+  const expected = String(CONFIG?.adminPin || '1234');
+  if(PIN_ENTERED === expected){
+    window.location.href = '/kiosco/admin';
+  } else {
+    document.getElementById('pinError').textContent = t('pinWrong');
+    PIN_ENTERED = '';
+    renderPinDots();
+  }
+}
+
+/* ===================== RESET ===================== */
+function resetKiosk(){
+  clearTimeout(idleTimer);
+  clearInterval(countdownTimer);
+  idleActive = false;
+  hideIdleOverlay();
+  DOC_NUM = '';
+  PACIENTE = null;
+  CITA = null;
+  SELECTED_SERVICE = null;
+  CONSENT_CHECKED = false;
+  URG_FLAGS = {embarazo:false, mayor60:false, ninos:false, discapacidad:false};
+  URG_CONSENT = false;
+  TURNO_DATA = null;
+  INTENT = 'sin_cita';
+  updateDocDisplay();
+  document.getElementById('consentCheckBox').classList.remove('checked');
+  document.getElementById('consentBoxIcon').innerHTML = '';
+  document.getElementById('btnConsentContinue').disabled = true;
+  document.querySelectorAll('.urg-opt').forEach(o=>o.classList.remove('checked'));
+  document.getElementById('urgConsentBox').classList.remove('checked');
+  document.getElementById('urgConsentIcon').innerHTML = '';
+  document.getElementById('btnUrgSubmit').disabled = true;
+  document.getElementById('priorityBadgeWrap').style.display = 'none';
+  document.getElementById('waPhone').value = '';
+  document.getElementById('waMsg').textContent = '';
+  goScreen('welcome');
+}
+
+/* ===================== START ===================== */
+init();
 </script>
 </body>
 </html>

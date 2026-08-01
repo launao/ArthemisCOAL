@@ -47,7 +47,7 @@ CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
 
 # ── CSRF ──────────────────────────────────────────────────────────────────────
 
-_CSRF_EXEMPT_PREFIXES = ('/api/pagos/wompi/webhook', '/api/kiosco/anuncio', '/api/firmas/')
+_CSRF_EXEMPT_PREFIXES = ('/api/pagos/wompi/webhook', '/api/kiosco/', '/api/firmas/')
 
 @app.before_request
 def _csrf_check():
@@ -85,7 +85,9 @@ CREATE TABLE IF NOT EXISTS modulos_config(id {S},tenant_id TEXT DEFAULT 'default
 CREATE TABLE IF NOT EXISTS tenant_config(id {S},tenant_id TEXT UNIQUE DEFAULT 'default',nombre_clinica TEXT DEFAULT 'Arthemis Health',nit TEXT DEFAULT '',email_habeas_data TEXT DEFAULT 'privacidad@arthemishealth.co',telefono TEXT DEFAULT '',direccion TEXT DEFAULT '',ciudad TEXT DEFAULT 'Bogotá',logo_url TEXT,color_primario TEXT DEFAULT '#5147C4',color_secundario TEXT DEFAULT '#7269D8');
 CREATE TABLE IF NOT EXISTS roles(id {S},nombre TEXT UNIQUE NOT NULL,descripcion TEXT,permisos TEXT DEFAULT '[]',es_sistema INTEGER DEFAULT 0,creado_en {T} {D});
 CREATE TABLE IF NOT EXISTS usuarios(id {S},usuario TEXT UNIQUE NOT NULL,nombre TEXT,email TEXT,pass_hash TEXT,rol_id INTEGER,rol_nombre TEXT,activo INTEGER DEFAULT 1,ultimo_acceso {T},creado_en {T} {D});
-CREATE TABLE IF NOT EXISTS copago_param(id {S},anio INTEGER,concepto TEXT,rango TEXT,pct REAL DEFAULT 0,valor REAL DEFAULT 0,tope_evento REAL DEFAULT 0,tope_anio REAL DEFAULT 0,fuente TEXT,activo INTEGER DEFAULT 1)
+CREATE TABLE IF NOT EXISTS copago_param(id {S},anio INTEGER,concepto TEXT,rango TEXT,pct REAL DEFAULT 0,valor REAL DEFAULT 0,tope_evento REAL DEFAULT 0,tope_anio REAL DEFAULT 0,fuente TEXT,activo INTEGER DEFAULT 1);
+CREATE TABLE IF NOT EXISTS kiosco_anuncios(id {S},titulo TEXT NOT NULL,descripcion TEXT,media_type TEXT DEFAULT 'none',media_url TEXT,activo INTEGER DEFAULT 1,orden INTEGER DEFAULT 0,creado_en {T} {D});
+CREATE TABLE IF NOT EXISTS kiosco_servicios(id {S},codigo TEXT UNIQUE,nombre TEXT NOT NULL,icono TEXT DEFAULT '●',activo INTEGER DEFAULT 1,orden INTEGER DEFAULT 0)
 """
     for s in tables.strip().split(';'):
         s = s.strip()
@@ -99,6 +101,7 @@ CREATE TABLE IF NOT EXISTS copago_param(id {S},anio INTEGER,concepto TEXT,rango 
     # Idempotent migrations
     for mig in [
         "ALTER TABLE admisiones ADD COLUMN nombre_temp TEXT",
+        "ALTER TABLE admisiones ADD COLUMN fecha_llamado TEXT",
     ]:
         try:
             cur.execute(mig)
@@ -144,6 +147,28 @@ CREATE TABLE IF NOT EXISTS copago_param(id {S},anio INTEGER,concepto TEXT,rango 
     cur.execute("SELECT COUNT(*) FROM tenant_config")
     if cur.fetchone()[0] == 0:
         cur.execute("INSERT INTO tenant_config(tenant_id,nombre_clinica)VALUES('default','Centro Ocular Dr. Rincón')")
+
+    # Kiosco servicios seed
+    cur.execute("SELECT COUNT(*) FROM kiosco_servicios")
+    if cur.fetchone()[0] == 0:
+        for s in [
+            ('oft', 'Oftalmología', '👁️', 1, 0),
+            ('opt', 'Optometría', '👓', 1, 1),
+            ('ort', 'Ortóptica', '🔬', 1, 2),
+            ('cir', 'Cirugía', '🏥', 1, 3),
+            ('lab', 'Laboratorio', '🧪', 1, 4),
+            ('img', 'Imágenes diagnósticas', '📷', 1, 5),
+        ]:
+            cur.execute(core.adapt("INSERT INTO kiosco_servicios(codigo,nombre,icono,activo,orden)VALUES(?,?,?,?,?)", db), s)
+
+    # Kiosco anuncios seed
+    cur.execute("SELECT COUNT(*) FROM kiosco_anuncios")
+    if cur.fetchone()[0] == 0:
+        for a in [
+            ('Cirugía láser', 'Corrección visual con tecnología de última generación', 'none', '', 1, 0),
+            ('Lentes de contacto', 'Adaptación personalizada con los mejores materiales', 'none', '', 1, 1),
+        ]:
+            cur.execute(core.adapt("INSERT INTO kiosco_anuncios(titulo,descripcion,media_type,media_url,activo,orden)VALUES(?,?,?,?,?,?)", db), a)
 
     # Copago params (Circular 048 de 2025)
     try:
@@ -342,6 +367,14 @@ def index():
 @app.route('/kiosco')
 def kiosco_page():
     return send_from_directory('static', 'kiosco.html')
+
+@app.route('/kiosco/tv')
+def kiosco_tv_page():
+    return send_from_directory('static', 'kiosco-tv.html')
+
+@app.route('/kiosco/admin')
+def kiosco_admin_page():
+    return send_from_directory('static', 'kiosco-admin.html')
 
 @app.route('/health')
 def health():

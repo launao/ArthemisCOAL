@@ -474,3 +474,196 @@ class TestCoreHelpers:
         assert result is None
         cur.close()
         conn.close()
+
+
+# ── NEW ENDPOINTS (v2) ──────────────────────────────────────────────────────
+
+class TestKioscoCola:
+    """Tests for GET /api/kiosco/cola."""
+
+    def test_cola_returns_empty(self, client):
+        resp = client.get('/api/kiosco/cola')
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert 'cola' in data
+        assert isinstance(data['cola'], list)
+
+    def test_cola_after_anuncio(self, client):
+        """After an anuncio, the turn should appear in the queue."""
+        client.post('/api/kiosco/anuncio', json={
+            'doc_num': '7770001111',
+            'nombre': 'Cola Test',
+            'tipo_atencion': 'sin_cita',
+            'turno_tipo': 'general',
+            'servicio_nombre': 'Optometría',
+        })
+        resp = client.get('/api/kiosco/cola')
+        data = resp.get_json()
+        turnos = [t for t in data['cola'] if t['nombre'] == 'Cola Test']
+        assert len(turnos) >= 1
+        assert turnos[0]['estado'] == 'kiosco'
+        assert turnos[0]['servicio'] == 'Optometría'
+
+
+class TestKioscoLlamarTurno:
+    """Tests for POST /api/kiosco/llamar-turno."""
+
+    def test_llamar_requires_id(self, client):
+        resp = client.post('/api/kiosco/llamar-turno', json={})
+        assert resp.status_code == 400
+
+    def test_llamar_turno(self, client):
+        """Call a turn and verify state change."""
+        resp = client.post('/api/kiosco/anuncio', json={
+            'doc_num': '7770002222',
+            'nombre': 'Llamar Test',
+            'tipo_atencion': 'sin_cita',
+            'turno_tipo': 'general',
+        })
+        turno_data = resp.get_json()
+        turno_id = turno_data['id']
+
+        resp = client.post('/api/kiosco/llamar-turno', json={'id': turno_id})
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert data['success'] is True
+        assert data['nombre'] == 'Llamar Test'
+
+        resp = client.get('/api/kiosco/cola')
+        cola = resp.get_json()['cola']
+        found = [t for t in cola if t['id'] == turno_id]
+        assert found[0]['estado'] == 'llamando'
+
+
+class TestKioscoAtenderTurno:
+    """Tests for POST /api/kiosco/atender-turno."""
+
+    def test_atender_turno(self, client):
+        resp = client.post('/api/kiosco/anuncio', json={
+            'doc_num': '7770003333',
+            'nombre': 'Atender Test',
+            'tipo_atencion': 'sin_cita',
+            'turno_tipo': 'general',
+        })
+        turno_id = resp.get_json()['id']
+        client.post('/api/kiosco/llamar-turno', json={'id': turno_id})
+
+        resp = client.post('/api/kiosco/atender-turno', json={'id': turno_id})
+        assert resp.status_code == 200
+        assert resp.get_json()['success'] is True
+
+
+class TestKioscoConfig:
+    """Tests for GET/PUT /api/kiosco/config."""
+
+    def test_config_get(self, client):
+        resp = client.get('/api/kiosco/config')
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert 'branding' in data
+        assert 'consent' in data
+        assert 'whatsapp' in data
+        assert 'lang' in data
+
+    def test_config_put_requires_auth(self, client):
+        resp = client.put('/api/kiosco/config', json={'lang': 'en'})
+        assert resp.status_code == 401
+
+    def test_config_put_authed(self, auth_client):
+        resp = auth_client.put('/api/kiosco/config', json={
+            'branding': {'clinicName': 'Test Clinic', 'primaryColor': '#FF0000'},
+            'lang': 'en',
+            'adminPin': '9999',
+        })
+        assert resp.status_code == 200
+        assert resp.get_json()['success'] is True
+
+        resp = auth_client.get('/api/kiosco/config')
+        data = resp.get_json()
+        assert data['branding']['clinicName'] == 'Test Clinic'
+        assert data['lang'] == 'en'
+
+
+class TestKioscoAnuncios:
+    """Tests for GET/PUT /api/kiosco/anuncios."""
+
+    def test_anuncios_get(self, client):
+        resp = client.get('/api/kiosco/anuncios')
+        assert resp.status_code == 200
+        assert 'anuncios' in resp.get_json()
+
+    def test_anuncios_put_requires_auth(self, client):
+        resp = client.put('/api/kiosco/anuncios', json={'anuncios': []})
+        assert resp.status_code == 401
+
+    def test_anuncios_put_authed(self, auth_client):
+        resp = auth_client.put('/api/kiosco/anuncios', json={
+            'anuncios': [
+                {'titulo': 'Test Ad', 'descripcion': 'Desc', 'media_type': 'none', 'activo': True},
+            ]
+        })
+        assert resp.status_code == 200
+
+        resp = auth_client.get('/api/kiosco/anuncios')
+        anuncios = resp.get_json()['anuncios']
+        assert len(anuncios) == 1
+        assert anuncios[0]['titulo'] == 'Test Ad'
+
+
+class TestKioscoServicios:
+    """Tests for GET/PUT /api/kiosco/servicios."""
+
+    def test_servicios_get(self, client):
+        resp = client.get('/api/kiosco/servicios')
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert 'servicios' in data
+        assert len(data['servicios']) >= 6
+
+    def test_servicios_put_requires_auth(self, client):
+        resp = client.put('/api/kiosco/servicios', json={'servicios': []})
+        assert resp.status_code == 401
+
+    def test_servicios_put_authed(self, auth_client):
+        resp = auth_client.put('/api/kiosco/servicios', json={
+            'servicios': [
+                {'codigo': 'test1', 'nombre': 'Test Service', 'icono': '🔬', 'activo': True},
+            ]
+        })
+        assert resp.status_code == 200
+
+        resp = auth_client.get('/api/kiosco/servicios')
+        servicios = resp.get_json()['servicios']
+        assert len(servicios) == 1
+        assert servicios[0]['nombre'] == 'Test Service'
+
+
+class TestAuditLog:
+    """Tests for GET /api/audit."""
+
+    def test_audit_requires_auth(self, client):
+        resp = client.get('/api/audit')
+        assert resp.status_code == 401
+
+    def test_audit_authed(self, auth_client):
+        resp = auth_client.get('/api/audit')
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert 'logs' in data
+        assert isinstance(data['logs'], list)
+
+    def test_audit_filter_by_entidad(self, auth_client):
+        resp = auth_client.get('/api/audit?entidad=admisiones&limit=10')
+        assert resp.status_code == 200
+
+
+class TestNewStaticRoutes:
+    """Tests for new static page routes."""
+
+    def test_kiosco_tv_page(self, client):
+        resp = client.get('/kiosco/tv')
+        assert resp.status_code == 200
+
+    def test_kiosco_admin_page(self, client):
+        resp = client.get('/kiosco/admin')
+        assert resp.status_code == 200

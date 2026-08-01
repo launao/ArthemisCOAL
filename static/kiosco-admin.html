@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arthemis Health — Configuración del kiosko</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F0EDE8;
+    --dark:#0D2137;
+    --primary:#1866C4;
+    --accent:#F2A93B;
+    --card:#FFFFFF;
+    --border:#E5E0D8;
+    --text:#22293A;
+    --muted:#77808F;
+    --green:#1E9E63;
+    --red:#D5493D;
+    --blue:#1866C4;
+    --amber:#C98A1F;
+    --gray:#8B93A1;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'DM Sans',system-ui,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  a{color:inherit;}
+
+  /* ---------- Login ---------- */
+  #loginScreen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(160deg,var(--dark) 0%,#132a44 100%);
+  }
+  .login-card{
+    background:var(--card);
+    border-radius:14px;
+    padding:40px 36px;
+    width:100%;
+    max-width:360px;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+  }
+  .login-card h1{
+    font-size:22px;
+    margin:0 0 4px;
+    color:var(--dark);
+    letter-spacing:.5px;
+  }
+  .login-card .sub{
+    color:var(--muted);
+    font-size:13px;
+    margin:0 0 26px;
+  }
+  .login-card label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    color:var(--muted);
+    margin:14px 0 6px;
+  }
+  .login-card input{
+    width:100%;
+    padding:11px 13px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    font-family:inherit;
+    font-size:14px;
+    background:#fafaf8;
+  }
+  .login-card input:focus{outline:2px solid var(--primary);outline-offset:1px;}
+  .login-card button{
+    width:100%;
+    margin-top:22px;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:var(--dark);
+    color:#fff;
+    font-family:inherit;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .login-card button:hover{background:#16324f;}
+  #loginError{
+    color:var(--red);
+    font-size:13px;
+    margin-top:12px;
+    display:none;
+  }
+
+  /* ---------- App shell ---------- */
+  #app{display:none;}
+  header.top{
+    background:var(--dark);
+    color:#fff;
+    padding:18px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  header.top .brand{
+    display:flex;
+    flex-direction:column;
+  }
+  header.top .brand .logo{
+    font-weight:800;
+    font-size:20px;
+    letter-spacing:2px;
+  }
+  header.top .brand .logo span{color:var(--accent);}
+  header.top .brand .sub{
+    font-size:12.5px;
+    color:#9fb1c4;
+    margin-top:2px;
+  }
+  header.top .actions{
+    display:flex;
+    gap:10px;
+  }
+  header.top .actions a{
+    text-decoration:none;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;
+    padding:9px 16px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  header.top .actions a:hover{background:rgba(255,255,255,.18);}
+
+  nav.tabs{
+    background:#fff;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    gap:2px;
+    padding:0 20px;
+    overflow-x:auto;
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+  nav.tabs button{
+    border:none;
+    background:transparent;
+    font-family:inherit;
+    padding:15px 16px;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--muted);
+    cursor:pointer;
+    border-bottom:3px solid transparent;
+    white-space:nowrap;
+  }
+  nav.tabs button:hover{color:var(--text);}
+  nav.tabs button.active{
+    color:var(--primary);
+    border-bottom-color:var(--primary);
+  }
+
+  main{
+    max-width:840px;
+    margin:0 auto;
+    padding:28px 20px 80px;
+  }
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:22px;
+    margin-bottom:18px;
+  }
+  .card h2{
+    font-size:16px;
+    margin:0 0 4px;
+    color:var(--dark);
+  }
+  .card .desc{
+    font-size:12.5px;
+    color:var(--muted);
+    margin:0 0 18px;
+  }
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text);
+    margin-bottom:6px;
+  }
+  .field .hint{
+    font-size:11.5px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+  input[type=text],input[type=number],input[type=password],input[type=email],
+  input[type=url],textarea,select{
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    font-family:inherit;
+    font-size:13.5px;
+    background:#fcfcfa;
+    color:var(--text);
+  }
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--primary);outline-offset:0;}
+  textarea{resize:vertical;}
+  .row{display:flex;gap:14px;flex-wrap:wrap;}
+  .row > .field{flex:1;min-width:150px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:560px){.grid2{grid-template-columns:1fr;}}
+
+  .color-field{display:flex;align-items:center;gap:8px;}
+  .color-field input[type=color]{
+    width:40px;height:38px;border:1px solid var(--border);border-radius:6px;padding:2px;background:#fff;cursor:pointer;
+  }
+  .color-field input[type=text]{flex:1;}
+
+  button.btn{
+    font-family:inherit;
+    border:none;
+    border-radius:8px;
+    padding:10px 18px;
+    font-size:13.5px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--dark);color:#fff;}
+  .btn-primary:hover{background:#16324f;}
+  .btn-green{background:var(--green);color:#fff;}
+  .btn-green:hover{background:#187f50;}
+  .btn-red{background:var(--red);color:#fff;}
+  .btn-red:hover{background:#b93b30;}
+  .btn-ghost{background:#fff;border:1px solid var(--border);color:var(--text);}
+  .btn-ghost:hover{background:#f3f1ec;}
+  .btn-sm{padding:6px 12px;font-size:12px;border-radius:6px;}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+
+  .toggle{
+    position:relative;display:inline-block;width:42px;height:24px;flex-shrink:0;
+  }
+  .toggle input{opacity:0;width:0;height:0;}
+  .toggle .slider{
+    position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:24px;transition:.2s;
+  }
+  .toggle .slider:before{
+    content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;
+  }
+  .toggle input:checked + .slider{background:var(--green);}
+  .toggle input:checked + .slider:before{transform:translateX(18px);}
+
+  .logo-preview{
+    width:80px;height:80px;border-radius:12px;border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fafaf8;margin-bottom:10px;
+  }
+  .logo-preview img{max-width:100%;max-height:100%;}
+
+  /* Ads */
+  .ad-item{
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:16px;
+    margin-bottom:14px;
+    background:#fbfaf7;
+  }
+  .ad-item .ad-head{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;
+  }
+  .ad-item .ad-head .label{font-weight:700;font-size:13px;color:var(--dark);}
+  .media-preview{
+    margin-top:8px;max-width:100%;max-height:160px;border-radius:8px;border:1px solid var(--border);
+    display:block;
+  }
+
+  /* Flow */
+  .flow-list{position:relative;padding-left:6px;}
+  .step-card{
+    display:flex;gap:14px;position:relative;padding-bottom:22px;
+  }
+  .step-card:last-child{padding-bottom:0;}
+  .step-node{
+    display:flex;flex-direction:column;align-items:center;flex-shrink:0;
+  }
+  .step-circle{
+    width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;
+  }
+  .step-line{
+    width:2px;flex:1;background:var(--border);margin-top:4px;min-height:20px;
+  }
+  .step-body{
+    flex:1;border:1px solid var(--border);border-radius:10px;background:#fff;padding:14px 16px;cursor:pointer;
+  }
+  .step-body.inactive{opacity:.55;}
+  .step-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .step-title{font-weight:700;font-size:14px;color:var(--dark);}
+  .step-desc{font-size:12px;color:var(--muted);margin-top:3px;}
+  .step-badge{
+    font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:5px;color:#fff;white-space:nowrap;
+  }
+  .step-controls{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .icon-btn{
+    border:1px solid var(--border);background:#fff;border-radius:6px;width:26px;height:26px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;
+  }
+  .icon-btn:hover{background:#f3f1ec;}
+  .step-editor{
+    margin-top:14px;border-top:1px solid var(--border);padding-top:14px;
+  }
+
+  /* Table */
+  table.maestro{
+    width:100%;border-collapse:collapse;margin-top:8px;
+  }
+  table.maestro th{
+    text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;
+    padding:6px 8px;border-bottom:1px solid var(--border);
+  }
+  table.maestro td{
+    padding:6px 8px;border-bottom:1px solid var(--border);
+  }
+  table.maestro td input,table.maestro td select{padding:7px 9px;font-size:13px;}
+
+  /* Queue */
+  .stat-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+  .stat-card{
+    border-radius:10px;padding:18px;text-align:center;color:#fff;
+  }
+  .stat-card .num{font-size:30px;font-weight:800;}
+  .stat-card .lbl{font-size:12px;opacity:.9;margin-top:2px;}
+  .stat-wait{background:var(--amber);}
+  .stat-call{background:var(--blue);}
+  .stat-done{background:var(--green);}
+
+  .calling-box{
+    background:#fff3d9;border:1px solid #f0c979;border-radius:10px;padding:16px;margin-bottom:18px;
+  }
+  .calling-box .turno{font-size:22px;font-weight:800;color:var(--dark);}
+  .turn-row{
+    display:flex;justify-content:space-between;align-items:center;
+    border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:8px;background:#fff;
+  }
+  .turn-row.done{opacity:.55;}
+  .turn-info{display:flex;flex-direction:column;}
+  .turn-info .tn{font-weight:700;font-size:14px;}
+  .turn-info .sv{font-size:11.5px;color:var(--muted);}
+  .badge-prio{
+    background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;margin-left:6px;
+  }
+  .attended-scroll{max-height:260px;overflow-y:auto;}
+
+  /* Audit */
+  .audit-log{max-height:500px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;}
+  .audit-row{
+    display:flex;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);align-items:flex-start;font-size:12.5px;
+  }
+  .audit-row:last-child{border-bottom:none;}
+  .audit-time{color:var(--muted);white-space:nowrap;min-width:130px;}
+  .audit-badge{
+    font-size:10px;font-weight:700;color:#fff;padding:3px 8px;border-radius:5px;white-space:nowrap;height:fit-content;
+  }
+  .audit-detail{flex:1;}
+
+  /* preview */
+  .preview-box{
+    background:#f7f5f0;border:1px dashed var(--border);border-radius:10px;padding:16px;font-size:13px;line-height:1.6;white-space:pre-wrap;color:var(--text);
+    max-height:260px;overflow-y:auto;
+  }
+
+  /* toast */
+  #toast{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--dark);color:#fff;padding:12px 22px;border-radius:8px;font-size:13.5px;font-weight:600;
+    opacity:0;transition:.25s;pointer-events:none;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,.25);
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .empty-msg{color:var(--muted);font-size:13px;padding:14px 0;text-align:center;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <h1>ARTHEMIS<span style="color:#F2A93B">•</span>HEALTH</h1>
+    <p class="sub">Panel de administración del kiosko</p>
+    <label for="loginUser">Usuario</label>
+    <input type="text" id="loginUser" autocomplete="username" placeholder="admin">
+    <label for="loginPass">Contraseña</label>
+    <input type="password" id="loginPass" autocomplete="current-password" placeholder="••••••••">
+    <button class="btn" onclick="doLogin()">Ingresar</button>
+    <div id="loginError">Usuario o contraseña incorrectos.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="top">
+    <div class="brand">
+      <div class="logo">ARTHEMIS<span>•</span>HEALTH</div>
+      <div class="sub">Configuración del kiosko</div>
+    </div>
+    <div class="actions">
+      <a href="/kiosco/tv" target="_blank">📺 Pantalla TV</a>
+      <a href="/kiosco" target="_blank">▶ Vista previa</a>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabBar">
+    <button data-tab="branding" class="active">Marca e identidad</button>
+    <button data-tab="ads">Pauta comercial</button>
+    <button data-tab="flow">Flujo del paciente</button>
+    <button data-tab="consent">Consentimiento</button>
+    <button data-tab="queue">Cola de turnos</button>
+    <button data-tab="maestros">Maestros</button>
+    <button data-tab="whatsapp">WhatsApp</button>
+    <button data-tab="audit">Auditoría</button>
+  </nav>
+
+  <main>
+
+    <!-- 1. BRANDING -->
+    <section class="panel active" id="panel-branding">
+      <div class="card">
+        <h2>Marca e identidad</h2>
+        <p class="desc">Logo, nombre de la clínica, paleta de colores y mensajes del kiosko.</p>
+
+        <div class="field">
+          <label>Logo</label>
+          <div class="logo-preview" id="logoPreview">
+            <span style="color:#bbb;font-size:11px;">Sin logo</span>
+          </div>
+          <input type="file" id="logoInput" accept="image/*" onchange="onLogoChange(event)">
+        </div>
+
+        <div class="field">
+          <label for="clinicName">Nombre de la clínica</label>
+          <input type="text" id="clinicName" placeholder="Arthemis Health IPS">
+        </div>
+
+        <div class="grid2">
+          <div class="field">
+            <label>Color primario</label>
+            <div class="color-field">
+              <input type="color" id="colorPrimaryPicker" oninput="syncColor('colorPrimary')">
+              <input type="text" id="colorPrimary" placeholder="#1866C4" oninput="syncColorHex('colorPrimary')">
+            </div>
+          </div>
+          <div class="field">
+            <label>Color de acento</label>
+            <div class="color-field">
+              <input type="color" id="colorAccentPicker" oninput="syncColor('colorAccent')">
+              <input type="text" id="colorAccent" placeholder="#F2A93B" oninput="syncColorHex('colorAccent')">
+            </div>
+          </div>
+          <div class="field">
+            <label>Color de fondo</label>
+            <div class="color-field">
+              <input type="color" id="colorBgPicker" oninput="syncColor('colorBg')">
+              <input type="text" id="colorBg" placeholder="#F0EDE8" oninput="syncColorHex('colorBg')">
+            </div>
+          </div>
+          <div class="field">
+            <label>Color oscuro</label>
+            <div class="color-field">
+              <input type="color" id="colorDarkPicker" oninput="syncColor('colorDark')">
+              <input type="text" id="colorDark" placeholder="#0D2137" oninput="syncColorHex('colorDark')">
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="welcomeMsg">Mensaje de bienvenida</label>
+          <input type="text" id="welcomeMsg" placeholder="Bienvenido a Arthemis Health">
+        </div>
+        <div class="field">
+          <label for="footerMsg">Mensaje de pie de página</label>
+          <input type="text" id="footerMsg" placeholder="Su bienestar es nuestra prioridad">
+        </div>
+        <div class="field">
+          <label for="adminPin">PIN de administrador (4-6 dígitos)</label>
+          <input type="text" id="adminPin" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="1234">
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-green" onclick="saveBranding()">Guardar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. ADS -->
+    <section class="panel" id="panel-ads">
+      <div class="card">
+        <h2>Pauta comercial</h2>
+        <p class="desc">Contenido publicitario mostrado en la pantalla del kiosko/TV.</p>
+        <div id="adsList"></div>
+        <div class="btn-row">
+          <button class="btn btn-ghost" onclick="addAd()">+ Agregar pauta</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Marca de agua</h2>
+        <p class="desc">Configuración de la marca de agua sobre el contenido publicitario.</p>
+        <div class="row">
+          <div class="field">
+            <label for="wmPosition">Posición</label>
+            <select id="wmPosition">
+              <option value="top-left">Superior izquierda</option>
+              <option value="top-right">Superior derecha</option>
+              <option value="bottom-left">Inferior izquierda</option>
+              <option value="bottom-right">Inferior derecha</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="wmOpacity">Opacidad (<span id="wmOpacityVal">50</span>%)</label>
+            <input type="range" id="wmOpacity" min="0" max="100" value="50" oninput="document.getElementById('wmOpacityVal').textContent=this.value">
+          </div>
+          <div class="field">
+            <label for="wmRotation">Rotación (segundos)</label>
+            <input type="number" id="wmRotation" min="1" value="10">
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="saveAds()">Guardar pauta comercial</button>
+      </div>
+    </section>
+
+    <!-- 3. FLOW -->
+    <section class="panel" id="panel-flow">
+      <div class="card">
+        <h2>Flujo del paciente</h2>
+        <p class="desc">Diseñe la secuencia de pasos que sigue el paciente en el kiosko.</p>
+        <div class="btn-row" style="margin-bottom:18px;">
+          <button class="btn btn-ghost" onclick="loadPresetFlow()">Preset recomendado</button>
+          <button class="btn btn-ghost" onclick="loadMinimalFlow()">Flujo mínimo</button>
+          <button class="btn btn-ghost" onclick="addStep()">+ Agregar paso</button>
+        </div>
+        <div class="flow-list" id="flowList"></div>
+      </div>
+
+      <div class="card">
+        <h2>Servicios</h2>
+        <p class="desc">Servicios disponibles para selección en el kiosko.</p>
+        <table class="maestro" id="servTable">
+          <thead>
+            <tr><th style="width:60px;">Ícono</th><th>Nombre</th><th style="width:80px;">Activo</th><th style="width:40px;"></th></tr>
+          </thead>
+          <tbody id="servTbody"></tbody>
+        </table>
+        <div class="btn-row">
+          <button class="btn btn-ghost" onclick="addServicio()">+ Agregar servicio</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="saveFlow()">Guardar flujo y servicios</button>
+      </div>
+    </section>
+
+    <!-- 4. CONSENT -->
+    <section class="panel" id="panel-consent">
+      <div class="card">
+        <h2>Consentimiento informado</h2>
+        <p class="desc">Texto de tratamiento de datos (Ley 1581 de 2012) mostrado en el kiosko.</p>
+
+        <div class="btn-row" style="margin-bottom:14px;">
+          <button class="btn btn-ghost" onclick="loadGenericConsent()">Cargar plantilla genérica</button>
+          <button class="btn btn-ghost" onclick="clearConsent()">Escribir desde cero</button>
+        </div>
+
+        <div class="field">
+          <label for="consentTitle">Título</label>
+          <input type="text" id="consentTitle" placeholder="Autorización de tratamiento de datos personales">
+        </div>
+        <div class="field">
+          <label for="consentBody">Cuerpo de la plantilla</label>
+          <textarea id="consentBody" style="min-height:200px;" oninput="renderConsentPreview()"></textarea>
+          <div class="hint">Variables disponibles: <code>{{clinicName}}</code>, <code>{{nit}}</code>, <code>{{email}}</code></div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label for="consentNit">NIT</label>
+            <input type="text" id="consentNit" placeholder="900.123.456-7" oninput="renderConsentPreview()">
+          </div>
+          <div class="field">
+            <label for="consentEmail">Correo electrónico</label>
+            <input type="email" id="consentEmail" placeholder="datos@arthemishealth.co" oninput="renderConsentPreview()">
+          </div>
+        </div>
+        <div class="field">
+          <label for="consentCheckLabel">Texto del checkbox de aceptación</label>
+          <input type="text" id="consentCheckLabel" placeholder="He leído y acepto el tratamiento de mis datos personales" oninput="renderConsentPreview()">
+        </div>
+
+        <div class="field">
+          <label>Vista previa</label>
+          <div class="preview-box" id="consentPreview"></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-green" onclick="saveConsent()">Guardar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. QUEUE -->
+    <section class="panel" id="panel-queue">
+      <div class="stat-cards">
+        <div class="stat-card stat-wait"><div class="num" id="statWait">0</div><div class="lbl">En espera</div></div>
+        <div class="stat-card stat-call"><div class="num" id="statCall">0</div><div class="lbl">Llamando</div></div>
+        <div class="stat-card stat-done"><div class="num" id="statDone">0</div><div class="lbl">Atendidos</div></div>
+      </div>
+
+      <div class="card" id="callingCard" style="display:none;">
+        <h2>Llamando actualmente</h2>
+        <div id="callingBox"></div>
+      </div>
+
+      <div class="card">
+        <h2>En espera</h2>
+        <div id="waitingList"><div class="empty-msg">No hay turnos en espera.</div></div>
+      </div>
+
+      <div class="card">
+        <h2>Atendidos</h2>
+        <div class="attended-scroll" id="attendedList"><div class="empty-msg">No hay turnos atendidos.</div></div>
+      </div>
+    </section>
+
+    <!-- 6. MAESTROS -->
+    <section class="panel" id="panel-maestros">
+      <div class="card">
+        <h2>Prestadores</h2>
+        <p class="desc">Entidades prestadoras de servicios de salud registradas.</p>
+        <table class="maestro">
+          <thead>
+            <tr><th>Nombre</th><th style="width:150px;">NIT</th><th style="width:150px;">Habilitación</th><th style="width:70px;">Activo</th><th style="width:40px;"></th></tr>
+          </thead>
+          <tbody id="prestadoresTbody"></tbody>
+        </table>
+        <div class="btn-row">
+          <button class="btn btn-ghost" onclick="addPrestador()">+ Agregar prestador</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>EPS</h2>
+        <p class="desc">Entidades promotoras de salud registradas.</p>
+        <table class="maestro">
+          <thead>
+            <tr><th>Nombre</th><th style="width:120px;">Código</th><th style="width:160px;">Régimen</th><th style="width:40px;"></th></tr>
+          </thead>
+          <tbody id="epsTbody"></tbody>
+        </table>
+        <div class="btn-row">
+          <button class="btn btn-ghost" onclick="addEps()">+ Agregar EPS</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="saveMaestros()">Guardar maestros</button>
+      </div>
+    </section>
+
+    <!-- 7. WHATSAPP -->
+    <section class="panel" id="panel-whatsapp">
+      <div class="card">
+        <h2>WhatsApp</h2>
+        <p class="desc">Notificaciones de turno por WhatsApp Business.</p>
+        <div class="field" style="display:flex;align-items:center;gap:12px;">
+          <label class="toggle"><input type="checkbox" id="waEnabled"><span class="slider"></span></label>
+          <label style="margin:0;">Habilitar notificaciones por WhatsApp</label>
+        </div>
+        <div class="row">
+          <div class="field" style="max-width:140px;">
+            <label for="waCountry">Código de país</label>
+            <input type="text" id="waCountry" value="+57">
+          </div>
+          <div class="field">
+            <label for="waNumber">Número de negocio</label>
+            <input type="text" id="waNumber" placeholder="3001234567">
+          </div>
+        </div>
+        <div class="field" style="max-width:220px;">
+          <label for="langSelect">Idioma del kiosko</label>
+          <select id="langSelect">
+            <option value="es">Español</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-green" onclick="saveWhatsapp()">Guardar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. AUDIT -->
+    <section class="panel" id="panel-audit">
+      <div class="card">
+        <h2>Auditoría</h2>
+        <p class="desc"><span id="auditCount">0</span> registros cargados.</p>
+        <div class="btn-row" style="margin-bottom:14px;">
+          <button class="btn btn-ghost" onclick="reloadAudit()">Recargar</button>
+          <button class="btn btn-red" onclick="clearAuditView()">Limpiar log</button>
+        </div>
+        <div class="audit-log" id="auditLog"><div class="empty-msg">Cargando…</div></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ==================== STATE ==================== */
+let config = {};
+let anuncios = [];
+let servicios = [];
+let flowSteps = [];
+let colaData = [];
+let auditData = [];
+let expandedStepId = null;
+let colaTimer = null;
+
+const STEP_TYPES = {
+  menu: {label:'Menú', color:'#1866C4'},
+  entrada: {label:'Entrada', color:'#1E9E63'},
+  automatico: {label:'Automático', color:'#8B93A1'},
+  consentimiento: {label:'Consentimiento', color:'#C98A1F'},
+  bifurcacion: {label:'Bifurcación', color:'#9B5DE5'},
+  seleccion: {label:'Selección', color:'#00A8B5'},
+  triage: {label:'Triage', color:'#D5493D'},
+  resultado: {label:'Resultado', color:'#1E9E63'},
+  personalizado: {label:'Personalizado', color:'#F2A93B'}
+};
+
+/* ==================== UTIL ==================== */
+function uid(prefix){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+async function api(path, opts={}){
+  const res = await fetch(path, Object.assign({credentials:'same-origin'}, opts));
+  let data = null;
+  try{ data = await res.json(); }catch(e){}
+  if(!res.ok){
+    const err = new Error((data && data.error) || res.statusText || 'Error de red');
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+/* ==================== AUTH ==================== */
+async function checkAuth(){
+  try{
+    const me = await api('/api/auth/me');
+    if(me && (me.authenticated || me.ok || me.usuario)){
+      showApp();
+      return;
+    }
+    showLogin();
+  }catch(e){
+    showLogin();
+  }
+}
+
+function showLogin(){
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+function showApp(){
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  initApp();
+}
+
+async function doLogin(){
+  const usuario = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value;
+  const errBox = document.getElementById('loginError');
+  errBox.style.display = 'none';
+  try{
+    await api('/api/auth/login', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({usuario, password})
+    });
+    showApp();
+  }catch(e){
+    errBox.textContent = e.message || 'Usuario o contraseña incorrectos.';
+    errBox.style.display = 'block';
+  }
+}
+
+document.getElementById('loginPass').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') doLogin();
+});
+document.getElementById('loginUser').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') doLogin();
+});
+
+/* ==================== TABS ==================== */
+document.getElementById('tabBar').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-tab]');
+  if(!btn) return;
+  const tab = btn.dataset.tab;
+  document.querySelectorAll('#tabBar button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+
+  if(tab === 'queue'){ loadCola(); startColaAutoRefresh(); } else { stopColaAutoRefresh(); }
+  if(tab === 'audit'){ reloadAudit(); }
+});
+
+/* ==================== INIT ==================== */
+async function initApp(){
+  await Promise.all([loadConfig(), loadAnuncios(), loadServicios()]);
+  renderBranding();
+  renderAds();
+  renderFlow();
+  renderServiciosTable();
+  renderConsent();
+  renderMaestros();
+  renderWhatsapp();
+}
+
+async function loadConfig(){
+  try{
+    config = await api('/api/kiosco/config') || {};
+  }catch(e){
+    config = {};
+  }
+  flowSteps = config.flowSteps || [];
+}
+
+async function loadAnuncios(){
+  try{
+    const d = await api('/api/kiosco/anuncios');
+    anuncios = (d && d.anuncios) || [];
+  }catch(e){ anuncios = []; }
+}
+
+async function loadServicios(){
+  try{
+    const d = await api('/api/kiosco/servicios');
+    servicios = (d && d.servicios) || [];
+  }catch(e){ servicios = []; }
+}
+
+/* ==================== 1. BRANDING ==================== */
+function renderBranding(){
+  document.getElementById('clinicName').value = config.clinicName || '';
+  document.getElementById('welcomeMsg').value = config.welcomeMsg || '';
+  document.getElementById('footerMsg').value = config.footerMsg || '';
+  document.getElementById('adminPin').value = config.adminPin || '';
+
+  const colors = config.colors || {};
+  setColorPair('colorPrimary', colors.primary || '#1866C4');
+  setColorPair('colorAccent', colors.accent || '#F2A93B');
+  setColorPair('colorBg', colors.bg || '#F0EDE8');
+  setColorPair('colorDark', colors.dark || '#0D2137');
+
+  const preview = document.getElementById('logoPreview');
+  if(config.logo){
+    preview.innerHTML = '<img src="'+config.logo+'" alt="logo">';
+  } else {
+    preview.innerHTML = '<span style="color:#bbb;font-size:11px;">Sin logo</span>';
+  }
+}
+
+function setColorPair(id, hex){
+  document.getElementById(id).value = hex;
+  document.getElementById(id+'Picker').value = isValidHex(hex) ? hex : '#000000';
+}
+function isValidHex(v){ return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v); }
+function syncColor(id){
+  document.getElementById(id).value = document.getElementById(id+'Picker').value;
+}
+function syncColorHex(id){
+  const v = document.getElementById(id).value;
+  if(isValidHex(v)) document.getElementById(id+'Picker').value = v;
+}
+
+function onLogoChange(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    config.logo = reader.result;
+    document.getElementById('logoPreview').innerHTML = '<img src="'+reader.result+'" alt="logo">';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveBranding(){
+  config.clinicName = document.getElementById('clinicName').value.trim();
+  config.welcomeMsg = document.getElementById('welcomeMsg').value.trim();
+  config.footerMsg = document.getElementById('footerMsg').value.trim();
+  config.adminPin = document.getElementById('adminPin').value.replace(/\D/g,'').slice(0,6);
+  config.colors = {
+    primary: document.getElementById('colorPrimary').value,
+    accent: document.getElementById('colorAccent').value,
+    bg: document.getElementById('colorBg').value,
+    dark: document.getElementById('colorDark').value
+  };
+  await persistConfig('Marca guardada');
+}
+
+async function persistConfig(msg){
+  try{
+    await api('/api/kiosco/config', {
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(config)
+    });
+    toast((msg || 'Guardado') + ' ✓');
+  }catch(e){
+    toast('Error al guardar: ' + (e.message || ''));
+  }
+}
+
+/* ==================== 2. ADS ==================== */
+function renderAds(){
+  const wrap = document.getElementById('adsList');
+  wrap.innerHTML = '';
+  if(!anuncios.length){
+    wrap.innerHTML = '<div class="empty-msg">No hay pautas configuradas.</div>';
+  }
+  anuncios.forEach((ad, idx)=>{
+    const div = document.createElement('div');
+    div.className = 'ad-item';
+    div.innerHTML = `
+      <div class="ad-head">
+        <span class="label">Pauta #${idx+1}</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <label class="toggle"><input type="checkbox" ${ad.activo ? 'checked' : ''} data-idx="${idx}" class="ad-active"><span class="slider"></span></label>
+          <button class="btn btn-red btn-sm" data-idx="${idx}" data-act="del-ad">Eliminar</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Título</label>
+        <input type="text" data-idx="${idx}" data-field="titulo" class="ad-input" value="${escAttr(ad.titulo||'')}">
+      </div>
+      <div class="field">
+        <label>Descripción</label>
+        <input type="text" data-idx="${idx}" data-field="descripcion" class="ad-input" value="${escAttr(ad.descripcion||'')}">
+      </div>
+      <div class="row">
+        <div class="field" style="max-width:160px;">
+          <label>Tipo de contenido</label>
+          <select data-idx="${idx}" class="ad-mediatype">
+            <option value="none" ${ad.media_type==='none'?'selected':''}>Ninguno</option>
+            <option value="image" ${ad.media_type==='image'?'selected':''}>Imagen</option>
+            <option value="video" ${ad.media_type==='video'?'selected':''}>Video</option>
+          </select>
+        </div>
+        <div class="field" style="flex:2;">
+          <label>URL del contenido</label>
+          <input type="text" data-idx="${idx}" data-field="media_url" class="ad-input" value="${escAttr(ad.media_url||'')}" placeholder="https://...">
+        </div>
+      </div>
+      <div class="ad-media-preview"></div>
+    `;
+    wrap.appendChild(div);
+    renderAdMediaPreview(div.querySelector('.ad-media-preview'), ad);
+  });
+
+  wrap.querySelectorAll('.ad-active').forEach(el=>el.addEventListener('change', e=>{
+    anuncios[e.target.dataset.idx].activo = e.target.checked;
+  }));
+  wrap.querySelectorAll('[data-act="del-ad"]').forEach(el=>el.addEventListener('click', e=>{
+    anuncios.splice(e.target.dataset.idx, 1);
+    renderAds();
+  }));
+  wrap.querySelectorAll('.ad-input').forEach(el=>el.addEventListener('input', e=>{
+    anuncios[e.target.dataset.idx][e.target.dataset.field] = e.target.value;
+    if(e.target.dataset.field === 'media_url'){
+      renderAds();
+    }
+  }));
+  wrap.querySelectorAll('.ad-mediatype').forEach(el=>el.addEventListener('change', e=>{
+    anuncios[e.target.dataset.idx].media_type = e.target.value;
+    renderAds();
+  }));
+}
+
+function renderAdMediaPreview(container, ad){
+  if(!ad.media_url || ad.media_type === 'none'){ container.innerHTML=''; return; }
+  if(ad.media_type === 'image'){
+    container.innerHTML = `<img class="media-preview" src="${escAttr(ad.media_url)}" onerror="this.style.display='none'">`;
+  } else if(ad.media_type === 'video'){
+    container.innerHTML = `<video class="media-preview" src="${escAttr(ad.media_url)}" muted controls></video>`;
+  }
+}
+
+function addAd(){
+  anuncios.push({id: uid('ad'), titulo:'', descripcion:'', media_type:'none', media_url:'', activo:true, orden: anuncios.length});
+  renderAds();
+}
+
+async function saveAds(){
+  config.watermark = {
+    position: document.getElementById('wmPosition').value,
+    opacity: Number(document.getElementById('wmOpacity').value),
+    rotationSeconds: Number(document.getElementById('wmRotation').value)
+  };
+  anuncios.forEach((a,i)=>a.orden = i);
+  try{
+    await api('/api/kiosco/anuncios', {
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({anuncios})
+    });
+    await persistConfig('Pauta comercial guardada');
+  }catch(e){
+    toast('Error al guardar: ' + (e.message || ''));
+  }
+}
+
+function escAttr(s){
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ==================== 3. FLOW ==================== */
+function renderFlow(){
+  const wrap = document.getElementById('flowList');
+  wrap.innerHTML = '';
+  if(!flowSteps.length){
+    wrap.innerHTML = '<div class="empty-msg">No hay pasos configurados. Use un preset o agregue pasos.</div>';
+    return;
+  }
+  flowSteps.forEach((step, idx)=>{
+    const typeInfo = STEP_TYPES[step.type] || STEP_TYPES.personalizado;
+    const card = document.createElement('div');
+    card.className = 'step-card';
+    const isExpanded = expandedStepId === step.id;
+    card.innerHTML = `
+      <div class="step-node">
+        <div class="step-circle">${idx+1}</div>
+        ${idx < flowSteps.length-1 ? '<div class="step-line"></div>' : ''}
+      </div>
+      <div class="step-body ${step.activo === false ? 'inactive' : ''}" data-id="${step.id}">
+        <div class="step-top">
+          <div>
+            <span class="step-badge" style="background:${typeInfo.color}">${typeInfo.label}</span>
+            <div class="step-title">${escAttr(step.name || '(sin nombre)')}</div>
+            <div class="step-desc">${escAttr(step.description || '')}</div>
+          </div>
+          <div class="step-controls">
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" ${step.activo !== false ? 'checked' : ''} data-id="${step.id}" class="step-active">
+              <span class="slider"></span>
+            </label>
+            <button class="icon-btn" data-id="${step.id}" data-act="up" onclick="event.stopPropagation()" title="Subir">↑</button>
+            <button class="icon-btn" data-id="${step.id}" data-act="down" onclick="event.stopPropagation()" title="Bajar">↓</button>
+          </div>
+        </div>
+        ${isExpanded ? renderStepEditor(step) : ''}
+      </div>
+    `;
+    wrap.appendChild(card);
+  });
+
+  wrap.querySelectorAll('.step-body').forEach(el=>el.addEventListener('click', (e)=>{
+    if(e.target.closest('.step-editor')) return;
+    const id = el.dataset.id;
+    expandedStepId = (expandedStepId === id) ? null : id;
+    renderFlow();
+  }));
+  wrap.querySelectorAll('.step-active').forEach(el=>el.addEventListener('change', e=>{
+    const step = flowSteps.find(s=>s.id === e.target.dataset.id);
+    if(step) step.activo = e.target.checked;
+  }));
+  wrap.querySelectorAll('[data-act="up"]').forEach(el=>el.addEventListener('click', e=>{
+    moveStep(e.target.dataset.id, -1);
+  }));
+  wrap.querySelectorAll('[data-act="down"]').forEach(el=>el.addEventListener('click', e=>{
+    moveStep(e.target.dataset.id, 1);
+  }));
+
+  bindStepEditorEvents();
+}
+
+function renderStepEditor(step){
+  const options = Object.keys(STEP_TYPES).map(k=>
+    `<option value="${k}" ${step.type===k?'selected':''}>${STEP_TYPES[k].label}</option>`
+  ).join('');
+  return `
+    <div class="step-editor" data-id="${step.id}">
+      <div class="field">
+        <label>Nombre</label>
+        <input type="text" class="step-edit-name" data-id="${step.id}" value="${escAttr(step.name||'')}">
+      </div>
+      <div class="field">
+        <label>Tipo</label>
+        <select class="step-edit-type" data-id="${step.id}">${options}</select>
+      </div>
+      <div class="field">
+        <label>Descripción</label>
+        <textarea class="step-edit-desc" data-id="${step.id}" style="min-height:70px;">${escAttrText(step.description||'')}</textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-red btn-sm" data-id="${step.id}" data-act="del-step">Eliminar paso</button>
+      </div>
+    </div>
+  `;
+}
+
+function escAttrText(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function bindStepEditorEvents(){
+  document.querySelectorAll('.step-edit-name').forEach(el=>el.addEventListener('input', e=>{
+    const s = flowSteps.find(s=>s.id===e.target.dataset.id);
+    if(s) s.name = e.target.value;
+    updateStepHeader(e.target.dataset.id);
+  }));
+  document.querySelectorAll('.step-edit-type').forEach(el=>el.addEventListener('change', e=>{
+    const s = flowSteps.find(s=>s.id===e.target.dataset.id);
+    if(s) s.type = e.target.value;
+    renderFlow();
+  }));
+  document.querySelectorAll('.step-edit-desc').forEach(el=>el.addEventListener('input', e=>{
+    const s = flowSteps.find(s=>s.id===e.target.dataset.id);
+    if(s) s.description = e.target.value;
+    updateStepHeader(e.target.dataset.id);
+  }));
+  document.querySelectorAll('[data-act="del-step"]').forEach(el=>el.addEventListener('click', e=>{
+    const id = e.target.dataset.id;
+    flowSteps = flowSteps.filter(s=>s.id !== id);
+    expandedStepId = null;
+    renderFlow();
+  }));
+}
+
+function updateStepHeader(id){
+  // lightweight partial update without full re-render (avoid losing focus)
+  const s = flowSteps.find(s=>s.id===id);
+  if(!s) return;
+  const body = document.querySelector(`.step-body[data-id="${id}"]`);
+  if(!body) return;
+  const titleEl = body.querySelector('.step-title');
+  const descEl = body.querySelector('.step-desc');
+  if(titleEl) titleEl.textContent = s.name || '(sin nombre)';
+  if(descEl) descEl.textContent = s.description || '';
+}
+
+function moveStep(id, dir){
+  const idx = flowSteps.findIndex(s=>s.id===id);
+  const newIdx = idx + dir;
+  if(idx < 0 || newIdx < 0 || newIdx >= flowSteps.length) return;
+  const [item] = flowSteps.splice(idx,1);
+  flowSteps.splice(newIdx,0,item);
+  renderFlow();
+}
+
+function addStep(){
+  flowSteps.push({id: uid('step'), type:'personalizado', name:'Nuevo paso', description:'', activo:true});
+  expandedStepId = flowSteps[flowSteps.length-1].id;
+  renderFlow();
+}
+
+function loadPresetFlow(){
+  flowSteps = [
+    {id: uid('step'), type:'entrada', name:'Pantalla de bienvenida', description:'Mensaje inicial y logo de la clínica', activo:true},
+    {id: uid('step'), type:'menu', name:'Menú principal', description:'Selección del motivo de la visita', activo:true},
+    {id: uid('step'), type:'seleccion', name:'Selección de servicio', description:'El paciente elige el servicio requerido', activo:true},
+    {id: uid('step'), type:'automatico', name:'Identificación', description:'Lectura de documento o búsqueda por cédula', activo:true},
+    {id: uid('step'), type:'consentimiento', name:'Consentimiento informado', description:'Aceptación de tratamiento de datos', activo:true},
+    {id: uid('step'), type:'triage', name:'Triage inicial', description:'Preguntas de clasificación de prioridad', activo:true},
+    {id: uid('step'), type:'bifurcacion', name:'Bifurcación de ruta', description:'Enruta según prioridad o tipo de servicio', activo:true},
+    {id: uid('step'), type:'automatico', name:'Asignación de turno', description:'Generación automática del número de turno', activo:true},
+    {id: uid('step'), type:'resultado', name:'Confirmación', description:'Muestra el turno asignado y tiempo estimado', activo:true}
+  ];
+  expandedStepId = null;
+  renderFlow();
+}
+
+function loadMinimalFlow(){
+  flowSteps = [
+    {id: uid('step'), type:'entrada', name:'Bienvenida', description:'Pantalla inicial', activo:true},
+    {id: uid('step'), type:'automatico', name:'Identificación', description:'Búsqueda por documento', activo:true},
+    {id: uid('step'), type:'resultado', name:'Turno asignado', description:'Muestra el número de turno', activo:true}
+  ];
+  expandedStepId = null;
+  renderFlow();
+}
+
+/* Servicios */
+function renderServiciosTable(){
+  const tbody = document.getElementById('servTbody');
+  tbody.innerHTML = '';
+  if(!servicios.length){
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">No hay servicios configurados.</td></tr>';
+    return;
+  }
+  servicios.forEach((s, idx)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" data-idx="${idx}" data-f="icono" class="serv-input" value="${escAttr(s.icono||'')}" maxlength="4" style="text-align:center;"></td>
+      <td><input type="text" data-idx="${idx}" data-f="nombre" class="serv-input" value="${escAttr(s.nombre||'')}"></td>
+      <td><label class="toggle"><input type="checkbox" data-idx="${idx}" class="serv-active" ${s.activo?'checked':''}><span class="slider"></span></label></td>
+      <td><button class="icon-btn" data-idx="${idx}" data-act="del-serv" title="Eliminar">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('.serv-input').forEach(el=>el.addEventListener('input', e=>{
+    servicios[e.target.dataset.idx][e.target.dataset.f] = e.target.value;
+  }));
+  tbody.querySelectorAll('.serv-active').forEach(el=>el.addEventListener('change', e=>{
+    servicios[e.target.dataset.idx].activo = e.target.checked;
+  }));
+  tbody.querySelectorAll('[data-act="del-serv"]').forEach(el=>el.addEventListener('click', e=>{
+    servicios.splice(e.target.dataset.idx,1);
+    renderServiciosTable();
+  }));
+}
+
+function addServicio(){
+  servicios.push({id: uid('srv'), codigo: uid('cod'), nombre:'', icono:'🩺', activo:true, orden:servicios.length});
+  renderServiciosTable();
+}
+
+async function saveFlow(){
+  config.flowSteps = flowSteps;
+  servicios.forEach((s,i)=>s.orden=i);
+  try{
+    await api('/api/kiosco/servicios', {
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({servicios})
+    });
+    await persistConfig('Flujo y servicios guardados');
+  }catch(e){
+    toast('Error al guardar: ' + (e.message || ''));
+  }
+}
+
+/* ==================== 4. CONSENT ==================== */
+const GENERIC_CONSENT = `De conformidad con lo dispuesto en la Ley 1581 de 2012 y el Decreto 1377 de 2013, {{clinicName}}, identificada con NIT {{nit}}, en calidad de responsable del tratamiento de datos personales, informa que los datos suministrados por el titular serán recolectados, almacenados, usados y tratados con las siguientes finalidades: (i) prestación de servicios de salud; (ii) gestión de citas y turnos de atención; (iii) facturación y trámites administrativos ante EPS y demás entidades del sistema de salud; (iv) envío de notificaciones relacionadas con la atención, incluyendo mensajes por WhatsApp o SMS; y (v) cumplimiento de obligaciones legales y reglamentarias en materia de salud.
+
+El titular podrá ejercer sus derechos de acceso, actualización, rectificación, supresión y revocatoria de la autorización, así como presentar quejas ante la Superintendencia de Industria y Comercio, mediante solicitud escrita dirigida a {{email}}.
+
+Al continuar y aceptar este documento, usted declara que ha leído y comprendido esta información y autoriza de manera libre, previa, expresa e informada el tratamiento de sus datos personales conforme a lo aquí descrito.`;
+
+function renderConsent(){
+  const c = config.consent || {};
+  document.getElementById('consentTitle').value = c.title || 'Autorización de tratamiento de datos personales';
+  document.getElementById('consentBody').value = c.body || '';
+  document.getElementById('consentNit').value = c.nit || '';
+  document.getElementById('consentEmail').value = c.email || '';
+  document.getElementById('consentCheckLabel').value = c.checkboxLabel || 'He leído y acepto el tratamiento de mis datos personales';
+  renderConsentPreview();
+}
+
+function loadGenericConsent(){
+  document.getElementById('consentBody').value = GENERIC_CONSENT;
+  renderConsentPreview();
+}
+
+function clearConsent(){
+  document.getElementById('consentBody').value = '';
+  renderConsentPreview();
+}
+
+function renderConsentPreview(){
+  const body = document.getElementById('consentBody').value;
+  const clinicName = document.getElementById('clinicName') ? (document.getElementById('clinicName').value || config.clinicName || 'la clínica') : (config.clinicName || 'la clínica');
+  const nit = document.getElementById('consentNit').value || 'N/A';
+  const email = document.getElementById('consentEmail').value || 'N/A';
+  const rendered = body
+    .replaceAll('{{clinicName}}', clinicName)
+    .replaceAll('{{nit}}', nit)
+    .replaceAll('{{email}}', email);
+  document.getElementById('consentPreview').textContent = rendered || 'La vista previa se mostrará aquí a medida que escribe la plantilla.';
+}
+
+async function saveConsent(){
+  config.consent = {
+    title: document.getElementById('consentTitle').value.trim(),
+    body: document.getElementById('consentBody').value,
+    nit: document.getElementById('consentNit').value.trim(),
+    email: document.getElementById('consentEmail').value.trim(),
+    checkboxLabel: document.getElementById('consentCheckLabel').value.trim()
+  };
+  await persistConfig('Consentimiento guardado');
+}
+
+/* ==================== 5. QUEUE ==================== */
+async function loadCola(){
+  try{
+    const d = await api('/api/kiosco/cola');
+    colaData = (d && d.cola) || [];
+  }catch(e){
+    colaData = [];
+  }
+  renderCola();
+}
+
+function renderCola(){
+  const waiting = colaData.filter(t=>t.estado === 'esperando' || t.estado === 'espera');
+  const calling = colaData.filter(t=>t.estado === 'llamando');
+  const done = colaData.filter(t=>t.estado === 'atendido');
+
+  document.getElementById('statWait').textContent = waiting.length;
+  document.getElementById('statCall').textContent = calling.length;
+  document.getElementById('statDone').textContent = done.length;
+
+  const callingCard = document.getElementById('callingCard');
+  const callingBox = document.getElementById('callingBox');
+  if(calling.length){
+    callingCard.style.display = 'block';
+    callingBox.innerHTML = calling.map(t=>`
+      <div class="calling-box" style="margin-bottom:10px;">
+        <div class="turno">${escAttr(t.turno)} ${t.prioritario ? '<span class="badge-prio">PRIORITARIO</span>' : ''}</div>
+        <div style="font-size:13px;color:var(--muted);margin:4px 0 10px;">${escAttr(t.nombre||'')} — ${escAttr(t.servicio||'')}</div>
+        <button class="btn btn-green btn-sm" data-id="${t.id}" data-act="atender">Atendido</button>
+      </div>
+    `).join('');
+    callingBox.querySelectorAll('[data-act="atender"]').forEach(el=>el.addEventListener('click', e=>atenderTurno(e.target.dataset.id)));
+  } else {
+    callingCard.style.display = 'none';
+    callingBox.innerHTML = '';
+  }
+
+  const waitingList = document.getElementById('waitingList');
+  if(!waiting.length){
+    waitingList.innerHTML = '<div class="empty-msg">No hay turnos en espera.</div>';
+  } else {
+    waitingList.innerHTML = waiting.map(t=>`
+      <div class="turn-row">
+        <div class="turn-info">
+          <span class="tn">${escAttr(t.turno)} ${t.prioritario ? '<span class="badge-prio">PRIORITARIO</span>' : ''}</span>
+          <span class="sv">${escAttr(t.nombre||'')} — ${escAttr(t.servicio||'')}</span>
+        </div>
+        <button class="btn btn-primary btn-sm" data-id="${t.id}" data-act="llamar">Llamar</button>
+      </div>
+    `).join('');
+    waitingList.querySelectorAll('[data-act="llamar"]').forEach(el=>el.addEventListener('click', e=>llamarTurno(e.target.dataset.id)));
+  }
+
+  const attendedList = document.getElementById('attendedList');
+  if(!done.length){
+    attendedList.innerHTML = '<div class="empty-msg">No hay turnos atendidos.</div>';
+  } else {
+    attendedList.innerHTML = done.map(t=>`
+      <div class="turn-row done">
+        <div class="turn-info">
+          <span class="tn">${escAttr(t.turno)}</span>
+          <span class="sv">${escAttr(t.nombre||'')} — ${escAttr(t.servicio||'')}</span>
+        </div>
+        <span style="font-size:11px;color:var(--muted);">${escAttr(t.creado_en||'')}</span>
+      </div>
+    `).join('');
+  }
+}
+
+async function llamarTurno(id){
+  try{
+    await api('/api/kiosco/llamar-turno', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id})
+    });
+    toast('Turno llamado ✓');
+    loadCola();
+  }catch(e){ toast('Error: ' + (e.message||'')); }
+}
+
+async function atenderTurno(id){
+  try{
+    await api('/api/kiosco/atender-turno', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id})
+    });
+    toast('Turno atendido ✓');
+    loadCola();
+  }catch(e){ toast('Error: ' + (e.message||'')); }
+}
+
+function startColaAutoRefresh(){
+  stopColaAutoRefresh();
+  colaTimer = setInterval(loadCola, 10000);
+}
+function stopColaAutoRefresh(){
+  if(colaTimer){ clearInterval(colaTimer); colaTimer = null; }
+}
+
+/* ==================== 6. MAESTROS ==================== */
+function renderMaestros(){
+  const prest = config.prestadores || [];
+  const eps = config.eps || [];
+  renderPrestadores(prest);
+  renderEps(eps);
+}
+
+function renderPrestadores(list){
+  config.prestadores = list;
+  const tbody = document.getElementById('prestadoresTbody');
+  tbody.innerHTML = '';
+  if(!list.length){
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">No hay prestadores registrados.</td></tr>';
+    return;
+  }
+  list.forEach((p, idx)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" data-idx="${idx}" data-f="nombre" class="prest-input" value="${escAttr(p.nombre||'')}"></td>
+      <td><input type="text" data-idx="${idx}" data-f="nit" class="prest-input" value="${escAttr(p.nit||'')}"></td>
+      <td><input type="text" data-idx="${idx}" data-f="habilitacion" class="prest-input" value="${escAttr(p.habilitacion||'')}"></td>
+      <td><label class="toggle"><input type="checkbox" data-idx="${idx}" class="prest-active" ${p.activo?'checked':''}><span class="slider"></span></label></td>
+      <td><button class="icon-btn" data-idx="${idx}" data-act="del-prest">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('.prest-input').forEach(el=>el.addEventListener('input', e=>{
+    config.prestadores[e.target.dataset.idx][e.target.dataset.f] = e.target.value;
+  }));
+  tbody.querySelectorAll('.prest-active').forEach(el=>el.addEventListener('change', e=>{
+    config.prestadores[e.target.dataset.idx].activo = e.target.checked;
+  }));
+  tbody.querySelectorAll('[data-act="del-prest"]').forEach(el=>el.addEventListener('click', e=>{
+    config.prestadores.splice(e.target.dataset.idx,1);
+    renderPrestadores(config.prestadores);
+  }));
+}
+
+function addPrestador(){
+  const list = config.prestadores || [];
+  list.push({id: uid('prest'), nombre:'', nit:'', habilitacion:'', activo:true});
+  renderPrestadores(list);
+}
+
+function renderEps(list){
+  config.eps = list;
+  const tbody = document.getElementById('epsTbody');
+  tbody.innerHTML = '';
+  if(!list.length){
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">No hay EPS registradas.</td></tr>';
+    return;
+  }
+  list.forEach((e, idx)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" data-idx="${idx}" data-f="nombre" class="eps-input" value="${escAttr(e.nombre||'')}"></td>
+      <td><input type="text" data-idx="${idx}" data-f="codigo" class="eps-input" value="${escAttr(e.codigo||'')}"></td>
+      <td>
+        <select data-idx="${idx}" class="eps-regimen">
+          <option value="Contributivo" ${e.regimen==='Contributivo'?'selected':''}>Contributivo</option>
+          <option value="Subsidiado" ${e.regimen==='Subsidiado'?'selected':''}>Subsidiado</option>
+          <option value="Especial" ${e.regimen==='Especial'?'selected':''}>Especial</option>
+        </select>
+      </td>
+      <td><button class="icon-btn" data-idx="${idx}" data-act="del-eps">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('.eps-input').forEach(el=>el.addEventListener('input', ev=>{
+    config.eps[ev.target.dataset.idx][ev.target.dataset.f] = ev.target.value;
+  }));
+  tbody.querySelectorAll('.eps-regimen').forEach(el=>el.addEventListener('change', ev=>{
+    config.eps[ev.target.dataset.idx].regimen = ev.target.value;
+  }));
+  tbody.querySelectorAll('[data-act="del-eps"]').forEach(el=>el.addEventListener('click', ev=>{
+    config.eps.splice(ev.target.dataset.idx,1);
+    renderEps(config.eps);
+  }));
+}
+
+function addEps(){
+  const list = config.eps || [];
+  list.push({id: uid('eps'), nombre:'', codigo:'', regimen:'Contributivo'});
+  renderEps(list);
+}
+
+async function saveMaestros(){
+  await persistConfig('Maestros guardados');
+}
+
+/* ==================== 7. WHATSAPP ==================== */
+function renderWhatsapp(){
+  const wa = config.whatsapp || {};
+  document.getElementById('waEnabled').checked = !!wa.enabled;
+  document.getElementById('waCountry').value = wa.countryCode || '+57';
+  document.getElementById('waNumber').value = wa.number || '';
+  document.getElementById('langSelect').value = config.lang || 'es';
+}
+
+async function saveWhatsapp(){
+  config.whatsapp = {
+    enabled: document.getElementById('waEnabled').checked,
+    countryCode: document.getElementById('waCountry').value.trim(),
+    number: document.getElementById('waNumber').value.trim()
+  };
+  config.lang = document.getElementById('langSelect').value;
+  await persistConfig('WhatsApp guardado');
+}
+
+/* ==================== 8. AUDIT ==================== */
+async function reloadAudit(){
+  const log = document.getElementById('auditLog');
+  log.innerHTML = '<div class="empty-msg">Cargando…</div>';
+  try{
+    const d = await api('/api/audit?limit=100&entidad=admisiones');
+    auditData = Array.isArray(d) ? d : (d.items || d.logs || d.registros || []);
+  }catch(e){
+    auditData = [];
+  }
+  renderAudit();
+}
+
+function clearAuditView(){
+  auditData = [];
+  renderAudit();
+  toast('Log limpiado (solo vista)');
+}
+
+function auditBadgeColor(tipo){
+  tipo = (tipo || '').toLowerCase();
+  if(tipo.startsWith('turno')) return '#1866C4';
+  if(tipo.includes('whatsapp')) return '#1E9E63';
+  if(tipo.includes('print')) return '#C98A1F';
+  if(tipo.includes('session')) return '#D5493D';
+  return '#8B93A1';
+}
+
+function renderAudit(){
+  document.getElementById('auditCount').textContent = auditData.length;
+  const log = document.getElementById('auditLog');
+  if(!auditData.length){
+    log.innerHTML = '<div class="empty-msg">No hay registros de auditoría.</div>';
+    return;
+  }
+  log.innerHTML = auditData.map(item=>{
+    const tipo = item.tipo || item.type || item.accion || item.action || 'evento';
+    const ts = item.fecha || item.timestamp || item.creado_en || item.created_at || '';
+    const detail = item.detalle || item.detail || item.descripcion || item.mensaje || JSON.stringify(item.data || item.payload || {});
+    return `
+      <div class="audit-row">
+        <span class="audit-time">${escAttr(ts)}</span>
+        <span class="audit-badge" style="background:${auditBadgeColor(tipo)}">${escAttr(tipo)}</span>
+        <span class="audit-detail">${escAttr(detail)}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ==================== BOOT ==================== */
+checkAuth();
+</script>
+</body>
+</html>
