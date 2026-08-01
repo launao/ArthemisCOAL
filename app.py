@@ -59,6 +59,10 @@ def _csrf_check():
     origin = request.headers.get('Origin', '')
     if not origin:
         return None
+    # Allow same-origin requests (covers Railway, Render, etc.)
+    request_origin = f"{request.scheme}://{request.host}"
+    if origin == request_origin:
+        return None
     if origin not in ALLOWED_ORIGINS:
         return jsonify({'error': 'Origen no permitido'}), 403
     return None
@@ -75,7 +79,7 @@ def init_db():
     tables = f"""
 CREATE TABLE IF NOT EXISTS pacientes(id {S},tipo_doc TEXT DEFAULT 'CC',num_doc TEXT UNIQUE NOT NULL,nombres TEXT NOT NULL,apellidos TEXT NOT NULL,fecha_nacimiento TEXT,genero TEXT,telefono TEXT,celular TEXT,email TEXT,direccion TEXT,ciudad TEXT DEFAULT 'Bogotá',eps TEXT,tipo_afiliado TEXT DEFAULT 'Contributivo',estado TEXT DEFAULT 'activo',creado_en {T} {D},actualizado_en {T} {D});
 CREATE TABLE IF NOT EXISTS medicos(id {S},nombres TEXT,especialidad TEXT,modulo TEXT,activo INTEGER DEFAULT 1,color TEXT DEFAULT '#5147C4');
-CREATE TABLE IF NOT EXISTS admisiones(id {S},id_adm TEXT UNIQUE NOT NULL,paciente_id INTEGER,fecha_entrada {T} {D},fecha_llamado {T},fecha_admision_inicio {T},fecha_admision_fin {T},fecha_salida {T},estado TEXT DEFAULT 'kiosco',tipo_atencion TEXT,turno TEXT,turno_tipo TEXT DEFAULT 'general',modulo TEXT,tiempo_espera_min INTEGER DEFAULT 0,notif_ticket INTEGER DEFAULT 0,notif_wa INTEGER DEFAULT 0,notif_sms INTEGER DEFAULT 0,celular_notif TEXT,medico_id INTEGER,sede TEXT DEFAULT 'Principal',servicio_nombre TEXT,cod_cups TEXT,copago REAL DEFAULT 0,copago_cobrado INTEGER DEFAULT 0,numero_autorizacion TEXT,eps_validada INTEGER DEFAULT 0,eps_estado TEXT,eps_copago_real REAL,habeas_data INTEGER DEFAULT 0,habeas_data_ts {T},color_alerta TEXT DEFAULT 'yellow',origen TEXT DEFAULT 'kiosco',doc_num_temp TEXT,doc_type_temp TEXT,nombre_temp TEXT,creado_en {T} {D});
+CREATE TABLE IF NOT EXISTS admisiones(id {S},id_adm TEXT UNIQUE NOT NULL,paciente_id INTEGER,fecha_entrada {T} {D},fecha_llamado {T},fecha_admision_inicio {T},fecha_admision_fin {T},fecha_salida {T},estado TEXT DEFAULT 'kiosco',tipo_atencion TEXT,turno TEXT,turno_tipo TEXT DEFAULT 'general',modulo TEXT,tiempo_espera_min INTEGER DEFAULT 0,notif_ticket INTEGER DEFAULT 0,notif_wa INTEGER DEFAULT 0,notif_sms INTEGER DEFAULT 0,celular_notif TEXT,medico_id INTEGER,sede TEXT DEFAULT 'Principal',servicio_nombre TEXT,cod_cups TEXT,copago REAL DEFAULT 0,copago_cobrado INTEGER DEFAULT 0,numero_autorizacion TEXT,eps_validada INTEGER DEFAULT 0,eps_estado TEXT,eps_copago_real REAL,habeas_data INTEGER DEFAULT 0,habeas_data_ts {T},color_alerta TEXT DEFAULT 'yellow',origen TEXT DEFAULT 'kiosco',doc_num_temp TEXT,doc_type_temp TEXT,nombre_temp TEXT,triage_nivel TEXT,triage_notas TEXT,triage_ts TEXT,triage_enfermera TEXT,destino TEXT,llamado_count INTEGER DEFAULT 0,creado_en {T} {D});
 CREATE TABLE IF NOT EXISTS citas(id {S},paciente_id INTEGER NOT NULL,medico_id INTEGER,fecha TEXT NOT NULL,hora_inicio TEXT NOT NULL,hora_fin TEXT,servicio_nombre TEXT,cod_cups TEXT,tipo_cita TEXT DEFAULT 'consulta',estado TEXT DEFAULT 'programada',notas TEXT,celular_notif TEXT,recordatorio_enviado INTEGER DEFAULT 0,creado_en {T} {D},actualizado_en {T} {D});
 CREATE TABLE IF NOT EXISTS consentimientos_catalogo(id {S},codigo TEXT UNIQUE,titulo TEXT,texto TEXT,requerido INTEGER DEFAULT 1,orden INTEGER DEFAULT 0);
 CREATE TABLE IF NOT EXISTS firmas_consentimiento(id {S},admision_id INTEGER,consentimiento_id INTEGER,firma_svg TEXT,firma_hash TEXT,firmado_en {T},canal TEXT DEFAULT 'tablet',token TEXT UNIQUE,token_expira {T},estado TEXT DEFAULT 'pendiente');
@@ -87,7 +91,7 @@ CREATE TABLE IF NOT EXISTS roles(id {S},nombre TEXT UNIQUE NOT NULL,descripcion 
 CREATE TABLE IF NOT EXISTS usuarios(id {S},usuario TEXT UNIQUE NOT NULL,nombre TEXT,email TEXT,pass_hash TEXT,rol_id INTEGER,rol_nombre TEXT,activo INTEGER DEFAULT 1,ultimo_acceso {T},creado_en {T} {D});
 CREATE TABLE IF NOT EXISTS copago_param(id {S},anio INTEGER,concepto TEXT,rango TEXT,pct REAL DEFAULT 0,valor REAL DEFAULT 0,tope_evento REAL DEFAULT 0,tope_anio REAL DEFAULT 0,fuente TEXT,activo INTEGER DEFAULT 1);
 CREATE TABLE IF NOT EXISTS kiosco_anuncios(id {S},titulo TEXT NOT NULL,descripcion TEXT,media_type TEXT DEFAULT 'none',media_url TEXT,activo INTEGER DEFAULT 1,orden INTEGER DEFAULT 0,creado_en {T} {D});
-CREATE TABLE IF NOT EXISTS kiosco_servicios(id {S},codigo TEXT UNIQUE,nombre TEXT NOT NULL,icono TEXT DEFAULT '●',activo INTEGER DEFAULT 1,orden INTEGER DEFAULT 0)
+CREATE TABLE IF NOT EXISTS kiosco_servicios(id {S},codigo TEXT UNIQUE,nombre TEXT NOT NULL,icono TEXT DEFAULT '●',activo INTEGER DEFAULT 1,orden INTEGER DEFAULT 0,modo TEXT DEFAULT 'general')
 """
     for s in tables.strip().split(';'):
         s = s.strip()
@@ -102,6 +106,13 @@ CREATE TABLE IF NOT EXISTS kiosco_servicios(id {S},codigo TEXT UNIQUE,nombre TEX
     for mig in [
         "ALTER TABLE admisiones ADD COLUMN nombre_temp TEXT",
         "ALTER TABLE admisiones ADD COLUMN fecha_llamado TEXT",
+        "ALTER TABLE kiosco_servicios ADD COLUMN modo TEXT DEFAULT 'general'",
+        "ALTER TABLE admisiones ADD COLUMN triage_nivel TEXT",
+        "ALTER TABLE admisiones ADD COLUMN triage_notas TEXT",
+        "ALTER TABLE admisiones ADD COLUMN triage_ts TEXT",
+        "ALTER TABLE admisiones ADD COLUMN triage_enfermera TEXT",
+        "ALTER TABLE admisiones ADD COLUMN destino TEXT",
+        "ALTER TABLE admisiones ADD COLUMN llamado_count INTEGER DEFAULT 0",
     ]:
         try:
             cur.execute(mig)
@@ -152,14 +163,15 @@ CREATE TABLE IF NOT EXISTS kiosco_servicios(id {S},codigo TEXT UNIQUE,nombre TEX
     cur.execute("SELECT COUNT(*) FROM kiosco_servicios")
     if cur.fetchone()[0] == 0:
         for s in [
-            ('oft', 'Oftalmología', '👁️', 1, 0),
-            ('opt', 'Optometría', '👓', 1, 1),
-            ('ort', 'Ortóptica', '🔬', 1, 2),
-            ('cir', 'Cirugía', '🏥', 1, 3),
-            ('lab', 'Laboratorio', '🧪', 1, 4),
-            ('img', 'Imágenes diagnósticas', '📷', 1, 5),
+            ('oft', 'Oftalmología', '👁️', 1, 0, 'consulta'),
+            ('opt', 'Optometría', '👓', 1, 1, 'consulta'),
+            ('ort', 'Ortóptica', '🔬', 1, 2, 'consulta'),
+            ('cir', 'Cirugía', '🏥', 1, 3, 'cirugia'),
+            ('lab', 'Laboratorio', '🧪', 1, 4, 'diagnostico'),
+            ('img', 'Imágenes diagnósticas', '📷', 1, 5, 'diagnostico'),
+            ('urg', 'Urgencias', '🚨', 1, 6, 'urgencias'),
         ]:
-            cur.execute(core.adapt("INSERT INTO kiosco_servicios(codigo,nombre,icono,activo,orden)VALUES(?,?,?,?,?)", db), s)
+            cur.execute(core.adapt("INSERT INTO kiosco_servicios(codigo,nombre,icono,activo,orden,modo)VALUES(?,?,?,?,?,?)", db), s)
 
     # Kiosco anuncios seed
     cur.execute("SELECT COUNT(*) FROM kiosco_anuncios")
@@ -375,6 +387,14 @@ def kiosco_tv_page():
 @app.route('/kiosco/admin')
 def kiosco_admin_page():
     return send_from_directory('static', 'kiosco-admin.html')
+
+@app.route('/kiosco/<modo>')
+def kiosco_modo_page(modo):
+    return send_from_directory('static', 'kiosco.html')
+
+@app.route('/kiosco/tv/<modo>')
+def kiosco_tv_modo_page(modo):
+    return send_from_directory('static', 'kiosco-tv.html')
 
 @app.route('/health')
 def health():

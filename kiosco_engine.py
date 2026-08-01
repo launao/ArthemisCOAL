@@ -162,7 +162,8 @@ def kiosco_cola():
     admisiones = core.rows(cur, core.adapt(
         f"SELECT a.id, a.id_adm, a.turno, a.turno_tipo, a.estado, a.nombre_temp, "
         f"a.doc_num_temp, a.servicio_nombre, a.color_alerta, a.creado_en, "
-        f"a.fecha_llamado, p.nombres, p.apellidos "
+        f"a.fecha_llamado, a.triage_nivel, a.triage_ts, a.triage_enfermera, "
+        f"a.destino, a.llamado_count, p.nombres, p.apellidos "
         f"FROM admisiones a LEFT JOIN pacientes p ON a.paciente_id=p.id "
         f"WHERE DATE(a.creado_en)={T} "
         f"ORDER BY CASE a.estado WHEN 'llamando' THEN 0 WHEN 'kiosco' THEN 1 "
@@ -186,7 +187,32 @@ def kiosco_cola():
             'creado_en': a.get('creado_en', ''),
             'fecha_llamado': a.get('fecha_llamado'),
             'prioritario': a.get('turno_tipo') == 'preferencial',
+            'triage_nivel': a.get('triage_nivel'),
+            'triage_ts': a.get('triage_ts'),
+            'triage_enfermera': a.get('triage_enfermera'),
+            'destino': a.get('destino', ''),
+            'llamado_count': a.get('llamado_count', 0),
         })
+
+    # Filter by modo if specified
+    modo = request.args.get('modo', '').strip()
+    if modo:
+        svc_rows = core.rows(cur, core.adapt(
+            "SELECT nombre FROM kiosco_servicios WHERE modo=? AND activo=1", db), (modo,))
+        modo_services = {r['nombre'] for r in svc_rows}
+        result = [r for r in result if r.get('servicio', '') in modo_services]
+
+    # Re-sort by triage priority for urgencias mode
+    if modo == 'urgencias' or request.args.get('triage_sort'):
+        triage_order = {'I': 0, 'II': 1, 'III': 2, 'IV': 3, 'V': 4}
+        def sort_key(r):
+            estado_order = {'llamando': 0, 'triaje': 1, 'kiosco': 2, 'admision': 3, 'atendido': 9}
+            return (
+                estado_order.get(r['estado'], 5),
+                triage_order.get(r.get('triage_nivel') or 'V', 5),
+                r.get('creado_en', '')
+            )
+        result.sort(key=sort_key)
 
     cur.close()
     core._return_db(conn, db)
@@ -197,26 +223,50 @@ def kiosco_cola():
 
 @kiosco_bp.route('/api/kiosco/llamar-turno', methods=['POST'])
 def kiosco_llamar_turno():
-    """Llamar un turno — cambia estado a 'llamando', SSE broadcast para TV."""
+    """Llamar un turno — cambia estado a 'llamando', SSE broadcast para TV.
+    Accepts optional 'destino' (e.g. 'Consultorio 2', 'Admisiones').
+    If not provided, deduced from assigned medico's modulo.
+    Tracks llamado_count (max 3 calls before auto-advancing).
+    """
     core = _get_deps()
     d = request.json or {}
     turno_id = d.get('id')
     if not turno_id:
         return jsonify({'error': 'ID de admisión requerido'}), 400
 
+    destino = d.get('destino', '').strip()
     conn, db = core.get_db()
     cur = conn.cursor()
 
     try:
-        # Move any currently "llamando" to "atendido"
         T = core.TODAY(db)
-        cur.execute(core.adapt(
-            f"UPDATE admisiones SET estado='atendido' WHERE estado='llamando' AND DATE(creado_en)={T}", db))
 
-        # Set this one to "llamando"
-        cur.execute(core.adapt(
-            f"UPDATE admisiones SET estado='llamando', fecha_llamado={core.NOW(db)} WHERE id=?", db),
+        # Check current state — if re-calling same turn, increment count
+        current = core.row(cur, core.adapt(
+            "SELECT id, estado, llamado_count, medico_id FROM admisiones WHERE id=?", db),
             (turno_id,))
+        if not current:
+            return jsonify({'error': 'Admisión no encontrada'}), 404
+
+        new_count = (current.get('llamado_count') or 0) + 1 if current.get('estado') == 'llamando' else 1
+
+        # Deduce destino from medico's modulo if not provided
+        if not destino and current.get('medico_id'):
+            med = core.row(cur, core.adapt("SELECT modulo FROM medicos WHERE id=?", db),
+                           (current['medico_id'],))
+            if med and med.get('modulo'):
+                destino = med['modulo']
+
+        # Move any OTHER currently "llamando" turns to previous state or atendido
+        cur.execute(core.adapt(
+            f"UPDATE admisiones SET estado='atendido' WHERE estado='llamando' AND id!=? AND DATE(creado_en)={T}", db),
+            (turno_id,))
+
+        # Set this one to "llamando" with destino and count
+        cur.execute(core.adapt(
+            f"UPDATE admisiones SET estado='llamando', fecha_llamado={core.NOW(db)}, "
+            f"destino=?, llamado_count=? WHERE id=?", db),
+            (destino, new_count, turno_id))
         conn.commit()
 
         # Get updated info
@@ -230,7 +280,7 @@ def kiosco_llamar_turno():
                 nombre = f"{a['nombres']} {a.get('apellidos', '')}".strip()
 
             core.audit(cur, db, 'admisiones', turno_id, 'llamar_turno',
-                        f"Turno {a['turno']} llamado")
+                        f"Turno {a['turno']} llamado ({new_count}/3) → {destino or 'sin destino'}")
             conn.commit()
 
             core.sse_broadcast({
@@ -239,10 +289,15 @@ def kiosco_llamar_turno():
                 'nombre': nombre,
                 'servicio': a.get('servicio_nombre', ''),
                 'turno_tipo': a.get('turno_tipo', 'general'),
+                'destino': destino,
+                'llamado_count': new_count,
                 'id': a['id'],
             })
 
-            return jsonify({'success': True, 'turno': a['turno'], 'nombre': nombre})
+            return jsonify({
+                'success': True, 'turno': a['turno'], 'nombre': nombre,
+                'destino': destino, 'llamado_count': new_count,
+            })
         return jsonify({'error': 'Admisión no encontrada'}), 404
 
     except Exception as e:
@@ -478,7 +533,12 @@ def kiosco_servicios_get():
     conn, db = core.get_db()
     cur = conn.cursor()
 
-    servicios = core.rows(cur, "SELECT * FROM kiosco_servicios ORDER BY orden, id")
+    modo = request.args.get('modo', '').strip()
+    if modo:
+        servicios = core.rows(cur, core.adapt(
+            "SELECT * FROM kiosco_servicios WHERE modo=? ORDER BY orden, id", db), (modo,))
+    else:
+        servicios = core.rows(cur, "SELECT * FROM kiosco_servicios ORDER BY orden, id")
     cur.close()
     core._return_db(conn, db)
     return jsonify({'servicios': servicios})
@@ -538,6 +598,85 @@ def audit_log():
     cur.close()
     core._return_db(conn, db)
     return jsonify({'logs': logs})
+
+
+# ── POST /api/kiosco/asignar-triage ─────────────────────────────────────────
+
+@kiosco_bp.route('/api/kiosco/asignar-triage', methods=['POST'])
+def kiosco_asignar_triage():
+    """Assign triage level to a turn (nurse action)."""
+    core = _get_deps()
+    d = request.json or {}
+    turno_id = d.get('id')
+    nivel = d.get('nivel', '').strip().upper()
+    if not turno_id:
+        return jsonify({'error': 'ID requerido'}), 400
+    if nivel not in ('I', 'II', 'III', 'IV', 'V'):
+        return jsonify({'error': 'Nivel de triage inválido (I-V)'}), 400
+
+    conn, db = core.get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute(core.adapt(
+            f"UPDATE admisiones SET estado='triaje', triage_nivel=?, triage_notas=?, "
+            f"triage_ts={core.NOW(db)}, triage_enfermera=? WHERE id=?", db),
+            (nivel, d.get('notas', ''), d.get('enfermera', 'Enfermería'), turno_id))
+        conn.commit()
+
+        a = core.row(cur, core.adapt(
+            "SELECT a.*, p.nombres, p.apellidos FROM admisiones a "
+            "LEFT JOIN pacientes p ON a.paciente_id=p.id WHERE a.id=?", db), (turno_id,))
+
+        if a:
+            nombre = a.get('nombre_temp') or ''
+            if a.get('nombres'):
+                nombre = f"{a['nombres']} {a.get('apellidos', '')}".strip()
+            core.audit(cur, db, 'admisiones', turno_id, 'asignar_triage',
+                        f"Triage {nivel} asignado a turno {a['turno']}")
+            conn.commit()
+            core.sse_broadcast({
+                'tipo': 'triage_asignado',
+                'turno': a['turno'],
+                'nombre': nombre,
+                'triage_nivel': nivel,
+                'id': a['id'],
+            })
+            return jsonify({'success': True, 'turno': a['turno'], 'triage_nivel': nivel})
+        return jsonify({'error': 'Admisión no encontrada'}), 404
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close()
+        core._return_db(conn, db)
+
+
+# ── POST /api/kiosco/admitir-turno ──────────────────────────────────────────
+
+@kiosco_bp.route('/api/kiosco/admitir-turno', methods=['POST'])
+def kiosco_admitir_turno():
+    """Move turn to admisión state (admin action)."""
+    core = _get_deps()
+    d = request.json or {}
+    turno_id = d.get('id')
+    if not turno_id:
+        return jsonify({'error': 'ID requerido'}), 400
+
+    conn, db = core.get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute(core.adapt("UPDATE admisiones SET estado='admision' WHERE id=?", db), (turno_id,))
+        conn.commit()
+        core.audit(cur, db, 'admisiones', turno_id, 'admitir_turno', 'Turno pasado a admisión')
+        conn.commit()
+        core.sse_broadcast({'tipo': 'turno_admision', 'id': turno_id})
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close()
+        core._return_db(conn, db)
 
 
 # ── HELPERS ──────────────────────────────────────────────────────────────────

@@ -50,10 +50,6 @@ button,input{font-family:var(--font)}
 .lang-btn{padding:7px 14px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,.55);
   font-size:12px;font-weight:700;cursor:pointer;transition:all .18s}
 .lang-btn.on{background:rgba(255,255,255,.14);color:#fff}
-.admin-btn{padding:10px 18px;border-radius:10px;border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);font-size:12px;font-weight:600;
-  letter-spacing:.5px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:6px}
-.admin-btn:hover{background:rgba(255,255,255,.12);color:#fff}
 
 /* ===== PROGRESS BAR ===== */
 .progress{flex-shrink:0;background:var(--white);border-bottom:1px solid var(--line);
@@ -255,17 +251,6 @@ button,input{font-family:var(--font)}
 .idle-fg{fill:none;stroke:var(--primary);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
 .idle-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;color:var(--primary)}
 
-/* admin pin overlay */
-.pin-dots{display:flex;gap:12px;justify-content:center;margin:20px 0 24px}
-.pin-dot{width:16px;height:16px;border-radius:50%;background:var(--iv2);border:2px solid var(--line2);transition:all .18s}
-.pin-dot.filled{background:var(--primary);border-color:var(--primary)}
-.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
-.pin-key{height:54px;border-radius:12px;background:var(--iv2);border:1px solid var(--line);
-  font-size:18px;font-weight:600;cursor:pointer;transition:all .12s}
-.pin-key:hover{background:var(--white)}
-.pin-key:active{transform:scale(.94)}
-.pin-actions{display:flex;gap:8px}
-.pin-error{color:var(--red);font-size:13px;font-weight:600;height:18px;margin-bottom:6px}
 
 ::-webkit-scrollbar{width:8px}
 ::-webkit-scrollbar-thumb{background:var(--line2);border-radius:8px}
@@ -288,10 +273,6 @@ button,input{font-family:var(--font)}
         <button class="lang-btn" id="langEs" onclick="setLang('es')">ES</button>
         <button class="lang-btn" id="langEn" onclick="setLang('en')">EN</button>
       </div>
-      <button class="admin-btn" onclick="openAdmin()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        <span id="adminLabel">Admin</span>
-      </button>
     </div>
   </div>
 
@@ -528,36 +509,17 @@ button,input{font-family:var(--font)}
   </div>
 </div>
 
-<!-- ADMIN PIN OVERLAY -->
-<div class="overlay" id="adminOverlay">
-  <div class="ov-card" onclick="event.stopPropagation()">
-    <h2 class="ttl" data-t="admin">Acceso administrador</h2>
-    <p class="sub" style="margin-bottom:6px" data-t="enterPin">Ingrese el PIN de 4 a 6 dígitos</p>
-    <div class="pin-dots" id="pinDots"></div>
-    <div class="pin-error" id="pinError"></div>
-    <div class="pin-keypad">
-      <button class="pin-key" onclick="pinPress('1')">1</button>
-      <button class="pin-key" onclick="pinPress('2')">2</button>
-      <button class="pin-key" onclick="pinPress('3')">3</button>
-      <button class="pin-key" onclick="pinPress('4')">4</button>
-      <button class="pin-key" onclick="pinPress('5')">5</button>
-      <button class="pin-key" onclick="pinPress('6')">6</button>
-      <button class="pin-key" onclick="pinPress('7')">7</button>
-      <button class="pin-key" onclick="pinPress('8')">8</button>
-      <button class="pin-key" onclick="pinPress('9')">9</button>
-      <button class="pin-key" onclick="pinClear()">C</button>
-      <button class="pin-key" onclick="pinPress('0')">0</button>
-      <button class="pin-key" onclick="pinBack()">⌫</button>
-    </div>
-    <div class="pin-actions">
-      <button class="btn btn-secondary" style="flex:1" onclick="closeAdmin()" data-t="cancel2">Cancelar</button>
-      <button class="btn btn-primary" style="flex:1" onclick="pinEnter()">Enter</button>
-    </div>
-  </div>
-</div>
 
 <script>
 const API = window.location.origin;
+
+/* ===================== MODO (PANTALLA) ===================== */
+// Detect mode from URL: /kiosco/urgencias → 'urgencias', /kiosco → ''
+const MODO = (function(){
+  const m = window.location.pathname.match(/^\/kiosco\/([^\/]+)$/);
+  if(m && m[1] !== 'tv' && m[1] !== 'admin') return m[1];
+  return '';
+})();
 
 /* ===================== TRANSLATIONS ===================== */
 const I18N = {
@@ -632,6 +594,20 @@ async function init(){
   applyBranding();
   setLang(CONFIG?.lang || 'es');
   buildServiceGrid();
+  if(MODO){
+    const modoLabel = MODO.charAt(0).toUpperCase() + MODO.slice(1).replace(/-/g,' ');
+    document.getElementById('clinicSubEl').textContent = modoLabel;
+    document.title = (CONFIG?.branding?.clinicName || 'Arthemis Health') + ' · ' + modoLabel;
+  }
+  if(MODO === 'urgencias'){
+    const grid = document.querySelector('.w-grid');
+    grid.style.gridTemplateColumns = '1fr';
+    grid.innerHTML = `
+      <div class="w-btn urg" onclick="startFlow('urgencias')" style="padding:40px;min-height:200px">
+        <div class="w-ico" style="width:80px;height:80px;font-size:40px;border-radius:20px">🚨</div>
+        <div class="w-lbl" style="font-size:20px">${LANG==='es'?'Anunciarse en Urgencias':'Check in Emergency'}</div>
+      </div>`;
+  }
   buildAdCarousel();
   setupIdleWatcher();
   tickClock(); setInterval(tickClock, 1000);
@@ -653,7 +629,10 @@ async function loadAnuncios(){
   catch(e){ ANUNCIOS = []; }
 }
 async function loadServicios(){
-  try{ const r = await fetch(`${API}/api/kiosco/servicios`); const d = await r.json(); SERVICIOS = (d.servicios||[]).filter(s=>s.activo); }
+  try{
+    const url = MODO ? `${API}/api/kiosco/servicios?modo=${MODO}` : `${API}/api/kiosco/servicios`;
+    const r = await fetch(url); const d = await r.json(); SERVICIOS = (d.servicios||[]).filter(s=>s.activo);
+  }
   catch(e){ SERVICIOS = []; }
 }
 
@@ -699,7 +678,6 @@ function setLang(l){
     const key = el.getAttribute('data-tph');
     if(I18N[l][key]) el.placeholder = I18N[l][key];
   });
-  document.getElementById('adminLabel').textContent = l==='es' ? 'Admin' : 'Admin';
   updateDocDisplay();
 }
 function t(key){ return (I18N[LANG] && I18N[LANG][key]) || key; }
@@ -738,7 +716,7 @@ function goScreen(name){
 }
 
 function startFlow(intent){
-  INTENT = intent;
+  INTENT = (MODO === 'urgencias') ? 'urgencias' : intent;
   goScreen('identify');
 }
 
@@ -822,6 +800,10 @@ function acceptConsent(){
 }
 
 function routeAfterConsent(){
+  if(MODO === 'urgencias'){
+    goScreen('urgency');
+    return;
+  }
   const hoy = new Date().toISOString().split('T')[0];
   const citas = (PACIENTE && PACIENTE.citas_futuras) || [];
   const citaHoy = citas.find(c => (c.fecha===hoy) && (!c.estado || c.estado==='programada'));
@@ -1053,46 +1035,6 @@ function cancelIdleReset(){
 }
 function hideIdleOverlay(){
   document.getElementById('idleOverlay').classList.remove('on');
-}
-
-/* ===================== ADMIN PIN ===================== */
-let PIN_ENTERED = '';
-function openAdmin(){
-  PIN_ENTERED = '';
-  document.getElementById('pinError').textContent = '';
-  renderPinDots();
-  document.getElementById('adminOverlay').classList.add('on');
-}
-function closeAdmin(){
-  document.getElementById('adminOverlay').classList.remove('on');
-}
-function pinPress(d){
-  if(PIN_ENTERED.length >= 6) return;
-  PIN_ENTERED += d;
-  document.getElementById('pinError').textContent = '';
-  renderPinDots();
-}
-function pinBack(){ PIN_ENTERED = PIN_ENTERED.slice(0,-1); renderPinDots(); }
-function pinClear(){ PIN_ENTERED = ''; renderPinDots(); }
-function renderPinDots(){
-  const wrap = document.getElementById('pinDots');
-  const max = Math.max(6, PIN_ENTERED.length);
-  wrap.innerHTML = '';
-  for(let i=0;i<6;i++){
-    const dot = document.createElement('div');
-    dot.className = 'pin-dot' + (i < PIN_ENTERED.length ? ' filled' : '');
-    wrap.appendChild(dot);
-  }
-}
-function pinEnter(){
-  const expected = String(CONFIG?.adminPin || '1234');
-  if(PIN_ENTERED === expected){
-    window.location.href = '/kiosco/admin';
-  } else {
-    document.getElementById('pinError').textContent = t('pinWrong');
-    PIN_ENTERED = '';
-    renderPinDots();
-  }
 }
 
 /* ===================== RESET ===================== */
