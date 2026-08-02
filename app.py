@@ -520,11 +520,13 @@ def index():
 
 @app.route('/kiosco')
 def kiosco_page():
-    return send_from_directory('static', 'kiosco.html')
+    from flask import redirect
+    return redirect('/kiosco/urgencias')
 
 @app.route('/kiosco/tv')
 def kiosco_tv_page():
-    return send_from_directory('static', 'kiosco-tv.html')
+    from flask import redirect
+    return redirect('/kiosco/tv/urgencias')
 
 @app.route('/kiosco/admin')
 def kiosco_admin_page():
