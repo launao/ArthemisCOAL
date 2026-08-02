@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facturación - Arthemis Health</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary: #5147C4;
+  --accent: #7269D8;
+  --bg: #FAF8F4;
+  --dark: #1C1916;
+  --white: #FFFFFF;
+  --iv2: #F2EFE9;
+  --line: #E6E1D8;
+  --line2: #D8D2C7;
+  --ink: #1C1916;
+  --ink2: #3D3834;
+  --ink3: #6B6460;
+  --ink4: #A09890;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --success: #16A34A;
+  --danger: #DC2626;
+  --warning: #D97706;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── Login ── */
+.login-overlay {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9000;
+}
+
+.login-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 40px;
+  width: 380px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+}
+
+.login-logo {
+  width: 56px; height: 56px;
+  background: var(--primary);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  color: #fff; font-size: 28px; font-weight: 800;
+}
+
+.login-card h2 {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.login-card p {
+  text-align: center;
+  color: var(--ink3);
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+.form-group { margin-bottom: 16px; }
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--ink2);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: var(--font);
+  background: var(--iv2);
+  transition: border-color .2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--white);
+}
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: opacity .15s, transform .1s;
+}
+
+.btn:hover { opacity: 0.9; }
+.btn:active { transform: scale(0.97); }
+
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-danger  { background: var(--danger);  color: #fff; }
+.btn-warning { background: var(--warning); color: #fff; }
+.btn-ghost   { background: transparent; color: var(--ink2); border: 1px solid var(--line); }
+.btn-sm      { padding: 6px 10px; font-size: 12px; border-radius: 6px; }
+.btn-block   { width: 100%; }
+
+.login-error {
+  color: var(--danger);
+  font-size: 12px;
+  text-align: center;
+  margin-top: 8px;
+  min-height: 16px;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  height: 54px;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+  gap: 12px;
+}
+
+.logo-sm {
+  width: 34px; height: 34px;
+  background: var(--primary);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 18px; font-weight: 800;
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.header-badge {
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.header-spacer { flex: 1; }
+
+.header-user {
+  font-size: 13px;
+  color: var(--ink3);
+  font-weight: 500;
+}
+
+.header-clock {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink2);
+  font-variant-numeric: tabular-nums;
+}
+
+.btn-logout {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  color: var(--ink3);
+  cursor: pointer;
+  font-family: var(--font);
+  font-weight: 500;
+}
+
+.btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ── Main ── */
+.main-app { display: none; }
+
+.dashboard { padding: 20px 24px; max-width: 1440px; margin: 0 auto; }
+
+/* ── KPI Cards ── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.kpi-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--primary);
+}
+
+.kpi-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink3);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 6px;
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+/* ── Two-panel layout ── */
+.panels {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 16px;
+  min-height: calc(100vh - 200px);
+}
+
+/* ── Left: Pending list ── */
+.panel-list {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-list-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-list-header .count {
+  background: var(--iv2);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  color: var(--ink3);
+}
+
+.pending-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.pf-card {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+
+.pf-card:hover { border-color: var(--accent); background: var(--iv2); }
+.pf-card.active { border-color: var(--primary); background: #EFEDFA; }
+
+.pf-name {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.pf-doc {
+  font-size: 11px;
+  color: var(--ink4);
+  margin-bottom: 6px;
+}
+
+.pf-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.badge-blue       { background: #DBEAFE; color: #1D4ED8; }
+.badge-green      { background: #DCFCE7; color: #15803D; }
+.badge-gray       { background: #F3F4F6; color: #4B5563; }
+.badge-orange     { background: #FFF7ED; color: #C2410C; }
+.badge-yellow     { background: #FEF9C3; color: #A16207; }
+.badge-purple     { background: #EDE9FE; color: #6D28D9; }
+
+.pf-total {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: right;
+}
+
+/* ── Right: Detail ── */
+.panel-detail {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.detail-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink4);
+  font-size: 14px;
+}
+
+.detail-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.detail-patient {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.detail-patient h3 {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.detail-patient .meta {
+  font-size: 12px;
+  color: var(--ink3);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ── Items table ── */
+.items-section { margin-bottom: 16px; }
+.items-section h4 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--ink2);
+}
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.items-table th {
+  text-align: left;
+  padding: 8px 6px;
+  font-weight: 600;
+  color: var(--ink3);
+  border-bottom: 2px solid var(--line);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.items-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--iv2);
+  vertical-align: middle;
+}
+
+.items-table tr:hover td { background: var(--iv2); }
+
+.badge-auto   { background: #F3F4F6; color: #6B7280; }
+.badge-manual { background: #DBEAFE; color: #1D4ED8; }
+
+.action-btns { display: flex; gap: 4px; }
+
+.icon-btn {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--white);
+  cursor: pointer;
+  font-size: 13px;
+  transition: border-color .15s;
+}
+
+.icon-btn:hover { border-color: var(--ink4); }
+.icon-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+.edit-input {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid var(--primary);
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: var(--font);
+  background: #EFEDFA;
+}
+
+/* ── Add item form ── */
+.add-item-section { margin-bottom: 16px; }
+
+.add-item-toggle {
+  background: none;
+  border: 1px dashed var(--line2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 600;
+  transition: background .15s;
+}
+
+.add-item-toggle:hover { background: var(--iv2); }
+
+.add-form {
+  display: none;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 8px;
+  background: var(--iv2);
+}
+
+.add-form.open { display: block; }
+
+.add-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 80px 120px;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.add-form-grid label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink3);
+  margin-bottom: 3px;
+  display: block;
+}
+
+.add-form-grid input,
+.add-form-grid select {
+  width: 100%;
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: var(--font);
+  background: var(--white);
+}
+
+.add-form-grid input:focus,
+.add-form-grid select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.add-form-ref {
+  margin-bottom: 12px;
+}
+
+.add-form-ref label {
+  font-size: 11px; font-weight: 600; color: var(--ink3); margin-bottom: 3px; display: block;
+}
+
+.add-form-ref input {
+  width: 200px;
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: var(--font);
+  background: var(--white);
+}
+
+/* ── Totals ── */
+.totals-section {
+  background: var(--iv2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.totals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 24px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 3px 0;
+}
+
+.total-row .label { color: var(--ink3); }
+.total-row .value { font-weight: 600; }
+
+.total-row.grand {
+  border-top: 2px solid var(--line2);
+  padding-top: 8px;
+  margin-top: 4px;
+  font-size: 15px;
+}
+
+.total-row.grand .label { font-weight: 700; color: var(--ink); }
+.total-row.grand .value { font-weight: 800; color: var(--primary); }
+
+/* ── Action bar ── */
+.action-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+/* ── Toast ── */
+.toast-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  animation: toastIn .25s ease;
+  max-width: 360px;
+}
+
+.toast.success { background: var(--success); }
+.toast.error   { background: var(--danger); }
+.toast.warning { background: var(--warning); }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 8000;
+}
+
+.modal-overlay.hidden { display: none; }
+
+.modal {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 24px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+}
+
+.modal h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.rips-pre {
+  background: var(--ink);
+  color: #A8FF60;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: 'Menlo', 'Consolas', monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-y: auto;
+  max-height: 50vh;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+/* ── Confirm dialog ── */
+.confirm-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 8500;
+}
+
+.confirm-overlay.hidden { display: none; }
+
+.confirm-box {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 24px;
+  width: 380px;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+}
+
+.confirm-box p {
+  font-size: 14px;
+  color: var(--ink2);
+  margin-bottom: 18px;
+}
+
+.confirm-box .btns {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink4); }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .panels { grid-template-columns: 1fr; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .add-form-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ Login ═══ -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo">A</div>
+    <h2>Arthemis Health</h2>
+    <p>Módulo de Facturación</p>
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Usuario</label>
+        <input type="text" id="loginUser" autocomplete="username" required>
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="loginPass" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Iniciar sesión</button>
+      <div class="login-error" id="loginError"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══ Main App ═══ -->
+<div class="main-app" id="mainApp">
+  <!-- Header -->
+  <header class="header">
+    <div class="logo-sm">A</div>
+    <span class="header-title">Facturación</span>
+    <span class="header-badge">Pre-facturación</span>
+    <div class="header-spacer"></div>
+    <span class="header-user" id="headerUser"></span>
+    <span class="header-clock" id="headerClock"></span>
+    <button class="btn-logout" id="btnLogout">Cerrar sesión</button>
+  </header>
+
+  <div class="dashboard">
+    <!-- KPIs -->
+    <div class="kpi-row" id="kpiRow">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Facturas Hoy</div>
+        <div class="kpi-value" id="kpiTotal">--</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Monto Total</div>
+        <div class="kpi-value" id="kpiMonto">--</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Copago Total</div>
+        <div class="kpi-value" id="kpiCopago">--</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Pagador / Aseguradora</div>
+        <div class="kpi-value" id="kpiAseguradora">--</div>
+      </div>
+    </div>
+
+    <!-- Panels -->
+    <div class="panels">
+      <!-- Left: list -->
+      <div class="panel-list">
+        <div class="panel-list-header">
+          Pre-facturas pendientes
+          <span class="count" id="pendingCount">0</span>
+        </div>
+        <div class="pending-scroll" id="pendingList"></div>
+      </div>
+
+      <!-- Right: detail -->
+      <div class="panel-detail" id="detailPanel">
+        <div class="detail-empty" id="detailEmpty">Seleccione una pre-factura de la lista</div>
+        <div class="detail-scroll" id="detailContent" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- RIPS Modal -->
+<div class="modal-overlay hidden" id="ripsModal">
+  <div class="modal">
+    <h3>RIPS JSON</h3>
+    <div class="modal-body">
+      <pre class="rips-pre" id="ripsContent"></pre>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="copyRips()">Copiar</button>
+      <button class="btn btn-primary" onclick="closeRipsModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm dialog -->
+<div class="confirm-overlay hidden" id="confirmOverlay">
+  <div class="confirm-box">
+    <p id="confirmMsg"></p>
+    <div class="btns">
+      <button class="btn btn-ghost" id="confirmNo">Cancelar</button>
+      <button class="btn btn-danger" id="confirmYes">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════
+   Arthemis Health — Facturación / Pre-facturación
+   ════════════════════════════════════════════ */
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const COP = v => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(v || 0);
+
+let token = localStorage.getItem('arthemis_token') || '';
+let currentUser = null;
+let pendientes = [];
+let selectedPf = null;
+let selectedDetail = null;
+let sseSource = null;
+let pollTimer = null;
+
+// ── API helpers ──
+async function api(method, url, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' }
+  };
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  if (r.status === 401) { doLogout(); throw new Error('No autorizado'); }
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    throw new Error(err.detail || err.error || 'Error del servidor');
+  }
+  if (r.status === 204) return {};
+  return r.json();
+}
+
+// ── Toast ──
+function toast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = 'toast' + (type !== 'info' ? ' ' + type : '');
+  el.textContent = msg;
+  $('#toastContainer').appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3500);
+}
+
+// ── Confirm ──
+function confirm2(msg) {
+  return new Promise(resolve => {
+    $('#confirmMsg').textContent = msg;
+    $('#confirmOverlay').classList.remove('hidden');
+    const yes = () => { cleanup(); resolve(true); };
+    const no  = () => { cleanup(); resolve(false); };
+    const cleanup = () => {
+      $('#confirmOverlay').classList.add('hidden');
+      $('#confirmYes').removeEventListener('click', yes);
+      $('#confirmNo').removeEventListener('click', no);
+    };
+    $('#confirmYes').addEventListener('click', yes);
+    $('#confirmNo').addEventListener('click', no);
+  });
+}
+
+// ── Clock ──
+function tickClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  const s = String(now.getSeconds()).padStart(2, '0');
+  $('#headerClock').textContent = h + ':' + m + ':' + s;
+}
+
+// ── Auth ──
+$('#loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  $('#loginError').textContent = '';
+  try {
+    const data = await api('POST', '/api/auth/login', {
+      usuario: $('#loginUser').value.trim(),
+      password: $('#loginPass').value
+    });
+    token = data.token || data.access_token || '';
+    localStorage.setItem('arthemis_token', token);
+    await initApp();
+  } catch (err) {
+    $('#loginError').textContent = err.message || 'Credenciales inválidas';
+  }
+});
+
+$('#btnLogout').addEventListener('click', doLogout);
+
+async function doLogout() {
+  try { await api('POST', '/api/auth/logout'); } catch (_) {}
+  token = '';
+  localStorage.removeItem('arthemis_token');
+  selectedPf = null;
+  selectedDetail = null;
+  if (sseSource) { sseSource.close(); sseSource = null; }
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  $('#mainApp').style.display = 'none';
+  $('#loginOverlay').style.display = 'flex';
+}
+
+async function initApp() {
+  try {
+    currentUser = await api('GET', '/api/auth/me');
+    $('#headerUser').textContent = currentUser.nombre || currentUser.usuario || '';
+  } catch (_) {
+    $('#headerUser').textContent = '';
+  }
+  $('#loginOverlay').style.display = 'none';
+  $('#mainApp').style.display = 'block';
+  tickClock();
+  setInterval(tickClock, 1000);
+  await refreshAll();
+  connectSSE();
+  pollTimer = setInterval(refreshAll, 20000);
+}
+
+// ── SSE ──
+function connectSSE() {
+  if (sseSource) sseSource.close();
+  try {
+    sseSource = new EventSource('/api/sse');
+    sseSource.addEventListener('factura_generada', () => { toast('Nueva pre-factura generada', 'success'); refreshAll(); });
+    sseSource.addEventListener('factura_aprobada', () => { toast('Pre-factura aprobada', 'success'); refreshAll(); });
+    sseSource.onerror = () => { setTimeout(connectSSE, 5000); };
+  } catch (_) {}
+}
+
+// ── Data loading ──
+async function refreshAll() {
+  await Promise.all([loadResumen(), loadPendientes()]);
+  if (selectedPf) await loadDetail(selectedPf.admision_id, true);
+}
+
+async function loadResumen() {
+  try {
+    const d = await api('GET', '/api/facturacion/resumen-diario');
+    $('#kpiTotal').textContent = d.total_facturas ?? 0;
+    $('#kpiMonto').textContent = COP(d.monto_total);
+    $('#kpiCopago').textContent = COP(d.total_copago);
+    $('#kpiAseguradora').textContent = COP(d.total_aseguradora);
+  } catch (_) {}
+}
+
+async function loadPendientes() {
+  try {
+    const d = await api('GET', '/api/facturacion/pendientes');
+    pendientes = d.pendientes || [];
+    renderPendientes();
+  } catch (_) {}
+}
+
+function tipoPagadorBadge(tipo) {
+  const t = (tipo || '').toLowerCase();
+  if (t.includes('contributivo')) return { cls: 'badge-blue',   label: 'EPS Contributivo' };
+  if (t.includes('subsidiado'))   return { cls: 'badge-green',  label: 'EPS Subsidiado' };
+  if (t.includes('arl'))          return { cls: 'badge-orange', label: 'ARL' };
+  if (t.includes('particular'))   return { cls: 'badge-gray',   label: 'Particular' };
+  return { cls: 'badge-gray', label: tipo || 'N/A' };
+}
+
+function estadoBadge(estado) {
+  const e = (estado || '').toLowerCase();
+  if (e === 'borrador')  return { cls: 'badge-yellow', label: 'Borrador' };
+  if (e === 'revisada')  return { cls: 'badge-blue',   label: 'Revisada' };
+  if (e === 'aprobada')  return { cls: 'badge-green',  label: 'Aprobada' };
+  return { cls: 'badge-gray', label: estado || 'N/A' };
+}
+
+function renderPendientes() {
+  $('#pendingCount').textContent = pendientes.length;
+  const list = $('#pendingList');
+  if (!pendientes.length) {
+    list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--ink4);font-size:13px;">Sin pre-facturas pendientes</div>';
+    return;
+  }
+  list.innerHTML = pendientes.map(pf => {
+    const tp = tipoPagadorBadge(pf.tipo_pagador);
+    const es = estadoBadge(pf.estado);
+    const isActive = selectedPf && selectedPf.id === pf.id;
+    return `
+      <div class="pf-card${isActive ? ' active' : ''}" data-admision="${pf.admision_id}">
+        <div class="pf-name">${esc(pf.nombres || '')} ${esc(pf.apellidos || '')}</div>
+        <div class="pf-doc">${esc(pf.p_tipo_doc || '')} ${esc(pf.p_num_doc || '')}</div>
+        <div class="pf-badges">
+          <span class="badge ${tp.cls}">${tp.label}</span>
+          <span class="badge ${es.cls}">${es.label}</span>
+        </div>
+        <div class="pf-total">${COP(pf.total)}</div>
+      </div>`;
+  }).join('');
+
+  list.querySelectorAll('.pf-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const admId = parseInt(card.dataset.admision);
+      const pf = pendientes.find(p => p.admision_id === admId);
+      if (pf) { selectedPf = pf; loadDetail(admId); }
+    });
+  });
+}
+
+// ── Detail ──
+async function loadDetail(admisionId, silent) {
+  try {
+    const d = await api('GET', '/api/facturacion/pre-factura/' + admisionId);
+    selectedDetail = d;
+    selectedPf = pendientes.find(p => p.admision_id === admisionId) || selectedPf;
+    renderDetail(d);
+    if (!silent) renderPendientes();
+  } catch (err) {
+    if (!silent) toast(err.message, 'error');
+  }
+}
+
+function renderDetail(d) {
+  const pf = d.pre_factura;
+  const items = d.items || [];
+  const tp = tipoPagadorBadge(pf.tipo_pagador);
+  const es = estadoBadge(pf.estado);
+
+  const nombre = `${pf.nombres || selectedPf?.nombres || ''} ${pf.apellidos || selectedPf?.apellidos || ''}`.trim();
+  const doc = `${pf.p_tipo_doc || selectedPf?.p_tipo_doc || ''} ${pf.p_num_doc || selectedPf?.p_num_doc || ''}`.trim();
+
+  let html = `
+    <div class="detail-patient">
+      <h3>${esc(nombre)}</h3>
+      <div class="meta">
+        <span>${esc(doc)}</span>
+        <span class="badge ${tp.cls}">${tp.label}</span>
+        <span>${esc(pf.entidad_pagadora || '')}</span>
+        <span class="badge ${es.cls}">${es.label}</span>
+      </div>
+    </div>
+
+    <div class="items-section">
+      <h4>Items (${items.length})</h4>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>CUPS</th>
+            <th>Descripción</th>
+            <th>Cant</th>
+            <th>Valor Unit.</th>
+            <th>Valor Total</th>
+            <th>Origen</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+  items.forEach(it => {
+    const orBadge = (it.origen || 'auto') === 'manual' ? 'badge-manual' : 'badge-auto';
+    const orLabel = (it.origen || 'auto') === 'manual' ? 'Manual' : 'Auto';
+    html += `
+          <tr id="row-${it.id}">
+            <td>${esc(it.tipo_servicio || '')}</td>
+            <td>${esc(it.cod_cups || '-')}</td>
+            <td class="cell-desc">${esc(it.descripcion || '')}</td>
+            <td class="cell-cant">${it.cantidad}</td>
+            <td class="cell-vu">${COP(it.valor_unitario)}</td>
+            <td>${COP((it.cantidad || 1) * (it.valor_unitario || 0))}</td>
+            <td><span class="badge ${orBadge}">${orLabel}</span></td>
+            <td>
+              <div class="action-btns">
+                <button class="icon-btn" title="Editar" onclick="editItem(${it.id})">&#9998;</button>
+                <button class="icon-btn danger" title="Eliminar" onclick="deleteItem(${it.id})">&#128465;</button>
+              </div>
+            </td>
+          </tr>`;
+  });
+
+  html += `
+        </tbody>
+      </table>
+    </div>
+
+    <div class="add-item-section">
+      <button class="add-item-toggle" onclick="toggleAddForm()">+ Agregar item manual</button>
+      <div class="add-form" id="addForm">
+        <div class="add-form-grid">
+          <div>
+            <label>Tipo servicio</label>
+            <select id="addTipo">
+              <option value="consulta">Consulta</option>
+              <option value="procedimiento">Procedimiento</option>
+              <option value="laboratorio">Laboratorio</option>
+              <option value="imagen">Imagen</option>
+              <option value="medicamento">Medicamento</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <div>
+            <label>Código CUPS</label>
+            <input id="addCups" placeholder="Ej: 890201">
+          </div>
+          <div>
+            <label>Descripción</label>
+            <input id="addDesc" placeholder="Descripción del servicio">
+          </div>
+          <div>
+            <label>Cantidad</label>
+            <input id="addCant" type="number" min="1" value="1">
+          </div>
+          <div>
+            <label>Valor unitario</label>
+            <input id="addValor" type="number" min="0" placeholder="0">
+          </div>
+        </div>
+        <div class="add-form-ref">
+          <label>Tarifa de referencia (opcional)</label>
+          <input id="addTarifa" type="number" min="0" placeholder="0">
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary btn-sm" onclick="addItem()">Agregar</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleAddForm()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="totals-section">
+      <div class="totals-grid">
+        <div class="total-row"><span class="label">Subtotal</span><span class="value">${COP(pf.subtotal)}</span></div>
+        <div class="total-row"><span class="label">Copago</span><span class="value">${COP(pf.copago)}</span></div>
+        <div class="total-row"><span class="label">Cuota moderadora</span><span class="value">${COP(pf.cuota_moderadora || 0)}</span></div>
+        <div class="total-row"><span class="label">Total paciente</span><span class="value">${COP(pf.total_paciente)}</span></div>
+        <div class="total-row"><span class="label">Total pagador/aseguradora</span><span class="value">${COP(pf.total_pagador)}</span></div>
+        <div class="total-row grand"><span class="label">Total</span><span class="value">${COP(pf.total)}</span></div>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      ${pf.estado === 'borrador' ? '<button class="btn btn-success" onclick="aprobar()">&#10003; Aprobar pre-factura</button>' : ''}
+      <button class="btn btn-warning" onclick="regenerar()">&#8635; Regenerar</button>
+      <button class="btn btn-primary" onclick="generarRIPS()">RIPS JSON</button>
+      <button class="btn btn-ghost" onclick="imprimirConstancia()">&#128424; Imprimir constancia</button>
+    </div>`;
+
+  $('#detailEmpty').style.display = 'none';
+  $('#detailContent').style.display = 'block';
+  $('#detailContent').innerHTML = html;
+}
+
+// ── Item actions ──
+window.editItem = async function(itemId) {
+  const row = document.getElementById('row-' + itemId);
+  if (!row || row.dataset.editing) return;
+  row.dataset.editing = '1';
+
+  const descCell = row.querySelector('.cell-desc');
+  const cantCell = row.querySelector('.cell-cant');
+  const vuCell   = row.querySelector('.cell-vu');
+
+  const origDesc = descCell.textContent;
+  const origCant = cantCell.textContent;
+  const origVu   = vuCell.textContent.replace(/[^\d]/g, '');
+
+  descCell.innerHTML = `<input class="edit-input" value="${esc(origDesc)}" id="ed-desc-${itemId}">`;
+  cantCell.innerHTML = `<input class="edit-input" type="number" min="1" value="${origCant}" style="width:50px" id="ed-cant-${itemId}">`;
+  vuCell.innerHTML   = `<input class="edit-input" type="number" min="0" value="${origVu}" style="width:90px" id="ed-vu-${itemId}">`;
+
+  const btns = row.querySelector('.action-btns');
+  btns.innerHTML = `
+    <button class="icon-btn" title="Guardar" onclick="saveEdit(${itemId})">&#10003;</button>
+    <button class="icon-btn" title="Cancelar" onclick="cancelEdit(${itemId}, '${esc(origDesc)}', ${origCant}, ${origVu})">&#10005;</button>`;
+};
+
+window.saveEdit = async function(itemId) {
+  const desc = document.getElementById('ed-desc-' + itemId)?.value;
+  const cant = parseInt(document.getElementById('ed-cant-' + itemId)?.value) || 1;
+  const vu   = parseInt(document.getElementById('ed-vu-' + itemId)?.value) || 0;
+  try {
+    await api('PUT', '/api/facturacion/item/' + itemId, { cantidad: cant, valor_unitario: vu, descripcion: desc });
+    toast('Item actualizado', 'success');
+    await loadDetail(selectedPf.admision_id);
+  } catch (err) { toast(err.message, 'error'); }
+};
+
+window.cancelEdit = function(itemId, desc, cant, vu) {
+  loadDetail(selectedPf.admision_id, true);
+};
+
+window.deleteItem = async function(itemId) {
+  const ok = await confirm2('¿Está seguro de eliminar este item?');
+  if (!ok) return;
+  try {
+    await api('DELETE', '/api/facturacion/item/' + itemId);
+    toast('Item eliminado', 'success');
+    await refreshAll();
+  } catch (err) { toast(err.message, 'error'); }
+};
+
+window.toggleAddForm = function() {
+  const form = $('#addForm');
+  form.classList.toggle('open');
+};
+
+window.addItem = async function() {
+  const pf = selectedDetail?.pre_factura;
+  if (!pf) return;
+  const body = {
+    pre_factura_id: pf.id,
+    tipo_servicio: $('#addTipo').value,
+    cod_cups: $('#addCups').value.trim(),
+    descripcion: $('#addDesc').value.trim(),
+    cantidad: parseInt($('#addCant').value) || 1,
+    valor_unitario: parseInt($('#addValor').value) || 0,
+    tarifa_referencia: parseInt($('#addTarifa').value) || 0
+  };
+  if (!body.descripcion) { toast('Ingrese una descripción', 'warning'); return; }
+  try {
+    await api('POST', '/api/facturacion/item', body);
+    toast('Item agregado', 'success');
+    $('#addForm').classList.remove('open');
+    $('#addCups').value = ''; $('#addDesc').value = ''; $('#addCant').value = '1'; $('#addValor').value = ''; $('#addTarifa').value = '';
+    await refreshAll();
+  } catch (err) { toast(err.message, 'error'); }
+};
+
+// ── Pre-factura actions ──
+window.aprobar = async function() {
+  const pf = selectedDetail?.pre_factura;
+  if (!pf) return;
+  const ok = await confirm2('¿Aprobar esta pre-factura? Esta acción no se puede deshacer.');
+  if (!ok) return;
+  try {
+    await api('PUT', '/api/facturacion/aprobar/' + pf.id);
+    toast('Pre-factura aprobada', 'success');
+    await refreshAll();
+  } catch (err) { toast(err.message, 'error'); }
+};
+
+window.regenerar = async function() {
+  if (!selectedPf) return;
+  try {
+    await api('POST', '/api/facturacion/generar/' + selectedPf.admision_id);
+    toast('Pre-factura regenerada', 'success');
+    await refreshAll();
+  } catch (err) { toast(err.message, 'error'); }
+};
+
+window.generarRIPS = async function() {
+  if (!selectedPf) return;
+  try {
+    const d = await api('POST', '/api/facturacion/rips/' + selectedPf.admision_id);
+    $('#ripsContent').textContent = JSON.stringify(d.rips, null, 2);
+    $('#ripsModal').classList.remove('hidden');
+  } catch (err) { toast(err.message, 'error'); }
+};
+
+window.copyRips = function() {
+  const text = $('#ripsContent').textContent;
+  navigator.clipboard.writeText(text).then(
+    () => toast('JSON copiado al portapapeles', 'success'),
+    () => toast('No se pudo copiar', 'error')
+  );
+};
+
+window.closeRipsModal = function() {
+  $('#ripsModal').classList.add('hidden');
+};
+
+window.imprimirConstancia = function() {
+  if (!selectedPf) return;
+  window.open('/api/impresion/constancia/' + selectedPf.admision_id, '_blank');
+};
+
+// ── Escape HTML ──
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ── Boot ──
+(async () => {
+  if (token) {
+    try {
+      await initApp();
+    } catch (_) {
+      token = '';
+      localStorage.removeItem('arthemis_token');
+    }
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arthemis Health · Interconsultas Especialista</title>
+<style>
+:root {
+  --primary: #5147C4; --accent: #7269D8; --bg: #FAF8F4; --dark: #1C1916;
+  --white: #FFFFFF; --iv2: #F2EFE9; --line: #E6E1D8; --line2: #D8D2C7;
+  --ink: #1C1916; --ink2: #3D3834; --ink3: #6B6460; --ink4: #A09890;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --triage-i: #DC2626; --triage-ii: #EA580C; --triage-iii: #D97706; --triage-iv: #16A34A; --triage-v: #2563EB;
+  --success: #16A34A; --danger: #DC2626; --warning: #D97706;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; font-family: var(--font); color: var(--ink); background: var(--bg); }
+button, input, textarea, select { font-family: var(--font); }
+input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.screen { display: none; width: 100%; height: 100%; }
+.screen.active { display: flex; }
+
+/* LOGIN */
+#loginScreen { align-items: center; justify-content: center;
+  background: linear-gradient(160deg, var(--dark) 0%, #2A2520 50%, #3F37A0 100%); }
+.login-card { background: var(--white); border-radius: 16px; padding: 44px 40px; width: 100%; max-width: 380px; box-shadow: 0 4px 40px rgba(0,0,0,.2); }
+.login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.logo-icon { width: 36px; height: 36px; background: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 16px; }
+.login-title { font-size: 20px; font-weight: 700; }
+.login-sub { color: var(--ink3); font-size: 13px; margin-bottom: 24px; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--ink3); margin-bottom: 4px; }
+.form-group input { width: 100%; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; background: var(--bg); }
+.btn-primary { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; color: #fff; background: var(--primary); cursor: pointer; }
+.btn-primary:hover { background: var(--accent); }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+.login-error { color: var(--danger); font-size: 12px; margin-top: 8px; display: none; text-align: center; }
+
+/* SPECIALTY SELECTION */
+#specialtyScreen { flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+.specialty-title { font-size: 20px; font-weight: 700; }
+.specialty-sub { font-size: 14px; color: var(--ink3); }
+.specialty-grid { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; padding: 20px; max-width: 700px; }
+.specialty-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 24px 32px; background: var(--white); border: 2px solid var(--line); border-radius: 16px; cursor: pointer; font-size: 15px; font-weight: 600; color: var(--ink); transition: all .2s; min-width: 150px; }
+.specialty-btn:hover { border-color: var(--primary); background: #F3F1FF; }
+.specialty-btn .spec-icon { font-size: 28px; }
+
+/* HEADER */
+.header { display: flex; align-items: center; padding: 0 20px; height: 56px; background: var(--white); border-bottom: 1px solid var(--line); gap: 14px; flex-shrink: 0; }
+.hdr-mark { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(145deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #fff; }
+.hdr-title { font-size: 15px; font-weight: 700; }
+.hdr-badge { background: var(--primary); color: #fff; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+.hdr-spacer { flex: 1; }
+.hdr-meta { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--ink3); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+.status-dot.disconnected { background: var(--danger); }
+.btn-logout { padding: 6px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); font-size: 13px; color: var(--ink3); cursor: pointer; }
+.btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+/* LAYOUT */
+#mainScreen { flex-direction: column; }
+.main-body { display: flex; flex: 1; overflow: hidden; }
+
+/* SIDEBAR */
+.sidebar { width: 320px; border-right: 1px solid var(--line); background: var(--white); display: flex; flex-direction: column; flex-shrink: 0; }
+.sidebar-header { padding: 16px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+.sidebar-title { font-size: 14px; font-weight: 700; }
+.pending-count { background: var(--primary); color: #fff; padding: 2px 10px; border-radius: 10px; font-size: 12px; font-weight: 700; }
+.pending-list { flex: 1; overflow-y: auto; padding: 8px; }
+
+/* IC CARD */
+.ic-card { padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); margin-bottom: 6px; cursor: pointer; transition: all .15s; }
+.ic-card:hover { border-color: var(--accent); background: #F9F8FF; }
+.ic-card.selected { border-color: var(--primary); background: #F3F1FF; box-shadow: 0 0 0 1px var(--primary); }
+.ic-card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.priority-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 700; color: #fff; text-transform: uppercase; }
+.priority-stat { background: var(--danger); }
+.priority-urgente { background: var(--warning); }
+.priority-rutina { background: var(--success); }
+.estado-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+.estado-solicitada { background: #FEF3C7; color: #92400E; }
+.estado-aceptada { background: #DBEAFE; color: #1E40AF; }
+.estado-respondida { background: #D1FAE5; color: #065F46; }
+.ic-card-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ic-card-detail { font-size: 11px; color: var(--ink3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ic-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+.ic-card-time { font-size: 11px; color: var(--ink4); }
+.ic-card-doctor { font-size: 11px; color: var(--ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+
+.queue-empty { padding: 32px; text-align: center; color: var(--ink4); font-size: 13px; }
+
+/* WORKSPACE */
+.workspace { flex: 1; overflow-y: auto; padding: 24px; }
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 12px; }
+.empty-state-icon { font-size: 48px; opacity: .3; }
+.empty-state-text { color: var(--ink4); font-size: 14px; text-align: center; }
+
+/* SECTION CARD */
+.section-card { background: var(--white); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+.section-title { font-size: 14px; font-weight: 700; color: var(--ink2); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--line); text-transform: uppercase; letter-spacing: .5px; }
+.info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.info-item label { display: block; font-size: 11px; font-weight: 600; color: var(--ink4); text-transform: uppercase; letter-spacing: .3px; }
+.info-value { font-size: 14px; font-weight: 600; color: var(--ink); }
+
+.triage-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 700; color: #fff; }
+.triage-I { background: var(--triage-i); } .triage-II { background: var(--triage-ii); } .triage-III { background: var(--triage-iii); }
+.triage-IV { background: var(--triage-iv); } .triage-V { background: var(--triage-v); }
+
+/* RESPONSE FORM */
+.response-form { display: flex; flex-direction: column; gap: 14px; }
+.form-field label { display: block; font-size: 12px; font-weight: 600; color: var(--ink3); margin-bottom: 4px; }
+.form-field input, .form-field textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; background: var(--bg); }
+.form-field textarea { min-height: 100px; resize: vertical; }
+.form-field .required::after { content: ' *'; color: var(--danger); }
+
+.response-readonly { background: var(--iv2); border-radius: 10px; padding: 14px; }
+.response-readonly label { display: block; font-size: 11px; font-weight: 600; color: var(--ink4); text-transform: uppercase; margin-bottom: 4px; }
+.response-readonly p { font-size: 14px; color: var(--ink); line-height: 1.5; white-space: pre-wrap; }
+
+/* BUTTONS */
+.btn-action { padding: 12px 28px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; color: #fff; transition: background .15s; }
+.btn-action.primary { background: var(--primary); }
+.btn-action.primary:hover { background: var(--accent); }
+.btn-action.success { background: var(--success); }
+.btn-action.success:hover { background: #15803D; }
+.btn-action.danger { background: var(--danger); }
+.btn-action.danger:hover { background: #B91C1C; }
+.btn-action:disabled { opacity: .4; cursor: not-allowed; }
+
+.actions-bar { display: flex; gap: 12px; margin-top: 4px; flex-wrap: wrap; }
+
+.btn-sm { padding: 6px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); font-size: 12px; cursor: pointer; color: var(--ink3); }
+.btn-sm:hover { border-color: var(--primary); color: var(--primary); }
+.btn-sm.danger { border-color: var(--line); color: var(--ink3); }
+.btn-sm.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+/* TOAST */
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px); padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 500; color: #fff; opacity: 0; transition: all .3s; z-index: 9999; pointer-events: none; }
+.toast.info { background: var(--primary); } .toast.success { background: var(--success); } .toast.error { background: var(--danger); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal-card { background: var(--white); border-radius: 16px; padding: 28px; width: 100%; max-width: 440px; box-shadow: 0 8px 40px rgba(0,0,0,.2); }
+.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+.modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px; }
+
+@media (max-width: 768px) {
+  .sidebar { width: 100%; max-height: 220px; border-right: none; border-bottom: 1px solid var(--line); }
+  .main-body { flex-direction: column; }
+  .workspace { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="screen active" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo"><div class="logo-icon">A</div><div class="login-title">Arthemis Health</div></div>
+    <div class="login-sub">Interconsultas · Especialista</div>
+    <form id="loginForm">
+      <div class="form-group"><label>Usuario</label><input type="text" id="usuario" required autocomplete="username"></div>
+      <div class="form-group"><label>Contrasena</label><input type="password" id="password" required autocomplete="current-password"></div>
+      <button type="submit" class="btn-primary" id="loginBtn">Iniciar sesion</button>
+      <div class="login-error" id="loginError"></div>
+    </form>
+  </div>
+</div>
+
+<!-- SPECIALTY SELECTION -->
+<div class="screen" id="specialtyScreen">
+  <div class="specialty-title">Seleccionar Especialidad</div>
+  <div class="specialty-sub">Elija la especialidad para atender interconsultas</div>
+  <div class="specialty-grid" id="specialtyGrid"></div>
+</div>
+
+<!-- MAIN -->
+<div class="screen" id="mainScreen">
+  <div class="header">
+    <div class="hdr-mark">A</div>
+    <div class="hdr-title">Interconsultas · Especialista</div>
+    <div class="hdr-badge" id="hdrSpecialty"></div>
+    <div class="hdr-spacer"></div>
+    <div class="hdr-meta">
+      <span id="hdrUser"></span><span>·</span>
+      <span id="hdrClock">--:--:--</span>
+      <div class="status-dot" id="statusDot"></div>
+    </div>
+    <button class="btn-logout" id="btnLogout">Salir</button>
+  </div>
+  <div class="main-body">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">Interconsultas pendientes</div>
+        <div class="pending-count" id="pendingCount">0</div>
+      </div>
+      <div class="pending-list" id="pendingList">
+        <div class="queue-empty">Cargando...</div>
+      </div>
+    </div>
+    <div class="workspace" id="workspace">
+      <div class="empty-state">
+        <div class="empty-state-icon">&#128203;</div>
+        <div class="empty-state-text">Seleccione una interconsulta para ver el detalle</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CANCEL MODAL -->
+<div class="modal-overlay" id="cancelModal" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-title">Cancelar interconsulta</div>
+    <div class="form-field">
+      <label>Motivo de cancelacion</label>
+      <textarea id="cancelMotivo" placeholder="Indique el motivo de la cancelacion..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-sm" id="cancelModalClose">Cerrar</button>
+      <button class="btn-action danger" id="cancelModalConfirm">Confirmar cancelacion</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+'use strict';
+
+let user = null, specialty = null, selectedIC = null, icList = [];
+let evtSource = null, pollTimer = null, clockTimer = null;
+
+const SPECIALTIES = [
+  { id: 'medicina_interna', label: 'Medicina Interna', icon: '\u{1FA7A}' },
+  { id: 'cirugia', label: 'Cirugia', icon: '\u{1FA78}' },
+  { id: 'cardiologia', label: 'Cardiologia', icon: '❤️' },
+  { id: 'ortopedia', label: 'Ortopedia', icon: '\u{1F9B4}' },
+  { id: 'neurologia', label: 'Neurologia', icon: '\u{1F9E0}' },
+  { id: 'pediatria', label: 'Pediatria', icon: '\u{1F476}' },
+  { id: 'ginecologia', label: 'Ginecologia', icon: '\u{1F469}‍⚕️' },
+  { id: 'psiquiatria', label: 'Psiquiatria', icon: '\u{1F9D8}' },
+  { id: 'otra', label: 'Otra', icon: '\u{1F4CB}' }
+];
+
+const TRIAGE = {
+  I: { label: 'Resucitacion', color: 'var(--triage-i)' },
+  II: { label: 'Emergencia', color: 'var(--triage-ii)' },
+  III: { label: 'Urgencia', color: 'var(--triage-iii)' },
+  IV: { label: 'Prioritaria', color: 'var(--triage-iv)' },
+  V: { label: 'No urgente', color: 'var(--triage-v)' }
+};
+
+const PRIORITY_MAP = {
+  stat: { cls: 'priority-stat', label: 'STAT' },
+  urgente: { cls: 'priority-urgente', label: 'Urgente' },
+  rutina: { cls: 'priority-rutina', label: 'Rutina' }
+};
+
+function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function toast(msg, type) {
+  type = type || 'info';
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast ' + type + ' show';
+  clearTimeout(el._t);
+  el._t = setTimeout(function() { el.classList.remove('show'); }, 3500);
+}
+
+async function api(method, path, body) {
+  const opts = { method: method, headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin' };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(path, opts);
+  if (!res.ok) {
+    const d = await res.json().catch(function() { return {}; });
+    throw new Error(d.error || 'Error ' + res.status);
+  }
+  return res.json();
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const now = Date.now();
+  const then = new Date(dateStr).getTime();
+  const diff = Math.max(0, now - then);
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'hace un momento';
+  if (mins < 60) return 'hace ' + mins + ' min';
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return 'hace ' + hours + 'h';
+  const days = Math.floor(hours / 24);
+  return 'hace ' + days + 'd';
+}
+
+function calcAge(fechaNac) {
+  if (!fechaNac) return '—';
+  const birth = new Date(fechaNac);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age + ' anios';
+}
+
+function playNotificationSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 880;
+    osc.type = 'sine';
+    gain.gain.value = 0.15;
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.stop(ctx.currentTime + 0.4);
+  } catch (e) { /* silent */ }
+}
+
+/* ── LOGIN ── */
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  try {
+    const data = await api('POST', '/api/auth/login', {
+      usuario: document.getElementById('usuario').value.trim(),
+      password: document.getElementById('password').value
+    });
+    user = data.user || data;
+    renderSpecialtySelection();
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Iniciar sesion';
+  }
+});
+
+/* ── CHECK SESSION ── */
+async function checkSession() {
+  try {
+    const data = await api('GET', '/api/auth/me');
+    user = data.user || data;
+    renderSpecialtySelection();
+  } catch (e) { /* stay on login */ }
+}
+checkSession();
+
+/* ── SPECIALTY SELECTION ── */
+function renderSpecialtySelection() {
+  showScreen('specialtyScreen');
+  const grid = document.getElementById('specialtyGrid');
+  grid.innerHTML = '';
+  SPECIALTIES.forEach(function(sp) {
+    const btn = document.createElement('button');
+    btn.className = 'specialty-btn';
+    btn.innerHTML = '<span class="spec-icon">' + sp.icon + '</span>' + esc(sp.label);
+    btn.addEventListener('click', function() {
+      specialty = sp;
+      enterMain();
+    });
+    grid.appendChild(btn);
+  });
+}
+
+/* ── MAIN ── */
+function enterMain() {
+  showScreen('mainScreen');
+  document.getElementById('hdrSpecialty').textContent = specialty.label;
+  document.getElementById('hdrUser').textContent = user.nombre || user.usuario || '';
+  startClock();
+  loadPending();
+  connectSSE();
+  pollTimer = setInterval(loadPending, 15000);
+}
+
+function startClock() {
+  function tick() {
+    const now = new Date();
+    document.getElementById('hdrClock').textContent =
+      now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+  tick();
+  clockTimer = setInterval(tick, 1000);
+}
+
+/* ── SSE ── */
+function connectSSE() {
+  if (evtSource) { try { evtSource.close(); } catch (e) {} }
+  try {
+    evtSource = new EventSource('/api/sse', { withCredentials: true });
+    evtSource.addEventListener('interconsulta_nueva', function(e) {
+      playNotificationSound();
+      toast('Nueva interconsulta recibida', 'info');
+      loadPending();
+    });
+    evtSource.onopen = function() {
+      document.getElementById('statusDot').classList.remove('disconnected');
+    };
+    evtSource.onerror = function() {
+      document.getElementById('statusDot').classList.add('disconnected');
+    };
+  } catch (e) {
+    document.getElementById('statusDot').classList.add('disconnected');
+  }
+}
+
+/* ── PENDING LIST ── */
+async function loadPending() {
+  try {
+    const data = await api('GET', '/api/interconsultas/pendientes?especialidad=' + encodeURIComponent(specialty.id));
+    icList = data.interconsultas || [];
+    renderPendingList();
+    // Auto-select first if none selected
+    if (!selectedIC && icList.length > 0) {
+      selectIC(icList[0].id);
+    } else if (selectedIC) {
+      // Refresh detail if still in list
+      const still = icList.find(function(ic) { return ic.id === selectedIC; });
+      if (still) selectIC(selectedIC);
+      else { selectedIC = null; renderEmptyWorkspace(); }
+    }
+  } catch (err) {
+    toast('Error cargando interconsultas: ' + err.message, 'error');
+  }
+}
+
+function renderPendingList() {
+  const container = document.getElementById('pendingList');
+  document.getElementById('pendingCount').textContent = icList.length;
+
+  if (icList.length === 0) {
+    container.innerHTML = '<div class="queue-empty">No hay interconsultas pendientes para ' + esc(specialty.label) + '</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  icList.forEach(function(ic) {
+    const card = document.createElement('div');
+    card.className = 'ic-card' + (selectedIC === ic.id ? ' selected' : '');
+
+    const pri = PRIORITY_MAP[ic.prioridad] || PRIORITY_MAP.rutina;
+    const estadoCls = 'estado-' + (ic.estado || 'solicitada');
+    const estadoLabel = ic.estado ? ic.estado.charAt(0).toUpperCase() + ic.estado.slice(1) : 'Solicitada';
+
+    card.innerHTML =
+      '<div class="ic-card-top">' +
+        '<span class="priority-badge ' + pri.cls + '">' + esc(pri.label) + '</span>' +
+        '<span class="estado-badge ' + estadoCls + '">' + esc(estadoLabel) + '</span>' +
+      '</div>' +
+      '<div class="ic-card-name">' + esc((ic.nombres || '') + ' ' + (ic.apellidos || '')) + '</div>' +
+      '<div class="ic-card-detail">' + esc(ic.especialidad_solicitada || '') + '</div>' +
+      '<div class="ic-card-footer">' +
+        '<span class="ic-card-doctor">Dr(a). ' + esc(ic.medico_solicitante || '') + '</span>' +
+        '<span class="ic-card-time">' + timeAgo(ic.fecha_solicitud) + '</span>' +
+      '</div>';
+
+    card.addEventListener('click', function() { selectIC(ic.id); });
+    container.appendChild(card);
+  });
+}
+
+function renderEmptyWorkspace() {
+  document.getElementById('workspace').innerHTML =
+    '<div class="empty-state">' +
+      '<div class="empty-state-icon">&#128203;</div>' +
+      '<div class="empty-state-text">Seleccione una interconsulta para ver el detalle</div>' +
+    '</div>';
+}
+
+/* ── SELECT IC ── */
+async function selectIC(icId) {
+  selectedIC = icId;
+  // Update sidebar selection
+  document.querySelectorAll('.ic-card').forEach(function(c, i) {
+    c.classList.toggle('selected', icList[i] && icList[i].id === icId);
+  });
+
+  const ws = document.getElementById('workspace');
+  ws.innerHTML = '<div class="empty-state"><span class="spinner" style="border-color:var(--line);border-top-color:var(--primary);width:32px;height:32px;border-width:3px;"></span></div>';
+
+  try {
+    const data = await api('GET', '/api/interconsultas/' + icId);
+    const ic = data.interconsulta || data;
+    renderDetail(ic);
+  } catch (err) {
+    ws.innerHTML = '<div class="empty-state"><div class="empty-state-text" style="color:var(--danger);">Error: ' + esc(err.message) + '</div></div>';
+  }
+}
+
+/* ── RENDER DETAIL ── */
+function renderDetail(ic) {
+  const ws = document.getElementById('workspace');
+  const triageLevel = ic.triage_nivel || '';
+  const triageMeta = TRIAGE[triageLevel] || {};
+  const age = calcAge(ic.fecha_nacimiento);
+  const pri = PRIORITY_MAP[ic.prioridad] || PRIORITY_MAP.rutina;
+
+  let html = '';
+
+  /* Patient Info */
+  html += '<div class="section-card">' +
+    '<div class="section-title">Informacion del paciente</div>' +
+    '<div class="info-grid">' +
+      '<div class="info-item"><label>Nombre completo</label><div class="info-value">' + esc((ic.nombres || '') + ' ' + (ic.apellidos || '')) + '</div></div>' +
+      '<div class="info-item"><label>Documento</label><div class="info-value">' + esc((ic.p_tipo_doc || '') + ' ' + (ic.p_num_doc || '')) + '</div></div>' +
+      '<div class="info-item"><label>Edad</label><div class="info-value">' + esc(age) + '</div></div>' +
+      '<div class="info-item"><label>Genero</label><div class="info-value">' + esc(ic.genero || '—') + '</div></div>' +
+      '<div class="info-item"><label>EPS</label><div class="info-value">' + esc(ic.p_eps || '—') + '</div></div>' +
+      '<div class="info-item"><label>Celular</label><div class="info-value">' + esc(ic.p_celular || '—') + '</div></div>' +
+      (triageLevel ? '<div class="info-item"><label>Triage</label><div class="info-value"><span class="triage-badge triage-' + esc(triageLevel) + '">Nivel ' + esc(triageLevel) + '</span> ' + esc(triageMeta.label || '') + '</div></div>' : '') +
+      (ic.turno ? '<div class="info-item"><label>Turno</label><div class="info-value">' + esc(ic.turno) + '</div></div>' : '') +
+    '</div>' +
+  '</div>';
+
+  /* Request Info */
+  html += '<div class="section-card">' +
+    '<div class="section-title">Solicitud de interconsulta</div>' +
+    '<div class="info-grid">' +
+      '<div class="info-item"><label>Medico solicitante</label><div class="info-value">' + esc(ic.medico_solicitante || '—') + '</div></div>' +
+      '<div class="info-item"><label>Especialidad solicitada</label><div class="info-value">' + esc(ic.especialidad_solicitada || '—') + '</div></div>' +
+      '<div class="info-item"><label>Tipo</label><div class="info-value">' + esc(ic.tipo || '—') + '</div></div>' +
+      '<div class="info-item"><label>Prioridad</label><div class="info-value"><span class="priority-badge ' + pri.cls + '">' + esc(pri.label) + '</span></div></div>' +
+      '<div class="info-item"><label>Estado</label><div class="info-value"><span class="estado-badge estado-' + esc(ic.estado || 'solicitada') + '">' + esc(ic.estado ? ic.estado.charAt(0).toUpperCase() + ic.estado.slice(1) : 'Solicitada') + '</span></div></div>' +
+      '<div class="info-item"><label>Fecha solicitud</label><div class="info-value">' + esc(ic.fecha_solicitud ? new Date(ic.fecha_solicitud).toLocaleString('es-CO') : '—') + '</div></div>' +
+      '<div class="info-item"><label>CIE-10</label><div class="info-value">' + esc(ic.cod_cie10 || '—') + '</div></div>' +
+    '</div>' +
+    '<div style="margin-top:14px;">' +
+      '<div class="info-item"><label>Diagnostico presuntivo</label><div class="info-value" style="font-weight:500;">' + esc(ic.diagnostico_presuntivo || '—') + '</div></div>' +
+    '</div>' +
+    '<div style="margin-top:10px;">' +
+      '<div class="info-item"><label>Motivo de la interconsulta</label><div class="info-value" style="font-weight:500;white-space:pre-wrap;">' + esc(ic.motivo || '—') + '</div></div>' +
+    '</div>' +
+  '</div>';
+
+  /* Estado-dependent section */
+  if (ic.estado === 'solicitada') {
+    html += '<div class="section-card">' +
+      '<div class="section-title">Acciones</div>' +
+      '<div class="actions-bar">' +
+        '<button class="btn-action primary" id="btnAceptar">Aceptar interconsulta</button>' +
+        '<button class="btn-sm danger" id="btnCancelar">Cancelar interconsulta</button>' +
+      '</div>' +
+    '</div>';
+  } else if (ic.estado === 'aceptada') {
+    html += '<div class="section-card">' +
+      '<div class="section-title">Respuesta del especialista</div>' +
+      '<form class="response-form" id="responseForm">' +
+        '<div class="form-field"><label class="required">Hallazgos / Respuesta</label><textarea id="respuestaText" placeholder="Describa sus hallazgos y respuesta clinica..." required></textarea></div>' +
+        '<div class="form-field"><label>Recomendaciones</label><textarea id="recomendacionesText" placeholder="Recomendaciones para el medico solicitante..."></textarea></div>' +
+        '<div class="form-field"><label>CIE-10 diagnostico</label><input type="text" id="cie10Respuesta" placeholder="Ej: I10, J18.9"></div>' +
+        '<div class="actions-bar">' +
+          '<button type="submit" class="btn-action success" id="btnResponder">Enviar respuesta</button>' +
+          '<button type="button" class="btn-sm danger" id="btnCancelar">Cancelar interconsulta</button>' +
+        '</div>' +
+      '</form>' +
+    '</div>';
+  } else if (ic.estado === 'respondida') {
+    html += '<div class="section-card">' +
+      '<div class="section-title">Respuesta del especialista</div>' +
+      '<div class="response-readonly"><label>Hallazgos / Respuesta</label><p>' + esc(ic.respuesta || '—') + '</p></div>' +
+      (ic.recomendaciones ? '<div class="response-readonly" style="margin-top:10px;"><label>Recomendaciones</label><p>' + esc(ic.recomendaciones) + '</p></div>' : '') +
+      (ic.cod_cie10_respuesta ? '<div class="response-readonly" style="margin-top:10px;"><label>CIE-10 diagnostico</label><p>' + esc(ic.cod_cie10_respuesta) + '</p></div>' : '') +
+    '</div>';
+  }
+
+  ws.innerHTML = html;
+
+  /* Bind buttons */
+  var btnAceptar = document.getElementById('btnAceptar');
+  if (btnAceptar) {
+    btnAceptar.addEventListener('click', function() { aceptarIC(ic.id); });
+  }
+
+  var btnCancelar = document.getElementById('btnCancelar');
+  if (btnCancelar) {
+    btnCancelar.addEventListener('click', function() { showCancelModal(ic.id); });
+  }
+
+  var responseForm = document.getElementById('responseForm');
+  if (responseForm) {
+    responseForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      responderIC(ic.id);
+    });
+  }
+}
+
+/* ── ACEPTAR ── */
+async function aceptarIC(icId) {
+  const btn = document.getElementById('btnAceptar');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Aceptando...'; }
+  try {
+    await api('PUT', '/api/interconsultas/' + icId + '/aceptar');
+    toast('Interconsulta aceptada', 'success');
+    await loadPending();
+    selectIC(icId);
+  } catch (err) {
+    toast('Error al aceptar: ' + err.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Aceptar interconsulta'; }
+  }
+}
+
+/* ── RESPONDER ── */
+async function responderIC(icId) {
+  const respuesta = document.getElementById('respuestaText').value.trim();
+  const recomendaciones = document.getElementById('recomendacionesText').value.trim();
+  const cie10 = document.getElementById('cie10Respuesta').value.trim();
+
+  if (!respuesta) {
+    toast('Debe ingresar los hallazgos / respuesta', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnResponder');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Enviando...'; }
+
+  try {
+    const body = { respuesta: respuesta, recomendaciones: recomendaciones };
+    if (cie10) body.cod_cie10_respuesta = cie10;
+    await api('PUT', '/api/interconsultas/' + icId + '/responder', body);
+    toast('Respuesta enviada exitosamente', 'success');
+    selectedIC = null;
+    await loadPending();
+    if (icList.length > 0) {
+      selectIC(icList[0].id);
+    } else {
+      renderEmptyWorkspace();
+    }
+  } catch (err) {
+    toast('Error al responder: ' + err.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Enviar respuesta'; }
+  }
+}
+
+/* ── CANCEL MODAL ── */
+var cancelTargetId = null;
+
+function showCancelModal(icId) {
+  cancelTargetId = icId;
+  document.getElementById('cancelMotivo').value = '';
+  document.getElementById('cancelModal').style.display = 'flex';
+}
+
+document.getElementById('cancelModalClose').addEventListener('click', function() {
+  document.getElementById('cancelModal').style.display = 'none';
+  cancelTargetId = null;
+});
+
+document.getElementById('cancelModalConfirm').addEventListener('click', async function() {
+  const motivo = document.getElementById('cancelMotivo').value.trim();
+  if (!motivo) {
+    toast('Debe indicar el motivo de cancelacion', 'error');
+    return;
+  }
+  const btn = document.getElementById('cancelModalConfirm');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Cancelando...';
+  try {
+    await api('PUT', '/api/interconsultas/' + cancelTargetId + '/cancelar', { motivo: motivo });
+    toast('Interconsulta cancelada', 'success');
+    document.getElementById('cancelModal').style.display = 'none';
+    selectedIC = null;
+    cancelTargetId = null;
+    await loadPending();
+    if (icList.length > 0) {
+      selectIC(icList[0].id);
+    } else {
+      renderEmptyWorkspace();
+    }
+  } catch (err) {
+    toast('Error al cancelar: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Confirmar cancelacion';
+  }
+});
+
+/* Close modal on overlay click */
+document.getElementById('cancelModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    this.style.display = 'none';
+    cancelTargetId = null;
+  }
+});
+
+/* ── LOGOUT ── */
+document.getElementById('btnLogout').addEventListener('click', async function() {
+  try { await api('POST', '/api/auth/logout'); } catch (e) {}
+  if (evtSource) { try { evtSource.close(); } catch (e) {} }
+  if (pollTimer) clearInterval(pollTimer);
+  if (clockTimer) clearInterval(clockTimer);
+  user = null;
+  specialty = null;
+  selectedIC = null;
+  icList = [];
+  document.getElementById('usuario').value = '';
+  document.getElementById('password').value = '';
+  showScreen('loginScreen');
+});
+
+})();
+</script>
+</body>
+</html>

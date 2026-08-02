@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arthemis Health — Dashboard</title>
+<style>
+:root{--primary:#5147C4;--accent:#7269D8;--bg:#FAF8F4;--dark:#1C1916;--white:#FFFFFF;--iv2:#F2EFE9;--line:#E6E1D8;--line2:#D8D2C7;--ink:#1C1916;--ink2:#3D3834;--ink3:#6B6460;--ink4:#A09890;--triage-i:#DC2626;--triage-ii:#EA580C;--triage-iii:#D97706;--triage-iv:#16A34A;--triage-v:#2563EB;--success:#16A34A;--danger:#DC2626;--warning:#D97706}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+.top-bar{background:var(--dark);color:var(--white);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.top-bar h1{font-size:18px;font-weight:600;display:flex;align-items:center;gap:8px}
+.top-bar .logo{width:28px;height:28px;background:var(--primary);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.top-bar .user-info{display:flex;align-items:center;gap:16px;font-size:13px}
+.top-bar .user-info .role-badge{background:var(--primary);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.top-bar .btn-logout{background:transparent;border:1px solid rgba(255,255,255,.3);color:var(--white);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px}
+.top-bar .btn-logout:hover{background:rgba(255,255,255,.1)}
+.nav-tabs{background:var(--white);border-bottom:1px solid var(--line);display:flex;padding:0 24px;gap:0;overflow-x:auto}
+.nav-tabs button{background:none;border:none;padding:12px 20px;font-size:13px;font-weight:500;color:var(--ink3);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.nav-tabs button:hover{color:var(--ink)}
+.nav-tabs button.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
+.content{padding:24px;max-width:1400px;margin:0 auto}
+.grid{display:grid;gap:16px}
+.grid-4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(400px,1fr))}
+.card{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:20px}
+.card h3{font-size:13px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.stat-card{text-align:center}
+.stat-card .value{font-size:32px;font-weight:700;color:var(--primary)}
+.stat-card .label{font-size:12px;color:var(--ink3);margin-top:4px}
+.stat-card.alert .value{color:var(--danger)}
+.stat-card.warning .value{color:var(--warning)}
+.stat-card.success .value{color:var(--success)}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+.status-dot.ok{background:var(--success)}
+.status-dot.error{background:var(--danger)}
+.status-dot.warn{background:var(--warning)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+table th{text-align:left;padding:8px 12px;border-bottom:2px solid var(--line);font-weight:600;color:var(--ink3);font-size:11px;text-transform:uppercase}
+table td{padding:8px 12px;border-bottom:1px solid var(--line2)}
+table tr:hover{background:var(--iv2)}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.badge-ok{background:#dcfce7;color:#166534}
+.badge-error{background:#fef2f2;color:#991b1b}
+.badge-warn{background:#fefce8;color:#854d0e}
+.badge-info{background:#eff6ff;color:#1e40af}
+.chart-bar{display:flex;align-items:flex-end;gap:6px;height:120px;padding-top:8px}
+.chart-bar .bar{flex:1;background:var(--primary);border-radius:4px 4px 0 0;min-height:4px;position:relative;transition:height .3s}
+.chart-bar .bar:hover{opacity:.85}
+.chart-bar .bar .bar-label{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--ink4);white-space:nowrap}
+.chart-bar .bar .bar-value{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:600;color:var(--ink2)}
+.triage-dist{display:flex;gap:8px;flex-wrap:wrap}
+.triage-chip{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;color:var(--white)}
+.endpoint-group{margin-bottom:16px}
+.endpoint-group summary{font-weight:600;font-size:14px;cursor:pointer;padding:8px 0;color:var(--ink2)}
+.endpoint-group summary:hover{color:var(--primary)}
+.method-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-right:6px}
+.method-GET{background:#dcfce7;color:#166534}
+.method-POST{background:#eff6ff;color:#1e40af}
+.method-PUT{background:#fefce8;color:#854d0e}
+.method-DELETE{background:#fef2f2;color:#991b1b}
+.alert-list{display:flex;flex-direction:column;gap:8px}
+.alert-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;font-size:13px}
+.alert-item.critical{background:#fef2f2;border-left:3px solid var(--danger)}
+.alert-item.warning{background:#fefce8;border-left:3px solid var(--warning)}
+.alert-item.info{background:#eff6ff;border-left:3px solid #3b82f6}
+.alert-item .time{font-size:11px;color:var(--ink4);margin-left:auto;white-space:nowrap}
+.refresh-btn{background:var(--primary);color:var(--white);border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500}
+.refresh-btn:hover{background:var(--accent)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.section-title{font-size:16px;font-weight:700;color:var(--ink);margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+.section-title:first-child{margin-top:0}
+.accounts-list{display:flex;flex-direction:column;gap:8px}
+.account-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--iv2);border-radius:8px}
+.account-item .avatar{width:36px;height:36px;border-radius:50%;background:var(--primary);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px}
+.account-item .info{flex:1}
+.account-item .info .name{font-weight:600;font-size:13px}
+.account-item .info .role{font-size:11px;color:var(--ink3)}
+.account-item .status{font-size:11px;font-weight:500}
+.no-data{text-align:center;padding:40px;color:var(--ink4);font-size:14px}
+.loading{text-align:center;padding:40px;color:var(--ink4)}
+.loading::after{content:'';display:inline-block;width:20px;height:20px;border:2px solid var(--line);border-top-color:var(--primary);border-radius:50%;animation:spin .6s linear infinite;margin-left:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:768px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}.content{padding:16px}}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <h1><div class="logo">A</div> Arthemis Health</h1>
+  <div class="user-info">
+    <span id="topUser">-</span>
+    <span class="role-badge" id="topRole">-</span>
+    <a href="/admin/usuarios" style="color:var(--white);text-decoration:none;font-size:12px">Usuarios</a>
+    <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+  </div>
+</div>
+
+<div class="nav-tabs" id="navTabs">
+  <button class="active" data-tab="overview">Resumen</button>
+  <button data-tab="endpoints">Endpoints</button>
+  <button data-tab="alerts">Alertas</button>
+  <button data-tab="accounts">Cuentas</button>
+  <button data-tab="audit">Auditoría</button>
+  <button data-tab="medical" style="display:none">Medicina</button>
+  <button data-tab="nursing" style="display:none">Enfermería</button>
+  <button data-tab="admissions" style="display:none">Admisiones</button>
+  <button data-tab="finance" style="display:none">Finanzas</button>
+</div>
+
+<div class="content">
+
+<!-- ═══ OVERVIEW TAB ═══ -->
+<div class="tab-panel active" id="tab-overview">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <h2 class="section-title" style="margin:0">Panel de Control</h2>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span style="font-size:11px;color:var(--ink4)" id="lastUpdate">-</span>
+      <button class="refresh-btn" onclick="loadAll()">Actualizar</button>
+    </div>
+  </div>
+
+  <div class="grid grid-4" id="statCards">
+    <div class="card stat-card"><div class="value loading">-</div><div class="label">Cargando...</div></div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:16px">
+    <div class="card">
+      <h3>Admisiones - Últimos 7 días</h3>
+      <div class="chart-bar" id="chartAdmisiones"><div class="no-data">Cargando...</div></div>
+    </div>
+    <div class="card">
+      <h3>Triage Hoy por Nivel</h3>
+      <div class="triage-dist" id="triageDist"><span class="no-data">Cargando...</span></div>
+    </div>
+  </div>
+
+  <div class="grid grid-3" style="margin-top:16px">
+    <div class="card">
+      <h3>Admisiones por Estado</h3>
+      <div id="estadosDist"></div>
+    </div>
+    <div class="card">
+      <h3>Base de Datos</h3>
+      <div id="dbInfo"></div>
+    </div>
+    <div class="card">
+      <h3>Actividad Reciente</h3>
+      <div id="recentAudit"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ENDPOINTS TAB ═══ -->
+<div class="tab-panel" id="tab-endpoints">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <h2 class="section-title" style="margin:0">Monitoreo de Endpoints</h2>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="badge badge-ok" id="epCountOk">-</span>
+      <span style="font-size:12px;color:var(--ink3)">endpoints registrados</span>
+    </div>
+  </div>
+  <div class="card" id="endpointsList"><div class="loading">Cargando endpoints...</div></div>
+</div>
+
+<!-- ═══ ALERTS TAB ═══ -->
+<div class="tab-panel" id="tab-alerts">
+  <h2 class="section-title">Alertas del Sistema</h2>
+  <div class="card">
+    <div class="alert-list" id="alertsList"><div class="loading">Analizando sistema...</div></div>
+  </div>
+</div>
+
+<!-- ═══ ACCOUNTS TAB ═══ -->
+<div class="tab-panel" id="tab-accounts">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <h2 class="section-title" style="margin:0">Cuentas Conectadas</h2>
+    <a href="/admin/usuarios" class="refresh-btn" style="text-decoration:none">Gestionar Usuarios</a>
+  </div>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Usuarios Activos</h3>
+      <div class="accounts-list" id="accountsActive"></div>
+    </div>
+    <div class="card">
+      <h3>Roles del Sistema</h3>
+      <div id="rolesSummary"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AUDIT TAB ═══ -->
+<div class="tab-panel" id="tab-audit">
+  <h2 class="section-title">Log de Auditoría</h2>
+  <div class="card">
+    <table id="auditTable">
+      <thead><tr><th>Fecha</th><th>Entidad</th><th>Acción</th><th>Detalle</th><th>Usuario</th><th>IP</th></tr></thead>
+      <tbody id="auditBody"><tr><td colspan="6" class="loading">Cargando...</td></tr></tbody>
+    </table>
+    <div style="margin-top:12px;text-align:center">
+      <button class="refresh-btn" id="auditMore" style="display:none" onclick="loadMoreAudit()">Cargar más</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MEDICAL DASHBOARD TAB ═══ -->
+<div class="tab-panel" id="tab-medical">
+  <h2 class="section-title">Dashboard Medicina</h2>
+  <div class="grid grid-4" id="medStats"></div>
+  <div class="card" style="margin-top:16px">
+    <h3>Historias Clínicas Abiertas</h3>
+    <table><thead><tr><th>Paciente</th><th>Doc</th><th>Turno</th><th>Triage</th><th>Desde</th></tr></thead>
+    <tbody id="medHcList"><tr><td colspan="5" class="no-data">Sin HC abiertas</td></tr></tbody></table>
+  </div>
+</div>
+
+<!-- ═══ NURSING DASHBOARD TAB ═══ -->
+<div class="tab-panel" id="tab-nursing">
+  <h2 class="section-title">Dashboard Enfermería</h2>
+  <div class="grid grid-4" id="nurStats"></div>
+  <div class="card" style="margin-top:16px">
+    <h3>Distribución Triage Hoy</h3>
+    <div class="triage-dist" id="nurTriageDist"></div>
+  </div>
+</div>
+
+<!-- ═══ ADMISSIONS DASHBOARD TAB ═══ -->
+<div class="tab-panel" id="tab-admissions">
+  <h2 class="section-title">Dashboard Admisiones</h2>
+  <div class="grid grid-4" id="admStats"></div>
+</div>
+
+<!-- ═══ FINANCE DASHBOARD TAB ═══ -->
+<div class="tab-panel" id="tab-finance">
+  <h2 class="section-title">Dashboard Financiero</h2>
+  <div class="grid grid-4" id="finStats"></div>
+  <div class="card" style="margin-top:16px">
+    <h3>Pre-facturas por Estado</h3>
+    <div id="finPfDist"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const API = '';
+let currentUser = null;
+let auditOffset = 0;
+
+// ── Auth ──
+async function checkAuth() {
+  try {
+    const r = await fetch(API+'/api/auth/me');
+    const d = await r.json();
+    if (!d.autenticado) { window.location.href = '/'; return; }
+    currentUser = d;
+    document.getElementById('topUser').textContent = d.usuario;
+    document.getElementById('topRole').textContent = d.rol;
+    setupTabsForRole(d.permisos, d.rol);
+    loadAll();
+  } catch(e) { window.location.href = '/'; }
+}
+
+function setupTabsForRole(permisos, rol) {
+  const isSuperOrDir = permisos.includes('superadmin') || permisos.includes('director');
+  const tabs = document.getElementById('navTabs');
+  // Show role-specific tabs
+  if (isSuperOrDir || permisos.includes('historia_clinica') || permisos.includes('coord_medico'))
+    tabs.querySelector('[data-tab="medical"]').style.display = '';
+  if (isSuperOrDir || permisos.includes('enfermeria') || permisos.includes('coord_enfermeria'))
+    tabs.querySelector('[data-tab="nursing"]').style.display = '';
+  if (isSuperOrDir || permisos.includes('admisiones') || permisos.includes('coord_admisiones'))
+    tabs.querySelector('[data-tab="admissions"]').style.display = '';
+  if (isSuperOrDir || permisos.includes('facturacion') || permisos.includes('coord_financiero'))
+    tabs.querySelector('[data-tab="finance"]').style.display = '';
+  // Hide superadmin-only tabs for non-admin roles
+  if (!isSuperOrDir) {
+    tabs.querySelector('[data-tab="endpoints"]').style.display = 'none';
+    tabs.querySelector('[data-tab="alerts"]').style.display = 'none';
+  }
+}
+
+async function logout() {
+  await fetch(API+'/api/auth/logout', {method:'POST'});
+  window.location.href = '/';
+}
+
+// ── Tab switching ──
+document.getElementById('navTabs').addEventListener('click', e => {
+  if (e.target.tagName !== 'BUTTON') return;
+  document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById('tab-'+e.target.dataset.tab).classList.add('active');
+  // Load tab-specific data
+  const tab = e.target.dataset.tab;
+  if (tab === 'endpoints') loadHealthCheck();
+  if (tab === 'alerts') loadAlerts();
+  if (tab === 'accounts') loadAccounts();
+  if (tab === 'audit') loadAudit();
+  if (tab === 'medical') loadMedical();
+  if (tab === 'nursing') loadNursing();
+  if (tab === 'admissions') loadAdmissions();
+  if (tab === 'finance') loadFinance();
+});
+
+// ── Load All ──
+async function loadAll() {
+  loadStats();
+  document.getElementById('lastUpdate').textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-CO');
+}
+
+// ── Stats ──
+async function loadStats() {
+  try {
+    const r = await fetch(API+'/api/admin/stats');
+    const d = await r.json();
+    renderStatCards(d);
+    renderChart(d.tendencia_admisiones);
+    renderTriageDist(d.triage_hoy, 'triageDist');
+    renderEstados(d.admisiones_por_estado);
+    renderDbInfo(d);
+    renderRecentAudit(d.ultimos_audits);
+  } catch(e) { console.error(e); }
+}
+
+function renderStatCards(d) {
+  const cards = [
+    {value: d.pacientes_total, label: 'Pacientes Registrados', cls: ''},
+    {value: d.admisiones_hoy, label: 'Admisiones Hoy', cls: d.admisiones_hoy > 0 ? 'success' : ''},
+    {value: d.hc_abiertas, label: 'HC Abiertas', cls: d.hc_abiertas > 5 ? 'warning' : ''},
+    {value: d.hc_total, label: 'HC Total', cls: ''},
+    {value: d.ordenes_pendientes, label: 'Órdenes Pendientes', cls: d.ordenes_pendientes > 10 ? 'alert' : d.ordenes_pendientes > 0 ? 'warning' : ''},
+    {value: d.interconsultas_pendientes, label: 'Interconsultas Pend.', cls: d.interconsultas_pendientes > 5 ? 'warning' : ''},
+    {value: d.prefacturas_pendientes, label: 'Facturas por Aprobar', cls: d.prefacturas_pendientes > 0 ? 'warning' : ''},
+    {value: '$'+formatNum(d.facturacion_total_aprobada), label: 'Facturación Aprobada', cls: 'success'},
+    {value: d.usuarios_activos, label: 'Usuarios Activos', cls: ''},
+    {value: d.roles_total, label: 'Roles Configurados', cls: ''},
+  ];
+  document.getElementById('statCards').innerHTML = cards.map(c =>
+    `<div class="card stat-card ${c.cls}"><div class="value">${c.value}</div><div class="label">${c.label}</div></div>`
+  ).join('');
+}
+
+function formatNum(n) { return (n||0).toLocaleString('es-CO'); }
+
+function renderChart(data) {
+  const el = document.getElementById('chartAdmisiones');
+  if (!data || !data.length) { el.innerHTML = '<div class="no-data">Sin datos</div>'; return; }
+  const max = Math.max(...data.map(d => d.total), 1);
+  el.innerHTML = data.map(d => {
+    const h = Math.max((d.total/max)*100, 4);
+    const day = d.fecha ? d.fecha.slice(5) : '?';
+    return `<div class="bar" style="height:${h}%"><div class="bar-value">${d.total}</div><div class="bar-label">${day}</div></div>`;
+  }).join('');
+}
+
+function renderTriageDist(data, containerId) {
+  const el = document.getElementById(containerId);
+  if (!data || !data.length) { el.innerHTML = '<span class="no-data">Sin triage hoy</span>'; return; }
+  const colors = {'I':'var(--triage-i)','II':'var(--triage-ii)','III':'var(--triage-iii)','IV':'var(--triage-iv)','V':'var(--triage-v)'};
+  el.innerHTML = data.map(d =>
+    `<div class="triage-chip" style="background:${colors[d.triage_nivel]||'var(--ink3)'}">Nivel ${d.triage_nivel}: ${d.total}</div>`
+  ).join('');
+}
+
+function renderEstados(data) {
+  const el = document.getElementById('estadosDist');
+  if (!data || !Object.keys(data).length) { el.innerHTML = '<div class="no-data">Sin datos</div>'; return; }
+  el.innerHTML = '<table><tbody>' + Object.entries(data).map(([k,v]) =>
+    `<tr><td style="font-weight:500">${k}</td><td style="text-align:right;font-weight:700;color:var(--primary)">${v}</td></tr>`
+  ).join('') + '</tbody></table>';
+}
+
+function renderDbInfo(d) {
+  document.getElementById('dbInfo').innerHTML = `
+    <table><tbody>
+      <tr><td>Motor</td><td style="text-align:right;font-weight:600">${d.db_type === 'pg' ? 'PostgreSQL' : 'SQLite'}</td></tr>
+      <tr><td>Usuarios Activos</td><td style="text-align:right;font-weight:600">${d.usuarios_activos}</td></tr>
+      <tr><td>Roles</td><td style="text-align:right;font-weight:600">${d.roles_total}</td></tr>
+      <tr><td>Última actualización</td><td style="text-align:right;font-size:11px;color:var(--ink3)">${new Date(d.timestamp).toLocaleTimeString('es-CO')}</td></tr>
+    </tbody></table>`;
+}
+
+function renderRecentAudit(entries) {
+  const el = document.getElementById('recentAudit');
+  if (!entries || !entries.length) { el.innerHTML = '<div class="no-data">Sin actividad reciente</div>'; return; }
+  el.innerHTML = entries.map(e =>
+    `<div style="padding:6px 0;border-bottom:1px solid var(--line2);font-size:12px">
+      <strong>${e.accion}</strong> en ${e.entidad} — ${e.usuario||'sistema'}
+      <div style="color:var(--ink4);font-size:11px;margin-top:2px">${e.detalle||''}</div>
+    </div>`
+  ).join('');
+}
+
+// ── Health Check / Endpoints ──
+async function loadHealthCheck() {
+  try {
+    const r = await fetch(API+'/api/admin/health-check');
+    const d = await r.json();
+    document.getElementById('epCountOk').textContent = d.total_endpoints + ' OK';
+    renderEndpoints(d);
+  } catch(e) { console.error(e); }
+}
+
+function renderEndpoints(d) {
+  const el = document.getElementById('endpointsList');
+  let html = `<div style="margin-bottom:12px;display:flex;gap:12px;align-items:center">
+    <span class="status-dot ${d.status==='ok'?'ok':'error'}"></span>
+    <strong>Sistema: ${d.status.toUpperCase()}</strong>
+    <span style="margin-left:auto;font-size:12px;color:var(--ink3)">DB: ${d.database.status} (${d.database.type})</span>
+  </div>`;
+
+  if (d.database.tables) {
+    html += '<div style="margin-bottom:16px"><h3 style="font-size:12px;color:var(--ink3);margin-bottom:8px">TABLAS</h3><table><thead><tr><th>Tabla</th><th style="text-align:right">Registros</th></tr></thead><tbody>';
+    for (const [t, cnt] of Object.entries(d.database.tables)) {
+      html += `<tr><td>${t}</td><td style="text-align:right;font-weight:600">${cnt >= 0 ? cnt : '<span style="color:var(--danger)">ERROR</span>'}</td></tr>`;
+    }
+    html += '</tbody></table></div>';
+  }
+
+  for (const [mod, info] of Object.entries(d.modules).sort((a,b) => a[0].localeCompare(b[0]))) {
+    html += `<details class="endpoint-group"><summary>${mod} <span class="badge badge-info">${info.count}</span></summary><table><tbody>`;
+    for (const ep of info.endpoints) {
+      const methods = ep.methods.map(m => `<span class="method-badge method-${m}">${m}</span>`).join('');
+      html += `<tr><td>${methods}</td><td style="font-family:monospace;font-size:12px">${ep.path}</td><td style="color:var(--ink4);font-size:11px">${ep.endpoint}</td></tr>`;
+    }
+    html += '</tbody></table></details>';
+  }
+  el.innerHTML = html;
+}
+
+// ── Alerts ──
+async function loadAlerts() {
+  try {
+    const r = await fetch(API+'/api/admin/stats');
+    const d = await r.json();
+    const alerts = [];
+
+    // Generate alerts from stats
+    if (d.ordenes_pendientes > 10) alerts.push({level:'critical', msg:`${d.ordenes_pendientes} órdenes médicas pendientes — posible cuello de botella`});
+    else if (d.ordenes_pendientes > 5) alerts.push({level:'warning', msg:`${d.ordenes_pendientes} órdenes pendientes`});
+
+    if (d.interconsultas_pendientes > 5) alerts.push({level:'warning', msg:`${d.interconsultas_pendientes} interconsultas sin responder`});
+    if (d.hc_abiertas > 5) alerts.push({level:'warning', msg:`${d.hc_abiertas} historias clínicas abiertas — posible demora en egreso`});
+    if (d.prefacturas_pendientes > 3) alerts.push({level:'warning', msg:`${d.prefacturas_pendientes} pre-facturas pendientes de aprobación`});
+
+    const estados = d.admisiones_por_estado || {};
+    const enCola = (estados['kiosco']||0) + (estados['llamando']||0);
+    if (enCola > 10) alerts.push({level:'critical', msg:`${enCola} pacientes en cola de espera`});
+    else if (enCola > 5) alerts.push({level:'warning', msg:`${enCola} pacientes esperando atención`});
+
+    if (d.usuarios_activos < 2) alerts.push({level:'info', msg:'Solo hay 1 usuario activo — considere crear más cuentas'});
+
+    // Health check
+    const hr = await fetch(API+'/api/admin/health-check');
+    const hd = await hr.json();
+    if (hd.status !== 'ok') alerts.push({level:'critical', msg:`Estado del sistema: ${hd.status} — revisar base de datos`});
+    else alerts.push({level:'info', msg:`Sistema operando normalmente — ${hd.total_endpoints} endpoints activos`});
+
+    // Check for tables with errors
+    if (hd.database && hd.database.tables) {
+      for (const [t, cnt] of Object.entries(hd.database.tables)) {
+        if (cnt < 0) alerts.push({level:'critical', msg:`Tabla ${t} inaccesible`});
+      }
+    }
+
+    if (!alerts.length) alerts.push({level:'info', msg:'Todo funcionando correctamente'});
+
+    const el = document.getElementById('alertsList');
+    const now = new Date().toLocaleTimeString('es-CO');
+    el.innerHTML = alerts.map(a =>
+      `<div class="alert-item ${a.level}">
+        <span class="status-dot ${a.level==='critical'?'error':a.level==='warning'?'warn':'ok'}"></span>
+        ${a.msg}
+        <span class="time">${now}</span>
+      </div>`
+    ).join('');
+  } catch(e) { console.error(e); }
+}
+
+// ── Accounts ──
+async function loadAccounts() {
+  try {
+    const [ur, rr] = await Promise.all([
+      fetch(API+'/api/admin/usuarios').then(r=>r.json()),
+      fetch(API+'/api/admin/roles').then(r=>r.json())
+    ]);
+
+    const el = document.getElementById('accountsActive');
+    const users = (ur.usuarios||[]).filter(u => u.activo);
+    if (!users.length) { el.innerHTML = '<div class="no-data">Sin usuarios</div>'; return; }
+    el.innerHTML = users.map(u => {
+      const initials = (u.nombre||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      const lastAccess = u.ultimo_acceso ? new Date(u.ultimo_acceso).toLocaleString('es-CO') : 'Nunca';
+      return `<div class="account-item">
+        <div class="avatar">${initials}</div>
+        <div class="info"><div class="name">${u.nombre||u.usuario}</div><div class="role">${u.rol_nombre||'-'} — ${u.email||''}</div></div>
+        <div class="status" style="color:var(--ink4)">Último: ${lastAccess}</div>
+      </div>`;
+    }).join('');
+
+    const rel = document.getElementById('rolesSummary');
+    const roles = rr.roles || [];
+    rel.innerHTML = '<table><thead><tr><th>Rol</th><th style="text-align:center">Usuarios</th><th>Sistema</th></tr></thead><tbody>' +
+      roles.map(r =>
+        `<tr><td style="font-weight:500">${r.nombre}</td><td style="text-align:center;font-weight:600">${r.usuario_count||0}</td><td>${r.es_sistema?'<span class="badge badge-info">Sistema</span>':'<span class="badge badge-ok">Custom</span>'}</td></tr>`
+      ).join('') + '</tbody></table>';
+  } catch(e) { console.error(e); }
+}
+
+// ── Audit ──
+async function loadAudit() {
+  auditOffset = 0;
+  try {
+    const r = await fetch(API+'/api/admin/audit?limit=30&offset=0');
+    const d = await r.json();
+    renderAuditRows(d.entries, false);
+    document.getElementById('auditMore').style.display = d.entries.length >= 30 ? '' : 'none';
+  } catch(e) { console.error(e); }
+}
+
+async function loadMoreAudit() {
+  auditOffset += 30;
+  const r = await fetch(API+`/api/admin/audit?limit=30&offset=${auditOffset}`);
+  const d = await r.json();
+  renderAuditRows(d.entries, true);
+  document.getElementById('auditMore').style.display = d.entries.length >= 30 ? '' : 'none';
+}
+
+function renderAuditRows(entries, append) {
+  const body = document.getElementById('auditBody');
+  if (!entries.length && !append) { body.innerHTML = '<tr><td colspan="6" class="no-data">Sin registros</td></tr>'; return; }
+  const rows = entries.map(e =>
+    `<tr><td style="white-space:nowrap;font-size:11px">${e.ts||''}</td><td>${e.entidad||''}</td><td><span class="badge badge-info">${e.accion||''}</span></td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis">${e.detalle||''}</td><td>${e.usuario||''}</td><td style="font-size:11px;color:var(--ink4)">${e.ip||''}</td></tr>`
+  ).join('');
+  if (append) body.innerHTML += rows;
+  else body.innerHTML = rows;
+}
+
+// ── Medical Dashboard ──
+async function loadMedical() {
+  try {
+    const r = await fetch(API+'/api/dashboard/medico');
+    const d = await r.json();
+    document.getElementById('medStats').innerHTML = [
+      {v: d.atendidos_hoy||0, l:'Atendidos Hoy'},
+      {v: (d.hc_abiertas||[]).length, l:'HC Abiertas'},
+      {v: d.ordenes_pendientes||0, l:'Órdenes Pend.'},
+      {v: d.interconsultas_pendientes||0, l:'Interconsultas Pend.'},
+    ].map(c => `<div class="card stat-card"><div class="value">${c.v}</div><div class="label">${c.l}</div></div>`).join('');
+
+    const tbody = document.getElementById('medHcList');
+    const hcs = d.hc_abiertas || [];
+    if (!hcs.length) { tbody.innerHTML = '<tr><td colspan="5" class="no-data">Sin HC abiertas</td></tr>'; return; }
+    tbody.innerHTML = hcs.map(h =>
+      `<tr><td>${h.nombres||''} ${h.apellidos||''}</td><td>${h.num_doc||''}</td><td>${h.turno||'-'}</td><td>${h.triage_nivel||'-'}</td><td style="font-size:11px">${h.creado_en||''}</td></tr>`
+    ).join('');
+  } catch(e) { console.error(e); }
+}
+
+// ── Nursing Dashboard ──
+async function loadNursing() {
+  try {
+    const r = await fetch(API+'/api/dashboard/enfermeria');
+    const d = await r.json();
+    document.getElementById('nurStats').innerHTML = [
+      {v: d.pendientes_triage||0, l:'Pendientes Triage'},
+      {v: d.en_triage||0, l:'En Triage Ahora'},
+      {v: d.medicamentos_pendientes||0, l:'Medicamentos Pend.'},
+      {v: (d.triage_hoy_por_nivel||[]).reduce((s,t)=>s+t.total,0), l:'Triage Completados Hoy'},
+    ].map(c => `<div class="card stat-card"><div class="value">${c.v}</div><div class="label">${c.l}</div></div>`).join('');
+    renderTriageDist(d.triage_hoy_por_nivel, 'nurTriageDist');
+  } catch(e) { console.error(e); }
+}
+
+// ── Admissions Dashboard ──
+async function loadAdmissions() {
+  try {
+    const r = await fetch(API+'/api/dashboard/admisiones');
+    const d = await r.json();
+    document.getElementById('admStats').innerHTML = [
+      {v: d.total_hoy||0, l:'Total Hoy'},
+      {v: d.en_cola||0, l:'En Cola'},
+      {v: d.promedio_espera_min||0, l:'Espera Prom. (min)'},
+      {v: Object.values(d.por_estado||{}).reduce((s,v)=>s+v,0), l:'Total General'},
+    ].map(c => `<div class="card stat-card"><div class="value">${c.v}</div><div class="label">${c.l}</div></div>`).join('');
+  } catch(e) { console.error(e); }
+}
+
+// ── Finance Dashboard ──
+async function loadFinance() {
+  try {
+    const r = await fetch(API+'/api/dashboard/financiero');
+    const d = await r.json();
+    document.getElementById('finStats').innerHTML = [
+      {v: '$'+formatNum(d.total_facturado||0), l:'Total Facturado'},
+      {v: '$'+formatNum(d.total_copagos||0), l:'Total Copagos'},
+      {v: d.pendientes_aprobacion||0, l:'Pend. Aprobación'},
+      {v: Object.values(d.prefacturas||{}).reduce((s,v)=>s+v.count,0), l:'Pre-facturas Total'},
+    ].map(c => `<div class="card stat-card"><div class="value">${c.v}</div><div class="label">${c.l}</div></div>`).join('');
+
+    const pf = d.prefacturas || {};
+    document.getElementById('finPfDist').innerHTML = Object.keys(pf).length ?
+      '<table><thead><tr><th>Estado</th><th style="text-align:right">Cantidad</th><th style="text-align:right">Monto</th></tr></thead><tbody>' +
+      Object.entries(pf).map(([k,v]) =>
+        `<tr><td><span class="badge badge-info">${k}</span></td><td style="text-align:right;font-weight:600">${v.count}</td><td style="text-align:right">$${formatNum(v.monto)}</td></tr>`
+      ).join('') + '</tbody></table>' :
+      '<div class="no-data">Sin pre-facturas</div>';
+  } catch(e) { console.error(e); }
+}
+
+// ── Auto-refresh every 30s ──
+setInterval(loadAll, 30000);
+
+checkAuth();
+</script>
+</body>
+</html>

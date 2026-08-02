@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arthemis Health — Redirigiendo...</title>
+<style>
+body{font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#FAF8F4;color:#1C1916}
+.loading{text-align:center}
+.loading h2{font-size:20px;margin-bottom:8px}
+.loading p{color:#6B6460;font-size:14px}
+</style>
+</head>
+<body>
+<div class="loading">
+  <h2>Arthemis Health</h2>
+  <p>Cargando dashboard...</p>
+</div>
+<script>
+(async()=>{
+  try{
+    const r=await fetch('/api/auth/me');
+    const d=await r.json();
+    if(!d.autenticado){window.location.href='/';return;}
+    // Route based on permissions
+    const p=d.permisos||[];
+    if(p.includes('superadmin')||p.includes('director')){
+      window.location.href='/admin/dashboard';
+    } else if(p.includes('admin_usuarios')||p.includes('admin_roles')||p.includes('admin_sistema')){
+      window.location.href='/admin/dashboard';
+    } else if(p.includes('coord_medico')||p.includes('historia_clinica')){
+      window.location.href='/admin/dashboard#medical';
+    } else if(p.includes('coord_enfermeria')||p.includes('enfermeria')){
+      window.location.href='/admin/dashboard#nursing';
+    } else if(p.includes('coord_admisiones')||p.includes('admisiones')){
+      window.location.href='/admin/dashboard#admissions';
+    } else if(p.includes('coord_financiero')||p.includes('facturacion')){
+      window.location.href='/admin/dashboard#finance';
+    } else {
+      window.location.href='/admin/dashboard';
+    }
+  }catch(e){window.location.href='/';}
+})();
+</script>
+</body>
+</html>

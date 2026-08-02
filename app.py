@@ -103,7 +103,17 @@ CREATE TABLE IF NOT EXISTS admision_timeline(id {S},admision_id INTEGER NOT NULL
 CREATE TABLE IF NOT EXISTS historia_clinica_urgencias(id {S},admision_id INTEGER UNIQUE NOT NULL,paciente_id INTEGER NOT NULL,motivo_consulta TEXT,enfermedad_actual TEXT,antecedentes TEXT,examen_fisico TEXT,signos_vitales TEXT,diagnostico_ingreso TEXT,cod_cie10_ingreso TEXT,diagnostico_egreso TEXT,cod_cie10_egreso TEXT,diagnosticos_relacionados TEXT,conducta TEXT,tratamiento TEXT,observaciones TEXT,condicion_salida TEXT,destino_salida TEXT,medico_id INTEGER,medico_nombre TEXT,creado_por TEXT,creado_en {T} {D},actualizado_en {T} {D});
 CREATE TABLE IF NOT EXISTS pagador_validacion(id {S},admision_id INTEGER NOT NULL,tipo_pagador TEXT NOT NULL,entidad_nombre TEXT,entidad_codigo TEXT,regimen TEXT,estado_afiliacion TEXT,fecha_afiliacion TEXT,nivel_sisben TEXT,grupo_ingreso TEXT,numero_poliza TEXT,numero_autorizacion TEXT,placa_vehiculo TEXT,fecha_accidente TEXT,empresa_nombre TEXT,nit_empresa TEXT,copago_aplica INTEGER DEFAULT 0,copago_valor REAL DEFAULT 0,copago_excento INTEGER DEFAULT 0,copago_motivo_exencion TEXT,validado INTEGER DEFAULT 0,validado_por TEXT,validado_en {T},datos_json TEXT DEFAULT '{{}}',creado_en {T} {D});
 CREATE TABLE IF NOT EXISTS triage_clinico(id {S},admision_id INTEGER UNIQUE NOT NULL,motivo_consulta TEXT,ta_sistolica INTEGER,ta_diastolica INTEGER,fc INTEGER,fr INTEGER,temperatura REAL,spo2 INTEGER,glucometria INTEGER,glasgow_ocular INTEGER DEFAULT 4,glasgow_verbal INTEGER DEFAULT 5,glasgow_motor INTEGER DEFAULT 6,glasgow_total INTEGER DEFAULT 15,eva_dolor INTEGER DEFAULT 0,dolor_localizacion TEXT,disc_via_aerea INTEGER DEFAULT 0,disc_sangrado INTEGER DEFAULT 0,disc_dolor_toracico INTEGER DEFAULT 0,disc_alt_neurologica INTEGER DEFAULT 0,disc_gestante INTEGER DEFAULT 0,disc_menor_edad INTEGER DEFAULT 0,disc_trauma_mayor INTEGER DEFAULT 0,disc_convulsiones INTEGER DEFAULT 0,disc_fiebre_alta INTEGER DEFAULT 0,disc_otros TEXT,alergias TEXT,nivel_asignado TEXT NOT NULL,nivel_sugerido TEXT,color_triage TEXT,notas_enfermeria TEXT,enfermera_id INTEGER,enfermera_nombre TEXT,hora_inicio_triage {T},hora_fin_triage {T},creado_en {T} {D});
-CREATE TABLE IF NOT EXISTS triage_form_config(id {S},campo TEXT UNIQUE NOT NULL,etiqueta TEXT NOT NULL,grupo TEXT NOT NULL,tipo TEXT DEFAULT 'text',requerido INTEGER DEFAULT 0,visible INTEGER DEFAULT 1,orden INTEGER DEFAULT 0,opciones TEXT DEFAULT '[]',rango_min REAL,rango_max REAL,unidad TEXT,ayuda TEXT,modificado_por TEXT,modificado_en {T} {D})
+CREATE TABLE IF NOT EXISTS triage_form_config(id {S},campo TEXT UNIQUE NOT NULL,etiqueta TEXT NOT NULL,grupo TEXT NOT NULL,tipo TEXT DEFAULT 'text',requerido INTEGER DEFAULT 0,visible INTEGER DEFAULT 1,orden INTEGER DEFAULT 0,opciones TEXT DEFAULT '[]',rango_min REAL,rango_max REAL,unidad TEXT,ayuda TEXT,modificado_por TEXT,modificado_en {T} {D});
+CREATE TABLE IF NOT EXISTS hc_campos_config(id {S},seccion TEXT NOT NULL,campo TEXT UNIQUE NOT NULL,etiqueta TEXT NOT NULL,tipo TEXT DEFAULT 'textarea',requerido INTEGER DEFAULT 0,visible INTEGER DEFAULT 1,orden INTEGER DEFAULT 0,opciones TEXT DEFAULT '[]',ayuda TEXT,especialidad TEXT DEFAULT 'general',modificado_por TEXT,modificado_en {T} {D});
+CREATE TABLE IF NOT EXISTS historia_clinica(id {S},admision_id INTEGER UNIQUE NOT NULL,paciente_id INTEGER NOT NULL,tipo_hc TEXT DEFAULT 'urgencias',estado TEXT DEFAULT 'abierta',motivo_consulta TEXT,causa_atencion TEXT DEFAULT 'urgencia',cod_cie10_ingreso TEXT,cod_cie10_egreso TEXT,diagnosticos_relacionados TEXT DEFAULT '[]',condicion_egreso TEXT,destino_egreso TEXT,medico_id INTEGER,medico_nombre TEXT,firma_medico TEXT,creado_por TEXT,creado_en {T} {D},cerrado_en {T},actualizado_en {T} {D});
+CREATE TABLE IF NOT EXISTS hc_evoluciones(id {S},hc_id INTEGER NOT NULL,tipo TEXT DEFAULT 'evolucion',enfermedad_actual TEXT,antecedentes_json TEXT DEFAULT '{{}}',revision_sistemas TEXT DEFAULT '{{}}',examen_fisico TEXT,signos_vitales_json TEXT DEFAULT '{{}}',analisis TEXT,plan_terapeutico TEXT,cod_cie10 TEXT,campos_custom TEXT DEFAULT '{{}}',medico_id INTEGER,medico_nombre TEXT,creado_en {T} {D});
+CREATE TABLE IF NOT EXISTS hc_antecedentes(id {S},paciente_id INTEGER NOT NULL,tipo TEXT NOT NULL,descripcion TEXT,fecha TEXT,activo INTEGER DEFAULT 1,registrado_por TEXT,creado_en {T} {D});
+CREATE TABLE IF NOT EXISTS interconsultas(id {S},hc_id INTEGER NOT NULL,admision_id INTEGER NOT NULL,paciente_id INTEGER NOT NULL,tipo TEXT DEFAULT 'interna',especialidad_solicitada TEXT,cod_cups TEXT,motivo TEXT,diagnostico_presuntivo TEXT,cod_cie10 TEXT,prioridad TEXT DEFAULT 'urgente',estado TEXT DEFAULT 'solicitada',medico_solicitante_id INTEGER,medico_solicitante TEXT,medico_interconsultante_id INTEGER,medico_interconsultante TEXT,respuesta TEXT,recomendaciones TEXT,cod_cie10_respuesta TEXT,fecha_solicitud {T} {D},fecha_aceptacion {T},fecha_respuesta {T},creado_en {T} {D});
+CREATE TABLE IF NOT EXISTS ordenes_medicas(id {S},hc_id INTEGER NOT NULL,admision_id INTEGER NOT NULL,paciente_id INTEGER NOT NULL,tipo_orden TEXT NOT NULL,cod_cups TEXT,nombre_estudio TEXT NOT NULL,cantidad INTEGER DEFAULT 1,prioridad TEXT DEFAULT 'rutina',indicacion_clinica TEXT,diagnostico_asociado TEXT,instrucciones TEXT,estado TEXT DEFAULT 'solicitada',servicio_destino TEXT,medico_ordena_id INTEGER,medico_ordena TEXT,numero_autorizacion TEXT,creado_en {T} {D},actualizado_en {T} {D});
+CREATE TABLE IF NOT EXISTS orden_resultados(id {S},orden_id INTEGER NOT NULL,tipo_resultado TEXT DEFAULT 'texto',parametro TEXT,valor TEXT,unidad TEXT,rango_referencia TEXT,fuera_rango INTEGER DEFAULT 0,observaciones TEXT,archivo_url TEXT,archivo_tipo TEXT,procesado_por TEXT,validado_por TEXT,creado_en {T} {D});
+CREATE TABLE IF NOT EXISTS prescripciones(id {S},hc_id INTEGER NOT NULL,admision_id INTEGER NOT NULL,paciente_id INTEGER NOT NULL,medicamento TEXT NOT NULL,cod_cum TEXT,concentracion TEXT,forma_farmaceutica TEXT,via_administracion TEXT DEFAULT 'oral',dosis TEXT,frecuencia TEXT,duracion TEXT,cantidad_total INTEGER DEFAULT 1,instrucciones TEXT,diagnostico_asociado TEXT,requiere_mipres INTEGER DEFAULT 0,id_mipres TEXT,estado TEXT DEFAULT 'prescrita',medico_id INTEGER,medico_nombre TEXT,creado_en {T} {D});
+CREATE TABLE IF NOT EXISTS pre_factura(id {S},admision_id INTEGER UNIQUE,paciente_id INTEGER NOT NULL,estado TEXT DEFAULT 'borrador',tipo_pagador TEXT,entidad_pagadora TEXT,entidad_codigo TEXT,numero_contrato TEXT,numero_autorizacion TEXT,subtotal REAL DEFAULT 0,copago REAL DEFAULT 0,cuota_moderadora REAL DEFAULT 0,descuento REAL DEFAULT 0,total REAL DEFAULT 0,total_paciente REAL DEFAULT 0,total_pagador REAL DEFAULT 0,observaciones TEXT,generado_en {T} {D},revisado_por TEXT,aprobado_en {T});
+CREATE TABLE IF NOT EXISTS pre_factura_items(id {S},pre_factura_id INTEGER NOT NULL,tipo_servicio TEXT NOT NULL,cod_cups TEXT,descripcion TEXT NOT NULL,cantidad INTEGER DEFAULT 1,valor_unitario REAL DEFAULT 0,valor_total REAL DEFAULT 0,tarifa_referencia TEXT,porcentaje_negociado REAL DEFAULT 100,numero_autorizacion TEXT,orden_id INTEGER,prescripcion_id INTEGER,origen TEXT DEFAULT 'auto',creado_en {T} {D})
 """
     for s in tables.strip().split(';'):
         s = s.strip()
@@ -191,7 +201,7 @@ CREATE TABLE IF NOT EXISTS triage_form_config(id {S},campo TEXT UNIQUE NOT NULL,
 
     cur.execute("SELECT COUNT(*) FROM modulos_config")
     if cur.fetchone()[0] == 0:
-        for m in [('kiosco', 1), ('admisiones', 1), ('historia_clinica', 0), ('facturacion', 0)]:
+        for m in [('kiosco', 1), ('admisiones', 1), ('historia_clinica', 1), ('interconsultas', 1), ('ordenes', 1), ('laboratorio', 1), ('facturacion', 1), ('impresion', 1)]:
             cur.execute(core.adapt("INSERT INTO modulos_config(tenant_id,modulo,activo)VALUES('default',?,?)", db), m)
 
     cur.execute("SELECT COUNT(*) FROM tenant_config")
@@ -223,6 +233,9 @@ CREATE TABLE IF NOT EXISTS triage_form_config(id {S},campo TEXT UNIQUE NOT NULL,
             ('C1', 'Consultorio 1', 'consultorio', 1, 'urgencias'),
             ('C2', 'Consultorio 2', 'consultorio', 1, 'urgencias'),
             ('C3', 'Consultorio 3', 'consultorio', 1, 'urgencias'),
+            ('L1', 'Laboratorio 1', 'laboratorio', 1, 'urgencias'),
+            ('I1', 'Imágenes 1', 'imagenes', 1, 'urgencias'),
+            ('E1', 'Especialista 1', 'especialidad', 1, 'urgencias'),
         ]:
             cur.execute(core.adapt(
                 "INSERT INTO puestos_atencion(codigo,nombre,tipo,activo,modo)VALUES(?,?,?,?,?)", db), pt)
@@ -274,6 +287,41 @@ CREATE TABLE IF NOT EXISTS triage_form_config(id {S},campo TEXT UNIQUE NOT NULL,
             cur.execute(core.adapt(
                 "INSERT INTO triage_form_config(campo,etiqueta,grupo,tipo,requerido,visible,orden,opciones,rango_min,rango_max,unidad,ayuda)"
                 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", db), f)
+        conn.commit()
+
+    # HC campos config seed (superadmin-configurable doctor HC fields)
+    cur.execute("SELECT COUNT(*) FROM hc_campos_config")
+    if cur.fetchone()[0] == 0:
+        hc_fields = [
+            # ── Anamnesis ──
+            ('anamnesis','enfermedad_actual','Enfermedad actual','textarea',1,1,1,'[]','Descripción detallada de la enfermedad actual','general'),
+            ('anamnesis','antecedentes_personales','Antecedentes personales','textarea',0,1,2,'[]','Antecedentes patológicos personales','general'),
+            ('anamnesis','antecedentes_familiares','Antecedentes familiares','textarea',0,1,3,'[]','Antecedentes patológicos familiares','general'),
+            ('anamnesis','antecedentes_quirurgicos','Antecedentes quirúrgicos','textarea',0,1,4,'[]','Cirugías previas','general'),
+            ('anamnesis','antecedentes_farmacologicos','Antecedentes farmacológicos','textarea',0,1,5,'[]','Medicamentos actuales o previos','general'),
+            ('anamnesis','alergias','Alergias','text',0,1,6,'[]','Alergias conocidas','general'),
+            ('anamnesis','habitos','Hábitos','textarea',0,1,7,'[]','Tabaquismo, alcohol, sustancias, ejercicio','general'),
+            ('anamnesis','revision_sistemas','Revisión por sistemas','textarea',0,1,8,'[]','Revisión sistemática por aparatos','general'),
+            # ── Examen Físico ──
+            ('examen_fisico','examen_general','Examen general','textarea',1,1,10,'[]','Estado general del paciente','general'),
+            ('examen_fisico','cabeza_cuello','Cabeza y cuello','textarea',0,1,11,'[]','Hallazgos en cabeza y cuello','general'),
+            ('examen_fisico','torax','Tórax','textarea',0,1,12,'[]','Inspección, palpación, percusión, auscultación','general'),
+            ('examen_fisico','abdomen','Abdomen','textarea',0,1,13,'[]','Hallazgos abdominales','general'),
+            ('examen_fisico','extremidades','Extremidades','textarea',0,1,14,'[]','Evaluación de extremidades','general'),
+            ('examen_fisico','neurologico','Neurológico','textarea',0,1,15,'[]','Examen neurológico','general'),
+            ('examen_fisico','piel','Piel y anexos','textarea',0,1,16,'[]','Hallazgos en piel','general'),
+            # ── Análisis ──
+            ('analisis','impresion_diagnostica','Impresión diagnóstica','textarea',1,1,20,'[]','Diagnóstico principal y CIE-10','general'),
+            ('analisis','diagnostico_diferencial','Diagnóstico diferencial','textarea',0,1,21,'[]','Diagnósticos diferenciales a considerar','general'),
+            # ── Plan ──
+            ('plan','plan_terapeutico','Plan terapéutico','textarea',1,1,30,'[]','Plan de manejo y tratamiento','general'),
+            ('plan','recomendaciones','Recomendaciones','textarea',0,1,31,'[]','Indicaciones para el paciente','general'),
+            ('plan','signos_alarma','Signos de alarma','textarea',0,1,32,'[]','Signos de alarma para consultar de nuevo','general'),
+        ]
+        for f in hc_fields:
+            cur.execute(core.adapt(
+                "INSERT INTO hc_campos_config(seccion,campo,etiqueta,tipo,requerido,visible,orden,opciones,ayuda,especialidad)"
+                "VALUES(?,?,?,?,?,?,?,?,?,?)", db), f)
         conn.commit()
 
     # Copago params (Circular 048 de 2025)
@@ -506,6 +554,30 @@ def atencion_consulta_page():
 def admisiones_dashboard_page():
     return send_from_directory('static', 'admisiones-dashboard.html')
 
+@app.route('/laboratorio')
+def laboratorio_page():
+    return send_from_directory('static', 'laboratorio.html')
+
+@app.route('/interconsultas')
+def interconsultas_page():
+    return send_from_directory('static', 'interconsultas.html')
+
+@app.route('/facturacion')
+def facturacion_page():
+    return send_from_directory('static', 'facturacion.html')
+
+@app.route('/admin/dashboard')
+def admin_dashboard_page():
+    return send_from_directory('static', 'admin-dashboard.html')
+
+@app.route('/admin/usuarios')
+def admin_usuarios_page():
+    return send_from_directory('static', 'admin-usuarios.html')
+
+@app.route('/dashboard')
+def dashboard_page():
+    return send_from_directory('static', 'dashboard.html')
+
 @app.route('/health')
 def health():
     return jsonify({
@@ -537,10 +609,127 @@ try:
 except Exception as e:
     print(f"⚠ admisiones_engine no disponible: {e}")
 
+try:
+    from hc_engine import hc_bp
+    app.register_blueprint(hc_bp)
+    print("📋 Módulo Historia Clínica registrado en /api/hc")
+except Exception as e:
+    print(f"⚠ hc_engine no disponible: {e}")
+
+try:
+    from ordenes_engine import ordenes_bp
+    app.register_blueprint(ordenes_bp)
+    print("🔬 Módulo Órdenes registrado en /api/ordenes")
+except Exception as e:
+    print(f"⚠ ordenes_engine no disponible: {e}")
+
+try:
+    from interconsultas_engine import interconsultas_bp
+    app.register_blueprint(interconsultas_bp)
+    print("🏥 Módulo Interconsultas registrado en /api/interconsultas")
+except Exception as e:
+    print(f"⚠ interconsultas_engine no disponible: {e}")
+
+try:
+    from facturacion_engine import facturacion_bp
+    app.register_blueprint(facturacion_bp)
+    print("💰 Módulo Facturación registrado en /api/facturacion")
+except Exception as e:
+    print(f"⚠ facturacion_engine no disponible: {e}")
+
+try:
+    from impresion_engine import impresion_bp
+    app.register_blueprint(impresion_bp)
+    print("🖨 Módulo Impresión registrado en /api/impresion")
+except Exception as e:
+    print(f"⚠ impresion_engine no disponible: {e}")
+
+try:
+    from roles_engine import roles_bp
+    app.register_blueprint(roles_bp)
+    print("🔐 Módulo RBAC registrado en /api/admin")
+except Exception as e:
+    print(f"⚠ roles_engine no disponible: {e}")
+
 # ── INIT ──────────────────────────────────────────────────────────────────────
 
 init_db()
 core.seed_auth()
+
+# ── SEED 15 ROLES RBAC ──────────────────────────────────────────────────────
+
+def seed_roles_rbac():
+    """Seed the full 15-role RBAC structure (idempotent)."""
+    conn, db = core.get_db()
+    cur = conn.cursor()
+
+    roles_15 = [
+        ('Superadmin', 'Acceso total al sistema — monitoreo, endpoints, alertas, cuentas',
+         ['superadmin'], 1),
+        ('Director/Gerente', 'Visión ejecutiva completa — KPIs, widgets, gestión usuarios/roles',
+         ['director', 'admin_usuarios', 'admin_roles', 'admin_campos', 'admin_sistema',
+          'kiosco', 'admisiones', 'historia_clinica', 'historia_clinica_read', 'enfermeria',
+          'ordenes', 'interconsultas', 'prescripciones', 'laboratorio', 'imagenes',
+          'farmacia', 'facturacion', 'facturacion_aprobar', 'cobros', 'reportes',
+          'agendamiento', 'inventario', 'auditor'], 1),
+        ('Admin Operativo', 'Gestión de roles, campos y módulos — sin acceso financiero',
+         ['admin_usuarios', 'admin_roles', 'admin_campos', 'admin_sistema',
+          'kiosco', 'admisiones', 'historia_clinica_read', 'enfermeria',
+          'ordenes', 'interconsultas', 'reportes', 'agendamiento'], 1),
+        ('Coordinador Médico', 'Campos HC, horarios médicos, dashboard medicina',
+         ['coord_medico', 'admin_campos', 'historia_clinica', 'historia_clinica_read',
+          'ordenes', 'interconsultas', 'prescripciones', 'agendamiento', 'reportes'], 1),
+        ('Coordinador Enfermería', 'Campos triage, horarios enfermería, dashboard enfermería',
+         ['coord_enfermeria', 'admin_campos', 'enfermeria', 'historia_clinica_read',
+          'admisiones', 'agendamiento', 'reportes'], 1),
+        ('Coordinador Admisiones', 'Supervisión admisiones, campos, validación, usuarios',
+         ['coord_admisiones', 'admin_campos', 'admin_usuarios', 'admisiones', 'kiosco',
+          'historia_clinica_read', 'reportes'], 1),
+        ('Coordinador Financiero', 'Facturación, RIPS, copagos, aprobaciones, dashboards financieros',
+         ['coord_financiero', 'facturacion', 'facturacion_aprobar', 'cobros',
+          'reportes', 'historia_clinica_read', 'admisiones'], 1),
+        ('Médico', 'Historia clínica, evoluciones, órdenes, interconsultas, prescripciones',
+         ['historia_clinica', 'ordenes', 'interconsultas', 'prescripciones',
+          'historia_clinica_read', 'agendamiento'], 0),
+        ('Enfermero/a', 'Triage, signos vitales, medicamentos, escalas, enfermería cirugía',
+         ['enfermeria', 'historia_clinica_read', 'admisiones'], 0),
+        ('Admisionista', 'Admisiones, validación derechos, kiosco',
+         ['admisiones', 'kiosco', 'historia_clinica_read'], 0),
+        ('Auxiliar Facturación', 'Genera pre-facturas — NO aprueba',
+         ['facturacion', 'historia_clinica_read', 'admisiones'], 0),
+        ('Farmacia', 'Despacho medicamentos, validación prescripciones',
+         ['farmacia', 'prescripciones', 'historia_clinica_read'], 0),
+        ('Laboratorio/Imágenes', 'Cola de órdenes, captura resultados, validación',
+         ['laboratorio', 'imagenes', 'ordenes', 'historia_clinica_read'], 0),
+        ('Auditor/Calidad', 'Solo lectura total — reportes de calidad e indicadores',
+         ['auditor', 'historia_clinica_read', 'reportes', 'admisiones',
+          'facturacion', 'ordenes', 'interconsultas'], 0),
+        ('Cajero', 'Cobro copagos, registro pagos',
+         ['cobros', 'admisiones'], 0),
+    ]
+
+    for nombre, desc, perms, es_sistema in roles_15:
+        try:
+            ex = core.row(cur, core.adapt("SELECT id FROM roles WHERE nombre=?", db), (nombre,))
+            if not ex:
+                cur.execute(core.adapt(
+                    "INSERT INTO roles(nombre,descripcion,permisos,es_sistema)VALUES(?,?,?,?)", db),
+                    (nombre, desc, json.dumps(perms), es_sistema))
+                conn.commit()
+            else:
+                # Update permisos if role already exists (keep in sync)
+                cur.execute(core.adapt(
+                    "UPDATE roles SET descripcion=?, permisos=?, es_sistema=? WHERE nombre=?", db),
+                    (desc, json.dumps(perms), es_sistema, nombre))
+                conn.commit()
+        except Exception:
+            conn.rollback()
+
+    cur.close()
+    core._return_db(conn, db)
+    print("🔐 15 roles RBAC configurados")
+
+seed_roles_rbac()
 
 if __name__ == '__main__':
     app.run(

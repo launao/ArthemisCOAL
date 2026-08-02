@@ -1256,7 +1256,7 @@ body {
     document.getElementById('pagadorForm').style.display = 'none';
     document.getElementById('copagoResult').style.display = 'none';
     document.getElementById('pagadorInfo').style.display = 'none';
-    document.getElementById('hcInfo').style.display = 'none';
+    const hcEl = document.getElementById('hcInfo'); if (hcEl) hcEl.style.display = 'none';
 
     // Reset pagador selection
     document.querySelectorAll('.pagador-card').forEach(c => c.classList.remove('selected'));

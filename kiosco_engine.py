@@ -560,9 +560,10 @@ def kiosco_servicios_put():
         cur.execute("DELETE FROM kiosco_servicios")
         for i, s in enumerate(servicios):
             cur.execute(core.adapt(
-                "INSERT INTO kiosco_servicios(codigo,nombre,icono,activo,orden)VALUES(?,?,?,?,?)", db),
+                "INSERT INTO kiosco_servicios(codigo,nombre,icono,activo,orden,modo)VALUES(?,?,?,?,?,?)", db),
                 (s.get('codigo', f'srv_{i}'), s.get('nombre', ''),
-                 s.get('icono', '●'), 1 if s.get('activo', True) else 0, i))
+                 s.get('icono', '●'), 1 if s.get('activo', True) else 0, i,
+                 s.get('modo', 'general')))
         conn.commit()
         return jsonify({'success': True})
     except Exception as e:

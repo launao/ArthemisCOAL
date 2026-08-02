@@ -64,20 +64,22 @@ input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px s
 .sidebar-title { font-size: 14px; font-weight: 700; }
 .queue-count { background: var(--primary); color: #fff; padding: 2px 10px; border-radius: 10px; font-size: 12px; font-weight: 700; }
 .queue-list { flex: 1; overflow-y: auto; padding: 8px; }
-.q-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); margin-bottom: 6px; }
+.q-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); margin-bottom: 6px; cursor: default; transition: background .15s; }
+.q-card:hover { background: var(--iv2); }
 .q-turno { font-weight: 700; font-size: 15px; color: var(--primary); min-width: 44px; }
 .q-info { flex: 1; min-width: 0; }
 .q-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .q-meta { display: flex; gap: 6px; margin-top: 3px; align-items: center; }
+.q-wait { font-size: 10px; color: var(--ink4); }
 .triage-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 700; color: #fff; }
 .triage-I { background: var(--triage-i); } .triage-II { background: var(--triage-ii); } .triage-III { background: var(--triage-iii); }
 .triage-IV { background: var(--triage-iv); } .triage-V { background: var(--triage-v); }
-.queue-empty { padding: 32px; text-align: center; color: var(--ink4); }
+.queue-empty { padding: 32px; text-align: center; color: var(--ink4); font-size: 13px; }
 
 /* WORKSPACE */
 .workspace { flex: 1; overflow-y: auto; padding: 20px; }
 .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 16px; }
-.btn-siguiente { padding: 16px 48px; font-size: 18px; font-weight: 700; border: none; border-radius: 14px; background: var(--primary); color: #fff; cursor: pointer; }
+.btn-siguiente { padding: 16px 48px; font-size: 18px; font-weight: 700; border: none; border-radius: 14px; background: var(--primary); color: #fff; cursor: pointer; transition: background .15s; }
 .btn-siguiente:hover { background: var(--accent); }
 .btn-siguiente:disabled { opacity: .4; cursor: not-allowed; }
 .empty-hint { color: var(--ink4); font-size: 13px; }
@@ -87,56 +89,126 @@ input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px s
 .pat-turno { font-size: 24px; font-weight: 800; color: var(--primary); }
 .pat-info { flex: 1; }
 .pat-name { font-size: 16px; font-weight: 700; }
-.pat-doc { font-size: 13px; color: var(--ink3); }
+.pat-doc { font-size: 13px; color: var(--ink3); display: flex; align-items: center; gap: 6px; margin-top: 2px; }
 .pat-actions-top { display: flex; gap: 8px; }
-.btn-sm { padding: 6px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); font-size: 12px; cursor: pointer; color: var(--ink3); }
+.btn-sm { padding: 6px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); font-size: 12px; cursor: pointer; color: var(--ink3); transition: all .15s; }
 .btn-sm:hover { border-color: var(--primary); color: var(--primary); }
 .btn-sm.danger:hover { border-color: var(--danger); color: var(--danger); }
 
 /* Sections */
 .section-card { background: var(--white); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
-.section-title { font-size: 14px; font-weight: 700; color: var(--ink2); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--line); text-transform: uppercase; letter-spacing: .5px; }
+.section-title { font-size: 13px; font-weight: 700; color: var(--ink2); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--line); text-transform: uppercase; letter-spacing: .5px; }
 .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
 .info-item label { display: block; font-size: 11px; font-weight: 600; color: var(--ink4); text-transform: uppercase; letter-spacing: .3px; }
 .info-value { font-size: 14px; font-weight: 600; color: var(--ink); }
 .fields-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
 .field-item label { display: block; font-size: 12px; font-weight: 600; color: var(--ink3); margin-bottom: 4px; }
-.field-item input, .field-item select, .field-item textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; background: var(--bg); }
+.field-item input, .field-item select, .field-item textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; background: var(--bg); transition: border-color .15s; }
+.field-item input:hover, .field-item select:hover, .field-item textarea:hover { border-color: var(--line2); }
 .field-item textarea { min-height: 70px; resize: vertical; }
 .field-full { grid-column: 1 / -1; }
 
 /* Triage summary */
-.triage-summary { display: flex; gap: 16px; flex-wrap: wrap; }
+.triage-summary { display: flex; gap: 12px; flex-wrap: wrap; }
 .triage-stat { text-align: center; padding: 10px 16px; background: var(--iv2); border-radius: 10px; min-width: 80px; }
 .triage-stat-value { font-size: 20px; font-weight: 800; color: var(--primary); }
-.triage-stat-label { font-size: 11px; color: var(--ink4); }
+.triage-stat-label { font-size: 11px; color: var(--ink4); margin-top: 2px; }
 
-/* Tabs */
-.tab-bar { display: flex; gap: 4px; margin-bottom: 16px; background: var(--iv2); border-radius: 10px; padding: 4px; }
-.tab-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--ink3); cursor: pointer; }
+/* Tabs — pill bar */
+.tab-bar { display: flex; gap: 4px; margin-bottom: 16px; background: var(--iv2); border-radius: 12px; padding: 4px; overflow-x: auto; }
+.tab-btn { padding: 10px 16px; border: none; background: transparent; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--ink4); cursor: pointer; white-space: nowrap; transition: all .15s; }
+.tab-btn:hover { color: var(--ink2); }
 .tab-btn.active { background: var(--white); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
 .tab-pane { display: none; }
 .tab-pane.active { display: block; }
 
-/* Submit */
-.submit-bar { display: flex; gap: 12px; padding: 16px 20px; background: var(--white); border: 1px solid var(--line); border-radius: 14px; align-items: center; }
-.btn-action { padding: 12px 28px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; color: #fff; }
+/* Submit bars */
+.submit-bar { display: flex; gap: 12px; padding: 16px 20px; background: var(--white); border: 1px solid var(--line); border-radius: 14px; align-items: center; flex-wrap: wrap; }
+.btn-action { padding: 12px 28px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; color: #fff; transition: background .15s; display: inline-flex; align-items: center; gap: 8px; }
 .btn-action.primary { background: var(--primary); }
 .btn-action.primary:hover { background: var(--accent); }
 .btn-action.success { background: var(--success); }
 .btn-action.success:hover { background: #15803D; }
+.btn-action.warning { background: var(--warning); }
+.btn-action.warning:hover { background: #B45309; }
+.btn-action.outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+.btn-action.outline:hover { background: #F3F1FF; }
+.btn-action.outline-danger { background: transparent; color: var(--danger); border: 1.5px solid var(--danger); }
 .btn-action:disabled { opacity: .4; cursor: not-allowed; }
 
+/* Vitals compact grid */
+.vitals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.vitals-grid .field-item { min-width: 0; }
+
+/* Order / IC / Rx cards */
+.record-card { background: var(--iv2); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+.record-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.record-card-title { font-size: 14px; font-weight: 700; color: var(--ink); }
+.record-card-meta { font-size: 12px; color: var(--ink4); }
+.record-card-body { font-size: 13px; color: var(--ink2); line-height: 1.5; }
+.record-card-body p { margin-bottom: 4px; }
+
+/* Status badges */
+.estado-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 6px; text-transform: uppercase; }
+.estado-solicitada { background: #FEF3C7; color: #92400E; }
+.estado-aceptada { background: #DBEAFE; color: #1E40AF; }
+.estado-en_proceso { background: #FFEDD5; color: #9A3412; }
+.estado-con_resultado { background: #DCFCE7; color: #166534; }
+.estado-respondida { background: #DCFCE7; color: #166534; }
+.estado-cancelada { background: #F3F4F6; color: #6B7280; }
+
+/* Evolution entries */
+.evol-entry { background: var(--iv2); border-left: 3px solid var(--primary); border-radius: 0 10px 10px 0; padding: 14px 16px; margin-bottom: 10px; }
+.evol-entry-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.evol-entry-time { font-size: 12px; font-weight: 700; color: var(--primary); }
+.evol-entry-doctor { font-size: 12px; color: var(--ink4); }
+.evol-entry-body { font-size: 13px; color: var(--ink2); line-height: 1.55; }
+.evol-entry-body strong { color: var(--ink); font-size: 12px; text-transform: uppercase; letter-spacing: .3px; }
+
+/* Print buttons */
+.print-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.btn-print { padding: 10px 20px; border: 1.5px solid var(--primary); border-radius: 10px; background: var(--white); color: var(--primary); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-print:hover { background: #F3F1FF; }
+
+/* Radio group */
+.radio-group { display: flex; gap: 12px; flex-wrap: wrap; }
+.radio-opt { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; color: var(--ink2); }
+.radio-opt input[type="radio"] { accent-color: var(--primary); }
+
+/* Empty list */
+.list-empty { padding: 24px; text-align: center; color: var(--ink4); font-size: 13px; }
+
+/* Prescriptions table */
+.rx-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rx-table th { text-align: left; padding: 8px 10px; background: var(--iv2); font-size: 11px; font-weight: 700; color: var(--ink3); text-transform: uppercase; letter-spacing: .3px; border-bottom: 1px solid var(--line); }
+.rx-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); color: var(--ink2); }
+.rx-table tr:last-child td { border-bottom: none; }
+.rx-table .rx-med { font-weight: 600; color: var(--ink); }
+
+/* HC info banner */
+.hc-banner { padding: 12px 16px; background: #F0EFFF; border: 1px solid var(--accent); border-radius: 10px; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.hc-banner-icon { font-size: 18px; }
+.hc-banner-text { font-size: 13px; font-weight: 600; color: var(--primary); }
+
 /* Toast */
-.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px); padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 500; color: #fff; opacity: 0; transition: all .3s; z-index: 9999; pointer-events: none; }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px); padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 500; color: #fff; opacity: 0; transition: all .3s; z-index: 9999; pointer-events: none; max-width: 420px; text-align: center; }
 .toast.info { background: var(--primary); } .toast.success { background: var(--success); } .toast.error { background: var(--danger); }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; }
+.spinner.dark { border-color: rgba(0,0,0,.15); border-top-color: var(--primary); }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Separator */
+.sep { height: 1px; background: var(--line); margin: 16px 0; }
+
+/* Responsive */
 @media (max-width: 768px) {
   .sidebar { width: 100%; max-height: 200px; border-right: none; border-bottom: 1px solid var(--line); }
   .main-body { flex-direction: column; }
+  .tab-bar { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .vitals-grid { grid-template-columns: repeat(2, 1fr); }
+  .patient-header { flex-direction: column; text-align: center; }
+  .pat-actions-top { justify-content: center; }
 }
 </style>
 </head>
@@ -146,11 +218,11 @@ input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px s
 <div class="screen active" id="loginScreen">
   <div class="login-card">
     <div class="login-logo"><div class="logo-icon">A</div><div class="login-title">Arthemis Health</div></div>
-    <div class="login-sub">Consultorio Médico · Urgencias</div>
+    <div class="login-sub">Consultorio Medico - Urgencias</div>
     <form id="loginForm">
       <div class="form-group"><label>Usuario</label><input type="text" id="usuario" required autocomplete="username"></div>
-      <div class="form-group"><label>Contraseña</label><input type="password" id="password" required autocomplete="current-password"></div>
-      <button type="submit" class="btn-primary" id="loginBtn">Iniciar sesión</button>
+      <div class="form-group"><label>Contrasena</label><input type="password" id="password" required autocomplete="current-password"></div>
+      <button type="submit" class="btn-primary" id="loginBtn">Iniciar sesion</button>
       <div class="login-error" id="loginError"></div>
     </form>
   </div>
@@ -166,12 +238,12 @@ input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px s
 <div class="screen" id="mainScreen">
   <div class="header">
     <div class="hdr-mark">A</div>
-    <div class="hdr-title">Consultorio Médico</div>
+    <div class="hdr-title">Consultorio Medico</div>
     <div class="hdr-badge">Urgencias</div>
     <div class="hdr-spacer"></div>
     <div class="hdr-meta">
-      <span id="hdrPuesto"></span><span>·</span>
-      <span id="hdrUser"></span><span>·</span>
+      <span id="hdrPuesto"></span><span>|</span>
+      <span id="hdrUser"></span><span>|</span>
       <span id="hdrClock">--:--:--</span>
       <div class="status-dot" id="statusDot"></div>
     </div>
@@ -195,71 +267,129 @@ input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px s
 (function() {
 'use strict';
 
+/* ── STATE ── */
 let user = null, puesto = null, actual = null, cola = [];
-let triageData = null, hcId = null;
+let triageData = null, hcId = null, hcData = null;
 let evtSource = null, pollTimer = null, clockTimer = null;
+let localPrescripciones = [];
+let activeTab = 'triage';
 
 const TRIAGE = {
-  I: { label: 'Resucitación', color: 'var(--triage-i)' },
-  II: { label: 'Emergencia', color: 'var(--triage-ii)' },
-  III: { label: 'Urgencia', color: 'var(--triage-iii)' },
-  IV: { label: 'Prioritaria', color: 'var(--triage-iv)' },
-  V: { label: 'No urgente', color: 'var(--triage-v)' },
+  I:  { label: 'Resucitacion', color: 'var(--triage-i)' },
+  II: { label: 'Emergencia',   color: 'var(--triage-ii)' },
+  III:{ label: 'Urgencia',     color: 'var(--triage-iii)' },
+  IV: { label: 'Prioritaria',  color: 'var(--triage-iv)' },
+  V:  { label: 'No urgente',   color: 'var(--triage-v)' },
 };
 
-function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-function toast(msg, type='info') { const el = document.getElementById('toast'); el.textContent = msg; el.className = 'toast '+type+' show'; clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 3500); }
+/* ── UTILS ── */
+function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); }); document.getElementById(id).classList.add('active'); }
+function toast(msg, type) {
+  type = type || 'info';
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast ' + type + ' show';
+  clearTimeout(el._t); el._t = setTimeout(function() { el.classList.remove('show'); }, 3500);
+}
+
+function setBtn(btn, loading, text) {
+  if (!btn) return;
+  btn.disabled = loading;
+  if (loading) btn.innerHTML = '<span class="spinner"></span> ' + (text || '');
+  else btn.textContent = text || '';
+}
+
+function fmtDateTime(s) {
+  if (!s) return '';
+  try { var d = new Date(s); return d.toLocaleDateString('es-CO') + ' ' + d.toLocaleTimeString('es-CO', {hour:'2-digit',minute:'2-digit'}); }
+  catch(e) { return s; }
+}
 
 async function api(method, path, body) {
-  const opts = { method, headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin' };
-  if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(path, opts);
-  if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.error || 'Error ' + res.status); }
+  var opts = { method: method, headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin' };
+  if (body !== undefined) opts.body = JSON.stringify(body);
+  var res = await fetch(path, opts);
+  if (!res.ok) {
+    var d = {};
+    try { d = await res.json(); } catch(e) {}
+    throw new Error(d.error || d.detail || 'Error ' + res.status);
+  }
+  if (res.status === 204) return {};
   return res.json();
 }
 
+/* ── CLOCK ── */
 function startClock() {
-  function tick() { const n = new Date(); document.getElementById('hdrClock').textContent = [n.getHours(),n.getMinutes(),n.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':'); }
+  function tick() {
+    var n = new Date();
+    document.getElementById('hdrClock').textContent =
+      [n.getHours(), n.getMinutes(), n.getSeconds()].map(function(v){ return String(v).padStart(2,'0'); }).join(':');
+  }
   tick(); clockTimer = setInterval(tick, 1000);
 }
 
+/* ── AUDIO ── */
 function playNotif() {
-  try { const c = new (window.AudioContext||window.webkitAudioContext)(), o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination); o.type='sine'; o.frequency.value=660; g.gain.value=0.12; o.start(); g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.4); o.stop(c.currentTime+0.4); } catch(e){}
+  try {
+    var c = new (window.AudioContext || window.webkitAudioContext)();
+    var o = c.createOscillator(), g = c.createGain();
+    o.connect(g); g.connect(c.destination);
+    o.type = 'sine'; o.frequency.value = 660; g.gain.value = 0.12;
+    o.start(); g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.4);
+    o.stop(c.currentTime + 0.4);
+  } catch(e) {}
 }
 
-// AUTH
+/* ══════════════════════════════════════════
+   AUTH
+   ══════════════════════════════════════════ */
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const err = document.getElementById('loginError'); err.style.display = 'none';
-  const btn = document.getElementById('loginBtn'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  var err = document.getElementById('loginError'); err.style.display = 'none';
+  var btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
   try {
-    const data = await api('POST', '/api/auth/login', { usuario: document.getElementById('usuario').value, password: document.getElementById('password').value });
+    var data = await api('POST', '/api/auth/login', {
+      usuario: document.getElementById('usuario').value,
+      password: document.getElementById('password').value
+    });
     user = data.user || data;
     await checkPuesto();
   } catch(ex) { err.textContent = ex.message; err.style.display = 'block'; }
-  finally { btn.disabled = false; btn.textContent = 'Iniciar sesión'; }
+  finally { btn.disabled = false; btn.textContent = 'Iniciar sesion'; }
 });
 
 async function checkPuesto() {
-  try { const d = await api('GET', '/api/atencion/mi-puesto'); if (d && d.puesto_id) { puesto = d; enterMain(); return; } } catch(e) {}
+  try {
+    var d = await api('GET', '/api/atencion/mi-puesto');
+    if (d && d.puesto_id) { puesto = d; enterMain(); return; }
+  } catch(e) {}
   loadPuestos();
 }
 
 async function loadPuestos() {
   showScreen('puestoScreen');
   try {
-    const data = await api('GET', '/api/atencion/puestos?tipo=consultorio&activo=1');
-    const list = data.puestos || [];
-    const grid = document.getElementById('puestoGrid'); grid.innerHTML = '';
+    var data = await api('GET', '/api/atencion/puestos?tipo=consultorio&activo=1');
+    var list = data.puestos || [];
+    var grid = document.getElementById('puestoGrid');
+    grid.innerHTML = '';
     if (!list.length) { grid.innerHTML = '<p style="color:var(--ink4)">No hay consultorios disponibles</p>'; return; }
-    list.forEach(p => { const b = document.createElement('button'); b.className = 'puesto-btn'; b.innerHTML = '<span style="font-size:24px">🩺</span>' + esc(p.nombre); b.onclick = () => selectPuesto(p); grid.appendChild(b); });
+    list.forEach(function(p) {
+      var b = document.createElement('button');
+      b.className = 'puesto-btn';
+      b.innerHTML = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>' + esc(p.nombre);
+      b.onclick = function() { selectPuesto(p); };
+      grid.appendChild(b);
+    });
   } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
 async function selectPuesto(p) {
-  try { await api('POST', '/api/atencion/seleccionar-puesto', { puesto_id: p.id }); puesto = p; enterMain(); }
-  catch(e) { toast('Error: ' + e.message, 'error'); }
+  try {
+    await api('POST', '/api/atencion/seleccionar-puesto', { puesto_id: p.id });
+    puesto = p; enterMain();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
 function enterMain() {
@@ -269,139 +399,368 @@ function enterMain() {
   startClock(); fetchCola(); startPolling(); connectSSE(); renderWorkspace();
 }
 
-// QUEUE
+/* ══════════════════════════════════════════
+   QUEUE
+   ══════════════════════════════════════════ */
 async function fetchCola() {
   try {
-    const data = await api('GET', '/api/atencion/cola');
-    const prev = cola.length;
+    var data = await api('GET', '/api/atencion/cola');
+    var prev = cola.length;
     cola = data.cola || [];
-    if (data.actual !== undefined) actual = data.actual;
+    if (data.actual !== undefined) {
+      if (data.actual && !actual) {
+        actual = data.actual;
+        tryLoadExistingHC(actual.id);
+      } else if (data.actual) {
+        actual = data.actual;
+      } else {
+        actual = data.actual;
+      }
+    }
     if (cola.length > prev && prev > 0) playNotif();
     renderQueue();
   } catch(e) {}
 }
 
 function renderQueue() {
-  const c = document.getElementById('queueList');
+  var c = document.getElementById('queueList');
   document.getElementById('queueCount').textContent = cola.length;
   if (!cola.length) { c.innerHTML = '<div class="queue-empty">No hay pacientes en cola</div>'; return; }
-  const order = { I:1, II:2, III:3, IV:4, V:5 };
-  const sorted = [...cola].sort((a,b) => (order[a.triage_nivel]||9) - (order[b.triage_nivel]||9));
-  c.innerHTML = sorted.map(t => {
-    const nv = t.triage_nivel || 'V';
-    return '<div class="q-card"><div class="q-turno">' + esc(t.turno) + '</div>' +
-      '<div class="q-info"><div class="q-name">' + esc(t.paciente_nombre || 'Paciente') + '</div>' +
-      '<div class="q-meta"><span class="triage-badge triage-' + nv + '">' + nv + ' · ' + (TRIAGE[nv]?.label || nv) + '</span></div></div></div>';
+  var order = { I:1, II:2, III:3, IV:4, V:5 };
+  var sorted = cola.slice().sort(function(a, b) { return (order[a.triage_nivel] || 9) - (order[b.triage_nivel] || 9); });
+  c.innerHTML = sorted.map(function(t) {
+    var nv = t.triage_nivel || 'V';
+    return '<div class="q-card">' +
+      '<div class="q-turno">' + esc(t.turno) + '</div>' +
+      '<div class="q-info">' +
+        '<div class="q-name">' + esc(t.paciente_nombre || 'Paciente') + '</div>' +
+        '<div class="q-meta">' +
+          '<span class="triage-badge triage-' + nv + '">' + nv + ' - ' + (TRIAGE[nv] ? TRIAGE[nv].label : nv) + '</span>' +
+        '</div>' +
+      '</div></div>';
   }).join('');
 }
 
-// WORKSPACE
+/* ══════════════════════════════════════════
+   TRY LOAD EXISTING HC
+   ══════════════════════════════════════════ */
+async function tryLoadExistingHC(admisionId) {
+  try {
+    var data = await api('GET', '/api/hc/por-admision/' + admisionId);
+    if (data && data.hc) {
+      hcId = data.hc.id;
+      hcData = data.hc;
+    }
+  } catch(e) { /* 404 = no HC yet */ }
+}
+
+/* ══════════════════════════════════════════
+   WORKSPACE
+   ══════════════════════════════════════════ */
 function renderWorkspace() {
-  const ws = document.getElementById('workspace');
-  triageData = null; hcId = null;
+  var ws = document.getElementById('workspace');
+  triageData = null;
+  localPrescripciones = [];
+  activeTab = 'triage';
 
   if (!actual) {
+    hcId = null; hcData = null;
     ws.innerHTML = '<div class="empty-state">' +
+      '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--ink4)" stroke-width="1.5"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>' +
       '<button class="btn-siguiente" id="btnNext" onclick="APP.callNext()"' + (cola.length ? '' : ' disabled') + '>Llamar siguiente paciente</button>' +
-      '<div class="empty-hint">Pacientes admitidos esperando atención médica</div></div>';
+      '<div class="empty-hint">Pacientes admitidos esperando atencion medica</div></div>';
     return;
   }
 
-  const p = actual;
-  const nv = p.triage_nivel || '?';
-  const nvInfo = TRIAGE[nv] || { label: nv, color: 'var(--ink3)' };
+  var p = actual;
+  var nv = p.triage_nivel || '?';
+  var h = '';
 
-  let html = '';
-
-  // Patient header
-  html += '<div class="patient-header">' +
-    '<div class="pat-turno">' + esc(p.turno || '—') + '</div>' +
+  /* Patient header */
+  h += '<div class="patient-header">' +
+    '<div class="pat-turno">' + esc(p.turno || '--') + '</div>' +
     '<div class="pat-info"><div class="pat-name">' + esc(p.paciente_nombre || p.nombre || 'Paciente') + '</div>' +
-    '<div class="pat-doc">' + esc((p.doc_type_temp||'CC') + ' ' + (p.doc_num_temp||p.documento||'')) + ' · Triage <span class="triage-badge triage-' + nv + '">' + nv + '</span></div></div>' +
+    '<div class="pat-doc">' + esc((p.doc_type_temp || 'CC') + ' ' + (p.doc_num_temp || p.documento || '')) +
+    ' <span class="triage-badge triage-' + nv + '">' + nv + '</span></div></div>' +
     '<div class="pat-actions-top">' +
     '<button class="btn-sm" onclick="APP.rellamar()">Re-llamar</button>' +
-    '<button class="btn-sm danger" onclick="APP.noPresento()">No se presentó</button></div></div>';
+    '<button class="btn-sm danger" onclick="APP.noPresento()">No se presento</button></div></div>';
 
-  // Tabs
-  html += '<div class="tab-bar">' +
-    '<button class="tab-btn active" data-tab="triage" onclick="APP.switchTab(\'triage\')">Resumen Triage</button>' +
-    '<button class="tab-btn" data-tab="hc" onclick="APP.switchTab(\'hc\')">Historia Clínica</button>' +
-    '<button class="tab-btn" data-tab="egreso" onclick="APP.switchTab(\'egreso\')">Egreso</button></div>';
+  /* Tab bar — 6 tabs */
+  var tabs = [
+    { id:'triage',   label:'Triage' },
+    { id:'hc',       label:'Historia Clinica' },
+    { id:'ordenes',  label:'Ordenes' },
+    { id:'ic',       label:'Interconsultas' },
+    { id:'rx',       label:'Prescripciones' },
+    { id:'egreso',   label:'Egreso' },
+  ];
+  h += '<div class="tab-bar">';
+  tabs.forEach(function(t) {
+    h += '<button class="tab-btn' + (t.id === 'triage' ? ' active' : '') + '" data-tab="' + t.id + '" onclick="APP.switchTab(\'' + t.id + '\')">' + t.label + '</button>';
+  });
+  h += '</div>';
 
-  // TAB: Triage summary (read-only)
-  html += '<div class="tab-pane active" id="tabTriage">' +
-    '<div class="section-card"><div class="section-title">📊 Datos del Triage</div>' +
-    '<div id="triageSummary"><div style="text-align:center;padding:20px;color:var(--ink4);">Cargando datos de triage...</div></div></div></div>';
+  /* ── TAB 1: Triage ── */
+  h += '<div class="tab-pane active" id="tabTriage">' +
+    '<div class="section-card"><div class="section-title">Datos del Triage</div>' +
+    '<div id="triageSummary"><div style="text-align:center;padding:20px;color:var(--ink4);"><span class="spinner dark"></span> Cargando datos de triage...</div></div></div></div>';
 
-  // TAB: HC
-  html += '<div class="tab-pane" id="tabHc">' +
-    '<div class="section-card"><div class="section-title">📋 Apertura de Historia Clínica de Urgencias</div>' +
+  /* ── TAB 2: Historia Clinica ── */
+  h += '<div class="tab-pane" id="tabHc">';
+  h += '<div id="hcOpenSection">' +
+    '<div class="section-card"><div class="section-title">Apertura de Historia Clinica de Urgencias</div>' +
+    '<div id="hcBanner"></div>' +
+    '<div id="hcOpenForm">' +
     '<div class="fields-grid">' +
-    '<div class="field-item"><label>Causa de atención (RIPS)</label>' +
+    '<div class="field-item"><label>Causa de atencion (RIPS)</label>' +
     '<select id="hcCausa"><option value="urgencia">Urgencia</option><option value="accidente_trabajo">Accidente de trabajo</option>' +
-    '<option value="accidente_transito">Accidente de tránsito</option><option value="evento_catastrofico">Evento catastrófico</option>' +
+    '<option value="accidente_transito">Accidente de transito</option><option value="evento_catastrofico">Evento catastrofico</option>' +
     '<option value="otro">Otro</option></select></div>' +
-    '<div class="field-item"><label>Cod. diagnóstico ingreso (CIE-10)</label><input type="text" id="hcCie10" placeholder="Ej: R10.4"></div>' +
-    '<div class="field-item field-full"><label>Motivo de consulta *</label><textarea id="hcMotivo" placeholder="Motivo principal de consulta del paciente..." required></textarea></div>' +
+    '<div class="field-item"><label>Cod. diagnostico ingreso (CIE-10)</label><input type="text" id="hcCie10" placeholder="Ej: R10.4"></div>' +
+    '<div class="field-item field-full"><label>Motivo de consulta *</label><textarea id="hcMotivo" placeholder="Motivo principal de consulta del paciente..." rows="2"></textarea></div>' +
     '</div>' +
-    '<div style="margin-top:12px;"><button class="btn-action primary" id="btnAbrirHC" onclick="APP.abrirHC()">Abrir Historia Clínica</button></div>' +
-    '<div id="hcInfo" style="display:none;margin-top:16px;"></div></div>' +
+    '<div style="margin-top:14px;"><button class="btn-action primary" id="btnAbrirHC" onclick="APP.abrirHC()">Abrir Historia Clinica</button></div>' +
+    '</div></div></div>';
 
-    '<div class="section-card" id="secEvolucion" style="display:none;">' +
-    '<div class="section-title">🩺 Evolución Médica</div>' +
+  /* Evolution form + list */
+  h += '<div id="secEvolucion" style="display:none;">' +
+    '<div class="section-card"><div class="section-title">Nueva Evolucion Medica</div>' +
     '<div class="fields-grid">' +
-    '<div class="field-item field-full"><label>Enfermedad actual</label><textarea id="hcEnfActual" placeholder="Descripción cronológica de la enfermedad actual..."></textarea></div>' +
-    '<div class="field-item field-full"><label>Antecedentes relevantes</label><textarea id="hcAntecedentes" placeholder="Patológicos, quirúrgicos, farmacológicos, alérgicos..."></textarea></div>' +
-    '<div class="field-item field-full"><label>Examen físico</label><textarea id="hcExamenFisico" placeholder="Hallazgos del examen físico..."></textarea></div>' +
-    '<div class="field-item"><label>Diagnóstico principal (CIE-10)</label><input type="text" id="hcDxPrincipal" placeholder="Ej: K35.9"></div>' +
-    '<div class="field-item"><label>Diagnósticos relacionados</label><input type="text" id="hcDxRelacionados" placeholder="Ej: R10.4, R11"></div>' +
-    '<div class="field-item field-full"><label>Conducta / Plan de manejo</label><textarea id="hcConducta" placeholder="Conducta médica y plan de manejo..."></textarea></div>' +
-    '<div class="field-item field-full"><label>Tratamiento</label><textarea id="hcTratamiento" placeholder="Medicamentos, procedimientos, interconsultas..."></textarea></div>' +
-    '<div class="field-item field-full"><label>Observaciones</label><textarea id="hcObservaciones" placeholder="Observaciones adicionales..."></textarea></div>' +
+    '<div class="field-item"><label>Tipo de evolucion</label>' +
+    '<select id="evolTipo"><option value="evolucion">Evolucion</option><option value="nota_medica">Nota medica</option>' +
+    '<option value="ingreso">Ingreso</option><option value="egreso">Egreso</option></select></div>' +
+    '<div class="field-item"><label>Codigo CIE-10</label><input type="text" id="evolCie10" placeholder="Ej: K35.9"></div>' +
+    '<div class="field-item field-full"><label>Enfermedad actual *</label><textarea id="evolEnfActual" placeholder="Descripcion cronologica de la enfermedad actual..." rows="3"></textarea></div>' +
+    '<div class="field-item field-full"><label>Examen fisico *</label><textarea id="evolExamenFisico" placeholder="Hallazgos del examen fisico..." rows="3"></textarea></div>' +
+    '<div class="field-item field-full"><label>Analisis</label><textarea id="evolAnalisis" placeholder="Analisis clinico y correlacion..." rows="2"></textarea></div>' +
+    '<div class="field-item field-full"><label>Plan terapeutico</label><textarea id="evolPlan" placeholder="Plan de manejo, medicamentos, procedimientos..." rows="2"></textarea></div>' +
     '</div>' +
-    '<div style="margin-top:12px;"><button class="btn-action primary" onclick="APP.guardarEvolucion()">Guardar evolución</button></div></div>' +
+    '<div class="sep"></div>' +
+    '<div class="section-title" style="border:none;padding:0;margin-bottom:10px;">Signos Vitales</div>' +
+    '<div class="vitals-grid">' +
+    '<div class="field-item"><label>TA Sistolica (mmHg)</label><input type="number" id="svTAS" placeholder="120"></div>' +
+    '<div class="field-item"><label>TA Diastolica (mmHg)</label><input type="number" id="svTAD" placeholder="80"></div>' +
+    '<div class="field-item"><label>FC (lpm)</label><input type="number" id="svFC" placeholder="72"></div>' +
+    '<div class="field-item"><label>FR (rpm)</label><input type="number" id="svFR" placeholder="16"></div>' +
+    '<div class="field-item"><label>Temperatura (C)</label><input type="number" id="svTemp" step="0.1" placeholder="36.5"></div>' +
+    '<div class="field-item"><label>SpO2 (%)</label><input type="number" id="svSpO2" placeholder="98"></div>' +
+    '</div>' +
+    '<div style="margin-top:14px;"><button class="btn-action primary" id="btnGuardarEvol" onclick="APP.guardarEvolucion()">Guardar evolucion</button></div>' +
+    '</div>' +
+    '<div class="section-card"><div class="section-title">Evoluciones registradas</div>' +
+    '<div id="evolList"><div class="list-empty">No hay evoluciones registradas</div></div></div>' +
     '</div>';
+  h += '</div>'; // end tabHc
 
-  // TAB: Egreso
-  html += '<div class="tab-pane" id="tabEgreso">' +
-    '<div class="section-card"><div class="section-title">🚪 Destino de Egreso</div>' +
+  /* ── TAB 3: Ordenes ── */
+  h += '<div class="tab-pane" id="tabOrdenes">';
+  h += '<div class="section-card"><div class="section-title">Nueva Orden Medica</div>' +
+    '<div id="ordenesNoHc" style="display:none;"><div class="list-empty">Debe abrir la Historia Clinica antes de crear ordenes</div></div>' +
+    '<div id="ordenesForm">' +
     '<div class="fields-grid">' +
-    '<div class="field-item"><label>Condición de egreso</label>' +
+    '<div class="field-item"><label>Tipo de orden *</label>' +
+    '<select id="ordTipo"><option value="">-- Seleccionar --</option><option value="laboratorio">Laboratorio</option>' +
+    '<option value="imagen">Imagenologia</option><option value="procedimiento">Procedimiento</option></select></div>' +
+    '<div class="field-item"><label>Nombre del estudio *</label><input type="text" id="ordNombre" placeholder="Ej: Hemograma completo"></div>' +
+    '<div class="field-item"><label>Codigo CUPS</label><input type="text" id="ordCups" placeholder="Ej: 902210"></div>' +
+    '<div class="field-item"><label>Servicio destino</label><input type="text" id="ordServicio" placeholder="Ej: Laboratorio clinico"></div>' +
+    '<div class="field-item field-full"><label>Indicacion clinica</label><textarea id="ordIndicacion" placeholder="Indicacion clinica para el estudio..." rows="2"></textarea></div>' +
+    '<div class="field-item"><label>Diagnostico asociado (CIE-10)</label><input type="text" id="ordDx" placeholder="Ej: K35.9"></div>' +
+    '<div class="field-item"><label>Prioridad *</label>' +
+    '<div class="radio-group" style="margin-top:6px;">' +
+    '<label class="radio-opt"><input type="radio" name="ordPrioridad" value="rutina" checked> Rutina</label>' +
+    '<label class="radio-opt"><input type="radio" name="ordPrioridad" value="urgente"> Urgente</label>' +
+    '<label class="radio-opt"><input type="radio" name="ordPrioridad" value="stat"> STAT</label>' +
+    '</div></div>' +
+    '</div>' +
+    '<div style="margin-top:14px;"><button class="btn-action primary" id="btnCrearOrden" onclick="APP.crearOrden()">Crear orden</button></div>' +
+    '</div></div>';
+  h += '<div class="section-card"><div class="section-title">Ordenes del paciente</div>' +
+    '<div id="ordenesList"><div class="list-empty">No hay ordenes registradas</div></div></div>';
+  h += '</div>'; // end tabOrdenes
+
+  /* ── TAB 4: Interconsultas ── */
+  h += '<div class="tab-pane" id="tabIc">';
+  h += '<div class="section-card"><div class="section-title">Solicitar Interconsulta</div>' +
+    '<div id="icNoHc" style="display:none;"><div class="list-empty">Debe abrir la Historia Clinica antes de solicitar interconsultas</div></div>' +
+    '<div id="icForm">' +
+    '<div class="fields-grid">' +
+    '<div class="field-item"><label>Especialidad solicitada *</label><input type="text" id="icEspecialidad" placeholder="Ej: Cirugia General"></div>' +
+    '<div class="field-item"><label>Diagnostico presuntivo</label><input type="text" id="icDx" placeholder="Ej: Apendicitis aguda"></div>' +
+    '<div class="field-item"><label>Codigo CIE-10</label><input type="text" id="icCie10" placeholder="Ej: K35.9"></div>' +
+    '<div class="field-item"><label>Prioridad *</label>' +
+    '<select id="icPrioridad"><option value="normal">Normal</option><option value="urgente">Urgente</option><option value="stat">STAT</option></select></div>' +
+    '<div class="field-item field-full"><label>Motivo de interconsulta *</label><textarea id="icMotivo" placeholder="Describa el motivo de la interconsulta..." rows="3"></textarea></div>' +
+    '</div>' +
+    '<div style="margin-top:14px;"><button class="btn-action primary" id="btnSolicitarIC" onclick="APP.solicitarIC()">Solicitar interconsulta</button></div>' +
+    '</div></div>';
+  h += '<div class="section-card"><div class="section-title">Interconsultas del paciente</div>' +
+    '<div id="icList"><div class="list-empty">No hay interconsultas registradas</div></div></div>';
+  h += '</div>'; // end tabIc
+
+  /* ── TAB 5: Prescripciones ── */
+  h += '<div class="tab-pane" id="tabRx">';
+  h += '<div class="section-card"><div class="section-title">Nueva Prescripcion</div>' +
+    '<div id="rxNoHc" style="display:none;"><div class="list-empty">Debe abrir la Historia Clinica antes de crear prescripciones</div></div>' +
+    '<div id="rxForm">' +
+    '<div class="fields-grid">' +
+    '<div class="field-item"><label>Medicamento *</label><input type="text" id="rxMedicamento" placeholder="Ej: Acetaminofen"></div>' +
+    '<div class="field-item"><label>Concentracion</label><input type="text" id="rxConcentracion" placeholder="Ej: 500 mg"></div>' +
+    '<div class="field-item"><label>Forma farmaceutica</label>' +
+    '<select id="rxForma"><option value="tableta">Tableta</option><option value="capsula">Capsula</option>' +
+    '<option value="solucion_oral">Solucion oral</option><option value="solucion_inyectable">Solucion inyectable</option>' +
+    '<option value="suspension">Suspension</option><option value="crema">Crema</option><option value="unguento">Unguento</option>' +
+    '<option value="supositorio">Supositorio</option><option value="inhalador">Inhalador</option><option value="parche">Parche</option>' +
+    '<option value="gotas">Gotas</option><option value="otra">Otra</option></select></div>' +
+    '<div class="field-item"><label>Via de administracion</label>' +
+    '<select id="rxVia"><option value="oral">Oral</option><option value="iv">Intravenosa</option><option value="im">Intramuscular</option>' +
+    '<option value="sc">Subcutanea</option><option value="topica">Topica</option><option value="inhalatoria">Inhalatoria</option>' +
+    '<option value="rectal">Rectal</option><option value="sublingual">Sublingual</option><option value="oftalmica">Oftalmica</option>' +
+    '<option value="otica">Otica</option><option value="otra">Otra</option></select></div>' +
+    '<div class="field-item"><label>Dosis *</label><input type="text" id="rxDosis" placeholder="Ej: 1 tableta"></div>' +
+    '<div class="field-item"><label>Frecuencia *</label><input type="text" id="rxFrecuencia" placeholder="Ej: Cada 8 horas"></div>' +
+    '<div class="field-item"><label>Duracion (dias)</label><input type="number" id="rxDuracion" placeholder="Ej: 5"></div>' +
+    '<div class="field-item"><label>Cantidad total</label><input type="number" id="rxCantidad" placeholder="Ej: 15"></div>' +
+    '<div class="field-item"><label>Codigo CUM</label><input type="text" id="rxCum" placeholder="Codigo CUM"></div>' +
+    '<div class="field-item field-full"><label>Indicaciones especiales</label><textarea id="rxIndicaciones" placeholder="Tomar con alimentos, no mezclar con..." rows="2"></textarea></div>' +
+    '</div>' +
+    '<div style="margin-top:14px;"><button class="btn-action primary" id="btnAgregarRx" onclick="APP.agregarRx()">Agregar prescripcion</button></div>' +
+    '</div></div>';
+  h += '<div class="section-card"><div class="section-title">Prescripciones del paciente</div>' +
+    '<div id="rxList"><div class="list-empty">No hay prescripciones registradas</div></div></div>';
+  h += '</div>'; // end tabRx
+
+  /* ── TAB 6: Egreso ── */
+  h += '<div class="tab-pane" id="tabEgreso">';
+  h += '<div class="section-card"><div class="section-title">Diagnostico y Condicion de Egreso</div>' +
+    '<div class="fields-grid">' +
+    '<div class="field-item"><label>Diagnostico principal de egreso (CIE-10) *</label><input type="text" id="egresoDx" placeholder="Ej: K35.9"></div>' +
+    '<div class="field-item field-full"><label>Diagnosticos relacionados</label><input type="text" id="egresoDxRel" placeholder="Ej: R10.4, R11.0 (separados por coma)"></div>' +
+    '<div class="field-item"><label>Condicion de egreso *</label>' +
     '<select id="egresoCondicion"><option value="">-- Seleccionar --</option>' +
     '<option value="vivo">Vivo</option><option value="muerto">Muerto</option><option value="no_aplica">No aplica</option></select></div>' +
-    '<div class="field-item"><label>Destino del paciente</label>' +
+    '<div class="field-item"><label>Destino del paciente *</label>' +
     '<select id="egresoDestino"><option value="">-- Seleccionar --</option>' +
-    '<option value="alta_voluntaria">Alta voluntaria</option><option value="alta_medica">Alta médica</option>' +
-    '<option value="remision">Remisión a otra institución</option><option value="hospitalizacion">Hospitalización</option>' +
-    '<option value="cirugia">Cirugía</option><option value="observacion">Observación</option>' +
+    '<option value="alta_medica">Alta medica</option><option value="alta_voluntaria">Alta voluntaria</option>' +
+    '<option value="remision">Remision a otra institucion</option><option value="hospitalizacion">Hospitalizacion</option>' +
+    '<option value="cirugia">Cirugia</option><option value="observacion">Observacion</option>' +
     '<option value="fallecido">Fallecido</option></select></div>' +
-    '<div class="field-item field-full"><label>Diagnóstico de egreso (CIE-10)</label><input type="text" id="egresoDx" placeholder="Ej: K35.9"></div>' +
-    '</div></div>' +
-    '<div class="submit-bar">' +
-    '<button class="btn-action success" id="btnAtendido" onclick="APP.completarAtencion()">✓ Completar atención</button>' +
-    '<div style="flex:1;"></div></div></div>';
+    '</div>' +
+    '<div style="margin-top:14px;">' +
+    '<button class="btn-action primary" id="btnGuardarEgresoDx" onclick="APP.guardarEgresoDx()">Guardar diagnostico de egreso</button>' +
+    '</div></div>';
 
-  ws.innerHTML = html;
+  h += '<div class="section-card"><div class="section-title">Impresion de Documentos</div>' +
+    '<div class="print-bar">' +
+    '<button class="btn-print" onclick="APP.imprimir(\'hc\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Historia Clinica</button>' +
+    '<button class="btn-print" onclick="APP.imprimir(\'receta\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Receta Medica</button>' +
+    '<button class="btn-print" onclick="APP.imprimir(\'plan-cuidado\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Plan de Cuidado</button>' +
+    '</div></div>';
+
+  h += '<div class="submit-bar">' +
+    '<button class="btn-action warning" id="btnCerrarHC" onclick="APP.cerrarHC()">Cerrar Historia Clinica</button>' +
+    '<button class="btn-action success" id="btnAtendido" onclick="APP.completarAtencion()">Completar atencion</button>' +
+    '<div style="flex:1;"></div></div>';
+  h += '</div>'; // end tabEgreso
+
+  ws.innerHTML = h;
   ws.scrollTop = 0;
 
-  // Load triage data
+  /* Post-render: load triage, check HC */
   loadTriageData(p.id);
+  checkHCState();
 }
 
-async function loadTriageData(admisionId) {
-  const el = document.getElementById('triageSummary');
+/* ══════════════════════════════════════════
+   CHECK HC STATE
+   ══════════════════════════════════════════ */
+async function checkHCState() {
+  if (!actual) return;
+  if (hcId) {
+    showHCOpened();
+    loadEvoluciones();
+    loadOrdenes();
+    loadInterconsultas();
+    loadPrescripcionesFromHC();
+    return;
+  }
   try {
-    const data = await api('GET', '/api/atencion/triage-clinico/' + admisionId);
+    var data = await api('GET', '/api/hc/por-admision/' + actual.id);
+    if (data && data.hc) {
+      hcId = data.hc.id;
+      hcData = data.hc;
+      showHCOpened();
+      loadEvoluciones();
+      loadOrdenes();
+      loadInterconsultas();
+      loadPrescripcionesFromHC();
+    }
+  } catch(e) { /* 404 = no HC yet, form stays visible */ }
+}
+
+function showHCOpened() {
+  var banner = document.getElementById('hcBanner');
+  var form = document.getElementById('hcOpenForm');
+  if (banner) {
+    banner.innerHTML = '<div class="hc-banner"><div class="hc-banner-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>' +
+      '<div class="hc-banner-text">Historia Clinica #' + hcId + ' abierta</div></div>';
+  }
+  if (form) form.style.display = 'none';
+  var sec = document.getElementById('secEvolucion');
+  if (sec) sec.style.display = 'block';
+
+  /* Show/hide order and IC forms */
+  var onh = document.getElementById('ordenesNoHc');
+  var of = document.getElementById('ordenesForm');
+  if (onh) onh.style.display = 'none';
+  if (of) of.style.display = 'block';
+
+  var inh = document.getElementById('icNoHc');
+  var icf = document.getElementById('icForm');
+  if (inh) inh.style.display = 'none';
+  if (icf) icf.style.display = 'block';
+
+  var rnh = document.getElementById('rxNoHc');
+  var rf = document.getElementById('rxForm');
+  if (rnh) rnh.style.display = 'none';
+  if (rf) rf.style.display = 'block';
+}
+
+function showNoHC() {
+  var onh = document.getElementById('ordenesNoHc');
+  var of = document.getElementById('ordenesForm');
+  if (onh) onh.style.display = 'block';
+  if (of) of.style.display = 'none';
+
+  var inh = document.getElementById('icNoHc');
+  var icf = document.getElementById('icForm');
+  if (inh) inh.style.display = 'block';
+  if (icf) icf.style.display = 'none';
+
+  var rnh = document.getElementById('rxNoHc');
+  var rf = document.getElementById('rxForm');
+  if (rnh) rnh.style.display = 'block';
+  if (rf) rf.style.display = 'none';
+}
+
+/* ══════════════════════════════════════════
+   TRIAGE
+   ══════════════════════════════════════════ */
+async function loadTriageData(admisionId) {
+  var el = document.getElementById('triageSummary');
+  if (!el) return;
+  try {
+    var data = await api('GET', '/api/atencion/triage-clinico/' + admisionId);
     triageData = data.triage;
     renderTriageSummary(triageData);
   } catch(e) {
-    // Fallback: show basic triage info from the admission
     if (actual) {
       el.innerHTML = '<div class="triage-summary">' +
         '<div class="triage-stat"><div class="triage-stat-value">' + esc(actual.triage_nivel || '?') + '</div><div class="triage-stat-label">Nivel</div></div>' +
         '</div>' +
         (actual.triage_notas ? '<p style="margin-top:12px;color:var(--ink3);font-size:13px;">' + esc(actual.triage_notas) + '</p>' : '') +
-        '<p style="margin-top:8px;color:var(--ink4);font-size:12px;">Datos clínicos detallados no disponibles</p>';
+        '<p style="margin-top:8px;color:var(--ink4);font-size:12px;">Datos clinicos detallados no disponibles</p>';
     } else {
       el.innerHTML = '<p style="color:var(--ink4)">No hay datos de triage disponibles</p>';
     }
@@ -409,194 +768,609 @@ async function loadTriageData(admisionId) {
 }
 
 function renderTriageSummary(t) {
-  const el = document.getElementById('triageSummary');
-  const nv = t.nivel_asignado || '?';
-  const color = TRIAGE[nv]?.color || 'var(--ink3)';
-  const glasgowLabel = t.glasgow_total <= 8 ? 'Severo' : t.glasgow_total <= 12 ? 'Moderado' : 'Normal';
+  var el = document.getElementById('triageSummary');
+  if (!el) return;
+  var nv = t.nivel_asignado || '?';
+  var color = TRIAGE[nv] ? TRIAGE[nv].color : 'var(--ink3)';
+  var glasgowLabel = t.glasgow_total <= 8 ? 'Severo' : t.glasgow_total <= 12 ? 'Moderado' : 'Normal';
 
-  let html = '<div class="triage-summary">';
-  html += '<div class="triage-stat" style="border:2px solid ' + color + '"><div class="triage-stat-value" style="color:' + color + '">' + nv + '</div><div class="triage-stat-label">' + (TRIAGE[nv]?.label || '') + '</div></div>';
-  if (t.ta_sistolica) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.ta_sistolica + '/' + (t.ta_diastolica||'') + '</div><div class="triage-stat-label">T/A mmHg</div></div>';
+  var html = '<div class="triage-summary">';
+  html += '<div class="triage-stat" style="border:2px solid ' + color + '"><div class="triage-stat-value" style="color:' + color + '">' + nv + '</div><div class="triage-stat-label">' + (TRIAGE[nv] ? TRIAGE[nv].label : '') + '</div></div>';
+  if (t.ta_sistolica) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.ta_sistolica + '/' + (t.ta_diastolica || '') + '</div><div class="triage-stat-label">T/A mmHg</div></div>';
   if (t.fc) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.fc + '</div><div class="triage-stat-label">FC lpm</div></div>';
   if (t.fr) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.fr + '</div><div class="triage-stat-label">FR rpm</div></div>';
-  if (t.temperatura) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.temperatura + '°</div><div class="triage-stat-label">Temp °C</div></div>';
+  if (t.temperatura) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.temperatura + '</div><div class="triage-stat-label">Temp C</div></div>';
   if (t.spo2 != null) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.spo2 + '%</div><div class="triage-stat-label">SpO2</div></div>';
   if (t.glasgow_total != null) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.glasgow_total + '/15</div><div class="triage-stat-label">Glasgow (' + glasgowLabel + ')</div></div>';
   if (t.eva_dolor != null) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.eva_dolor + '/10</div><div class="triage-stat-label">EVA Dolor</div></div>';
-  if (t.glucometria) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.glucometria + '</div><div class="triage-stat-label">Glucometría</div></div>';
+  if (t.glucometria) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.glucometria + '</div><div class="triage-stat-label">Glucometria</div></div>';
   html += '</div>';
 
-  // Discriminators
-  const discs = [];
-  if (t.disc_via_aerea) discs.push('Vía aérea comprometida');
+  var discs = [];
+  if (t.disc_via_aerea) discs.push('Via aerea comprometida');
   if (t.disc_sangrado) discs.push('Sangrado activo');
-  if (t.disc_dolor_toracico) discs.push('Dolor torácico');
-  if (t.disc_alt_neurologica) discs.push('Alt. neurológica');
+  if (t.disc_dolor_toracico) discs.push('Dolor toracico');
+  if (t.disc_alt_neurologica) discs.push('Alt. neurologica');
   if (t.disc_gestante) discs.push('Gestante');
   if (t.disc_menor_edad) discs.push('Menor de edad');
   if (t.disc_trauma_mayor) discs.push('Trauma mayor');
   if (t.disc_convulsiones) discs.push('Convulsiones');
   if (t.disc_fiebre_alta) discs.push('Fiebre alta');
   if (discs.length) {
-    html += '<div style="margin-top:12px;"><strong style="font-size:12px;color:var(--danger);">⚠ Discriminadores activos:</strong> ' +
-      '<span style="font-size:13px;">' + discs.join(', ') + '</span></div>';
+    html += '<div style="margin-top:12px;padding:10px 14px;background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;">' +
+      '<strong style="font-size:12px;color:var(--danger);">Discriminadores activos:</strong> ' +
+      '<span style="font-size:13px;color:var(--ink2);">' + discs.join(', ') + '</span></div>';
   }
 
   if (t.motivo_consulta) html += '<div style="margin-top:12px;"><strong style="font-size:12px;color:var(--ink3);">Motivo:</strong> <span style="font-size:13px;">' + esc(t.motivo_consulta) + '</span></div>';
-  if (t.alergias) html += '<div style="margin-top:6px;"><strong style="font-size:12px;color:var(--danger);">Alergias:</strong> <span style="font-size:13px;">' + esc(t.alergias) + '</span></div>';
-  if (t.notas_enfermeria) html += '<div style="margin-top:6px;"><strong style="font-size:12px;color:var(--ink3);">Notas enfermería:</strong> <span style="font-size:13px;">' + esc(t.notas_enfermeria) + '</span></div>';
+  if (t.alergias) html += '<div style="margin-top:6px;padding:8px 12px;background:#FEF2F2;border-radius:6px;"><strong style="font-size:12px;color:var(--danger);">Alergias:</strong> <span style="font-size:13px;">' + esc(t.alergias) + '</span></div>';
+  if (t.notas_enfermeria) html += '<div style="margin-top:6px;"><strong style="font-size:12px;color:var(--ink3);">Notas enfermeria:</strong> <span style="font-size:13px;">' + esc(t.notas_enfermeria) + '</span></div>';
   if (t.enfermera_nombre) html += '<div style="margin-top:8px;font-size:11px;color:var(--ink4);">Enfermera: ' + esc(t.enfermera_nombre) + '</div>';
 
   el.innerHTML = html;
 }
 
-// TAB switching
+/* ══════════════════════════════════════════
+   TAB SWITCHING
+   ══════════════════════════════════════════ */
 function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-  document.querySelector('.tab-btn[data-tab="' + tab + '"]').classList.add('active');
-  const paneMap = { triage: 'tabTriage', hc: 'tabHc', egreso: 'tabEgreso' };
-  document.getElementById(paneMap[tab]).classList.add('active');
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
+  var btn = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
+  if (btn) btn.classList.add('active');
+  var paneMap = { triage:'tabTriage', hc:'tabHc', ordenes:'tabOrdenes', ic:'tabIc', rx:'tabRx', egreso:'tabEgreso' };
+  var pane = document.getElementById(paneMap[tab]);
+  if (pane) pane.classList.add('active');
+
+  /* Lazy-load data when switching */
+  if (tab === 'ordenes' && hcId) loadOrdenes();
+  if (tab === 'ic' && hcId) loadInterconsultas();
+  if (tab === 'rx') loadPrescripcionesFromHC();
+  if (!hcId && (tab === 'ordenes' || tab === 'ic' || tab === 'rx')) showNoHC();
 }
 
-// HC
+/* ══════════════════════════════════════════
+   HISTORIA CLINICA
+   ══════════════════════════════════════════ */
 async function abrirHC() {
   if (!actual) return;
-  const motivo = document.getElementById('hcMotivo').value.trim();
+  var motivo = document.getElementById('hcMotivo').value.trim();
   if (!motivo) { toast('El motivo de consulta es requerido', 'error'); document.getElementById('hcMotivo').focus(); return; }
 
-  const btn = document.getElementById('btnAbrirHC');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Abriendo...';
+  var btn = document.getElementById('btnAbrirHC');
+  setBtn(btn, true, 'Abriendo...');
   try {
-    const data = await api('POST', '/api/admisiones/abrir-hc', {
+    var data = await api('POST', '/api/hc/abrir', {
       admision_id: actual.id,
       motivo_consulta: motivo,
       causa_atencion: document.getElementById('hcCausa').value,
-      cod_cie10_ingreso: document.getElementById('hcCie10').value,
+      cod_cie10_ingreso: document.getElementById('hcCie10').value
     });
     hcId = data.hc_id;
-    toast('Historia clínica abierta', 'success');
-    btn.textContent = '✓ HC Abierta';
-    document.getElementById('hcInfo').style.display = 'block';
-    document.getElementById('hcInfo').innerHTML = '<div style="padding:10px;background:var(--iv2);border-radius:8px;color:var(--success);font-weight:600;">HC #' + hcId + ' abierta correctamente</div>';
-    document.getElementById('secEvolucion').style.display = 'block';
+    toast('Historia clinica abierta correctamente', 'success');
+    showHCOpened();
   } catch(e) {
     toast('Error: ' + e.message, 'error');
-    btn.disabled = false; btn.textContent = 'Abrir Historia Clínica';
+    setBtn(btn, false, 'Abrir Historia Clinica');
   }
 }
 
+/* ══════════════════════════════════════════
+   EVOLUCIONES
+   ══════════════════════════════════════════ */
 async function guardarEvolucion() {
   if (!hcId) { toast('Debe abrir la HC primero', 'error'); return; }
+  var enfActual = document.getElementById('evolEnfActual').value.trim();
+  var exFisico = document.getElementById('evolExamenFisico').value.trim();
+  if (!enfActual) { toast('Enfermedad actual es requerida', 'error'); document.getElementById('evolEnfActual').focus(); return; }
+  if (!exFisico) { toast('Examen fisico es requerido', 'error'); document.getElementById('evolExamenFisico').focus(); return; }
+
+  var sv = {};
+  var tas = document.getElementById('svTAS').value; if (tas) sv.ta_sistolica = Number(tas);
+  var tad = document.getElementById('svTAD').value; if (tad) sv.ta_diastolica = Number(tad);
+  var fc = document.getElementById('svFC').value; if (fc) sv.fc = Number(fc);
+  var fr = document.getElementById('svFR').value; if (fr) sv.fr = Number(fr);
+  var temp = document.getElementById('svTemp').value; if (temp) sv.temperatura = Number(temp);
+  var spo2 = document.getElementById('svSpO2').value; if (spo2) sv.spo2 = Number(spo2);
+
+  var btn = document.getElementById('btnGuardarEvol');
+  setBtn(btn, true, 'Guardando...');
   try {
-    await api('PUT', '/api/admisiones/hc/' + hcId, {
-      enfermedad_actual: document.getElementById('hcEnfActual').value,
-      antecedentes: document.getElementById('hcAntecedentes').value,
-      examen_fisico: document.getElementById('hcExamenFisico').value,
-      diagnostico_ingreso: document.getElementById('hcDxPrincipal').value,
-      cod_cie10_ingreso: document.getElementById('hcCie10').value,
-      diagnosticos_relacionados: document.getElementById('hcDxRelacionados').value,
-      conducta: document.getElementById('hcConducta').value,
-      tratamiento: document.getElementById('hcTratamiento').value,
-      observaciones: document.getElementById('hcObservaciones').value,
+    await api('POST', '/api/hc/' + hcId + '/evolucion', {
+      tipo: document.getElementById('evolTipo').value,
+      enfermedad_actual: enfActual,
+      examen_fisico: exFisico,
+      analisis: document.getElementById('evolAnalisis').value,
+      plan_terapeutico: document.getElementById('evolPlan').value,
+      cod_cie10: document.getElementById('evolCie10').value,
+      signos_vitales_json: sv
     });
-    toast('Evolución guardada', 'success');
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+    toast('Evolucion guardada correctamente', 'success');
+    /* Clear form */
+    ['evolEnfActual','evolExamenFisico','evolAnalisis','evolPlan','evolCie10','svTAS','svTAD','svFC','svFR','svTemp','svSpO2'].forEach(function(id) {
+      var el = document.getElementById(id); if (el) el.value = '';
+    });
+    loadEvoluciones();
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  } finally {
+    setBtn(btn, false, 'Guardar evolucion');
+  }
 }
 
-// ACTIONS
-async function callNext() {
-  const btn = document.getElementById('btnNext');
-  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
+async function loadEvoluciones() {
+  if (!hcId) return;
+  var el = document.getElementById('evolList');
+  if (!el) return;
   try {
-    const data = await api('POST', '/api/atencion/siguiente', {});
-    actual = data.turno || data.actual || data;
-    renderWorkspace(); fetchCola();
-  } catch(e) { toast(e.message || 'No hay pacientes', 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Llamar siguiente paciente'; } }
+    var data = await api('GET', '/api/hc/' + hcId + '/evoluciones');
+    var evols = data.evoluciones || [];
+    if (!evols.length) { el.innerHTML = '<div class="list-empty">No hay evoluciones registradas</div>'; return; }
+    el.innerHTML = evols.map(function(ev) {
+      var h = '<div class="evol-entry"><div class="evol-entry-header">' +
+        '<div class="evol-entry-time">' + esc(ev.tipo || 'Evolucion') + ' - ' + fmtDateTime(ev.created_at || ev.fecha) + '</div>' +
+        '<div class="evol-entry-doctor">' + esc(ev.medico_nombre || ev.usuario_nombre || '') + '</div></div>';
+      h += '<div class="evol-entry-body">';
+      if (ev.enfermedad_actual) h += '<p><strong>Enfermedad actual:</strong> ' + esc(ev.enfermedad_actual) + '</p>';
+      if (ev.examen_fisico) h += '<p><strong>Examen fisico:</strong> ' + esc(ev.examen_fisico) + '</p>';
+      if (ev.analisis) h += '<p><strong>Analisis:</strong> ' + esc(ev.analisis) + '</p>';
+      if (ev.plan_terapeutico) h += '<p><strong>Plan terapeutico:</strong> ' + esc(ev.plan_terapeutico) + '</p>';
+      if (ev.cod_cie10) h += '<p><strong>CIE-10:</strong> ' + esc(ev.cod_cie10) + '</p>';
+      var sv = ev.signos_vitales_json || ev.signos_vitales || {};
+      if (typeof sv === 'string') { try { sv = JSON.parse(sv); } catch(e) { sv = {}; } }
+      if (sv.ta_sistolica || sv.fc || sv.fr || sv.temperatura || sv.spo2) {
+        h += '<p><strong>Signos vitales:</strong> ';
+        var parts = [];
+        if (sv.ta_sistolica) parts.push('TA ' + sv.ta_sistolica + '/' + (sv.ta_diastolica || '-'));
+        if (sv.fc) parts.push('FC ' + sv.fc);
+        if (sv.fr) parts.push('FR ' + sv.fr);
+        if (sv.temperatura) parts.push('T ' + sv.temperatura + 'C');
+        if (sv.spo2) parts.push('SpO2 ' + sv.spo2 + '%');
+        h += parts.join(' | ') + '</p>';
+      }
+      h += '</div></div>';
+      return h;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="list-empty">Error al cargar evoluciones</div>';
+  }
+}
+
+/* ══════════════════════════════════════════
+   ORDENES
+   ══════════════════════════════════════════ */
+async function crearOrden() {
+  if (!hcId) { toast('Debe abrir la HC primero', 'error'); return; }
+  var tipo = document.getElementById('ordTipo').value;
+  var nombre = document.getElementById('ordNombre').value.trim();
+  if (!tipo) { toast('Seleccione el tipo de orden', 'error'); return; }
+  if (!nombre) { toast('Nombre del estudio es requerido', 'error'); document.getElementById('ordNombre').focus(); return; }
+
+  var prioridad = 'rutina';
+  document.querySelectorAll('input[name="ordPrioridad"]').forEach(function(r) { if (r.checked) prioridad = r.value; });
+
+  var btn = document.getElementById('btnCrearOrden');
+  setBtn(btn, true, 'Creando...');
+  try {
+    await api('POST', '/api/ordenes/crear', {
+      hc_id: hcId,
+      admision_id: actual.id,
+      paciente_id: actual.paciente_id,
+      tipo_orden: tipo,
+      nombre_estudio: nombre,
+      cod_cups: document.getElementById('ordCups').value,
+      prioridad: prioridad,
+      indicacion_clinica: document.getElementById('ordIndicacion').value,
+      diagnostico_asociado: document.getElementById('ordDx').value,
+      servicio_destino: document.getElementById('ordServicio').value
+    });
+    toast('Orden creada correctamente', 'success');
+    ['ordNombre','ordCups','ordServicio','ordIndicacion','ordDx'].forEach(function(id) {
+      var el = document.getElementById(id); if (el) el.value = '';
+    });
+    document.getElementById('ordTipo').value = '';
+    var rutina = document.querySelector('input[name="ordPrioridad"][value="rutina"]');
+    if (rutina) rutina.checked = true;
+    loadOrdenes();
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  } finally {
+    setBtn(btn, false, 'Crear orden');
+  }
+}
+
+async function loadOrdenes() {
+  if (!hcId) return;
+  var el = document.getElementById('ordenesList');
+  if (!el) return;
+  try {
+    var data = await api('GET', '/api/ordenes/por-hc/' + hcId);
+    var ordenes = data.ordenes || [];
+    if (!ordenes.length) { el.innerHTML = '<div class="list-empty">No hay ordenes registradas</div>'; return; }
+    el.innerHTML = ordenes.map(function(o) {
+      var estado = o.estado || 'solicitada';
+      var h = '<div class="record-card"><div class="record-card-header">' +
+        '<div class="record-card-title">' + esc(o.nombre_estudio || o.nombre || '') + '</div>' +
+        '<span class="estado-badge estado-' + estado + '">' + esc(estado.replace(/_/g, ' ')) + '</span></div>';
+      h += '<div class="record-card-body">';
+      h += '<p><strong>Tipo:</strong> ' + esc(o.tipo_orden || '') + ' | <strong>Prioridad:</strong> ' + esc(o.prioridad || '') + '</p>';
+      if (o.cod_cups) h += '<p><strong>CUPS:</strong> ' + esc(o.cod_cups) + '</p>';
+      if (o.indicacion_clinica) h += '<p><strong>Indicacion:</strong> ' + esc(o.indicacion_clinica) + '</p>';
+      if (o.servicio_destino) h += '<p><strong>Servicio:</strong> ' + esc(o.servicio_destino) + '</p>';
+      h += '</div>';
+      h += '<div class="record-card-meta">' + fmtDateTime(o.created_at || o.fecha) + '</div>';
+      if (estado === 'con_resultado') {
+        h += '<div style="margin-top:8px;"><button class="btn-sm" onclick="APP.verResultados(' + o.id + ')">Ver resultados</button></div>';
+      }
+      h += '</div>';
+      return h;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="list-empty">Error al cargar ordenes</div>';
+  }
+}
+
+async function verResultados(ordenId) {
+  try {
+    var data = await api('GET', '/api/ordenes/' + ordenId + '/resultados');
+    var resultados = data.resultados || [];
+    if (!resultados.length) { toast('No hay resultados disponibles aun', 'info'); return; }
+    var msg = resultados.map(function(r) {
+      return (r.parametro || r.nombre || 'Resultado') + ': ' + (r.valor || '') + ' ' + (r.unidad || '') + (r.referencia ? ' (Ref: ' + r.referencia + ')' : '');
+    }).join('\n');
+    alert('Resultados de la orden #' + ordenId + ':\n\n' + msg);
+  } catch(e) {
+    toast('Error al cargar resultados: ' + e.message, 'error');
+  }
+}
+
+/* ══════════════════════════════════════════
+   INTERCONSULTAS
+   ══════════════════════════════════════════ */
+async function solicitarIC() {
+  if (!hcId) { toast('Debe abrir la HC primero', 'error'); return; }
+  var especialidad = document.getElementById('icEspecialidad').value.trim();
+  var motivo = document.getElementById('icMotivo').value.trim();
+  if (!especialidad) { toast('La especialidad es requerida', 'error'); document.getElementById('icEspecialidad').focus(); return; }
+  if (!motivo) { toast('El motivo es requerido', 'error'); document.getElementById('icMotivo').focus(); return; }
+
+  var btn = document.getElementById('btnSolicitarIC');
+  setBtn(btn, true, 'Solicitando...');
+  try {
+    await api('POST', '/api/interconsultas/solicitar', {
+      hc_id: hcId,
+      admision_id: actual.id,
+      paciente_id: actual.paciente_id,
+      especialidad_solicitada: especialidad,
+      motivo: motivo,
+      prioridad: document.getElementById('icPrioridad').value,
+      diagnostico_presuntivo: document.getElementById('icDx').value,
+      cod_cie10: document.getElementById('icCie10').value
+    });
+    toast('Interconsulta solicitada correctamente', 'success');
+    ['icEspecialidad','icDx','icCie10','icMotivo'].forEach(function(id) {
+      var el = document.getElementById(id); if (el) el.value = '';
+    });
+    loadInterconsultas();
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  } finally {
+    setBtn(btn, false, 'Solicitar interconsulta');
+  }
+}
+
+async function loadInterconsultas() {
+  if (!hcId) return;
+  var el = document.getElementById('icList');
+  if (!el) return;
+  try {
+    var data = await api('GET', '/api/interconsultas/por-hc/' + hcId);
+    var ics = data.interconsultas || [];
+    if (!ics.length) { el.innerHTML = '<div class="list-empty">No hay interconsultas registradas</div>'; return; }
+    el.innerHTML = ics.map(function(ic) {
+      var estado = ic.estado || 'solicitada';
+      var h = '<div class="record-card"><div class="record-card-header">' +
+        '<div class="record-card-title">' + esc(ic.especialidad_solicitada || '') + '</div>' +
+        '<span class="estado-badge estado-' + estado + '">' + esc(estado.replace(/_/g, ' ')) + '</span></div>';
+      h += '<div class="record-card-body">';
+      h += '<p><strong>Motivo:</strong> ' + esc(ic.motivo || '') + '</p>';
+      if (ic.diagnostico_presuntivo) h += '<p><strong>Dx presuntivo:</strong> ' + esc(ic.diagnostico_presuntivo) + '</p>';
+      if (ic.prioridad) h += '<p><strong>Prioridad:</strong> ' + esc(ic.prioridad) + '</p>';
+      if (estado === 'respondida') {
+        if (ic.respuesta) h += '<p style="margin-top:6px;padding:8px 12px;background:#DCFCE7;border-radius:6px;"><strong>Respuesta:</strong> ' + esc(ic.respuesta) + '</p>';
+        if (ic.recomendaciones) h += '<p><strong>Recomendaciones:</strong> ' + esc(ic.recomendaciones) + '</p>';
+        if (ic.especialista_nombre) h += '<p style="font-size:12px;color:var(--ink4);">Especialista: ' + esc(ic.especialista_nombre) + '</p>';
+      }
+      h += '</div>';
+      h += '<div class="record-card-meta">' + fmtDateTime(ic.created_at || ic.fecha) + '</div>';
+      h += '</div>';
+      return h;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="list-empty">Error al cargar interconsultas</div>';
+  }
+}
+
+/* ══════════════════════════════════════════
+   PRESCRIPCIONES
+   ══════════════════════════════════════════ */
+function agregarRx() {
+  var med = document.getElementById('rxMedicamento').value.trim();
+  var dosis = document.getElementById('rxDosis').value.trim();
+  var freq = document.getElementById('rxFrecuencia').value.trim();
+  if (!med) { toast('El medicamento es requerido', 'error'); document.getElementById('rxMedicamento').focus(); return; }
+  if (!dosis) { toast('La dosis es requerida', 'error'); document.getElementById('rxDosis').focus(); return; }
+  if (!freq) { toast('La frecuencia es requerida', 'error'); document.getElementById('rxFrecuencia').focus(); return; }
+
+  var rx = {
+    medicamento: med,
+    concentracion: document.getElementById('rxConcentracion').value,
+    forma_farmaceutica: document.getElementById('rxForma').value,
+    via_administracion: document.getElementById('rxVia').value,
+    dosis: dosis,
+    frecuencia: freq,
+    duracion_dias: document.getElementById('rxDuracion').value,
+    cantidad_total: document.getElementById('rxCantidad').value,
+    cod_cum: document.getElementById('rxCum').value,
+    indicaciones: document.getElementById('rxIndicaciones').value,
+    _local: true,
+    _time: new Date().toISOString()
+  };
+
+  localPrescripciones.push(rx);
+  toast('Prescripcion agregada', 'success');
+
+  ['rxMedicamento','rxConcentracion','rxDosis','rxFrecuencia','rxDuracion','rxCantidad','rxCum','rxIndicaciones'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+
+  renderPrescripciones();
+}
+
+async function loadPrescripcionesFromHC() {
+  if (!hcId) { renderPrescripciones(); return; }
+  try {
+    var data = await api('GET', '/api/hc/' + hcId);
+    if (data && data.prescripciones && data.prescripciones.length) {
+      /* Merge server prescripciones (don't duplicate locals) */
+      var serverRx = data.prescripciones;
+      renderPrescripciones(serverRx);
+      return;
+    }
+  } catch(e) { /* no endpoint or no prescripciones field */ }
+  renderPrescripciones();
+}
+
+function renderPrescripciones(serverRx) {
+  var el = document.getElementById('rxList');
+  if (!el) return;
+  var all = (serverRx || []).concat(localPrescripciones);
+  if (!all.length) { el.innerHTML = '<div class="list-empty">No hay prescripciones registradas</div>'; return; }
+
+  var h = '<div style="overflow-x:auto;"><table class="rx-table"><thead><tr>' +
+    '<th>Medicamento</th><th>Dosis</th><th>Via</th><th>Frecuencia</th><th>Duracion</th><th>Indicaciones</th></tr></thead><tbody>';
+  all.forEach(function(rx) {
+    h += '<tr>' +
+      '<td class="rx-med">' + esc(rx.medicamento) + (rx.concentracion ? '<br><span style="font-weight:400;color:var(--ink3);font-size:12px;">' + esc(rx.concentracion) + ' - ' + esc(rx.forma_farmaceutica || '') + '</span>' : '') + '</td>' +
+      '<td>' + esc(rx.dosis || '') + '</td>' +
+      '<td>' + esc(rx.via_administracion || '') + '</td>' +
+      '<td>' + esc(rx.frecuencia || '') + '</td>' +
+      '<td>' + (rx.duracion_dias ? esc(rx.duracion_dias) + ' dias' : '-') + '</td>' +
+      '<td>' + esc(rx.indicaciones || '-') + '</td>' +
+      '</tr>';
+  });
+  h += '</tbody></table></div>';
+  if (localPrescripciones.length > 0) {
+    h += '<div style="margin-top:8px;font-size:11px;color:var(--ink4);">Las prescripciones locales se guardaran al completar la atencion.</div>';
+  }
+  el.innerHTML = h;
+}
+
+function eliminarRx(idx) {
+  localPrescripciones.splice(idx, 1);
+  renderPrescripciones();
+}
+
+/* ══════════════════════════════════════════
+   EGRESO
+   ══════════════════════════════════════════ */
+async function guardarEgresoDx() {
+  if (!hcId) { toast('Debe abrir la HC primero', 'error'); return; }
+  var dx = document.getElementById('egresoDx').value.trim();
+  if (!dx) { toast('El diagnostico de egreso es requerido', 'error'); document.getElementById('egresoDx').focus(); return; }
+
+  var btn = document.getElementById('btnGuardarEgresoDx');
+  setBtn(btn, true, 'Guardando...');
+  try {
+    await api('PUT', '/api/hc/' + hcId + '/diagnostico-egreso', {
+      cod_cie10_egreso: dx,
+      diagnosticos_relacionados: document.getElementById('egresoDxRel').value,
+      condicion_egreso: document.getElementById('egresoCondicion').value,
+      destino_egreso: document.getElementById('egresoDestino').value
+    });
+    toast('Diagnostico de egreso guardado', 'success');
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  } finally {
+    setBtn(btn, false, 'Guardar diagnostico de egreso');
+  }
+}
+
+async function cerrarHC() {
+  if (!hcId) { toast('No hay HC abierta', 'error'); return; }
+  if (!confirm('Esta seguro de cerrar la Historia Clinica? Esta accion no se puede deshacer.')) return;
+
+  var btn = document.getElementById('btnCerrarHC');
+  setBtn(btn, true, 'Cerrando...');
+  try {
+    await api('PUT', '/api/hc/' + hcId + '/cerrar', {});
+    toast('Historia clinica cerrada', 'success');
+    btn.disabled = true; btn.textContent = 'HC Cerrada';
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+    setBtn(btn, false, 'Cerrar Historia Clinica');
+  }
 }
 
 async function completarAtencion() {
   if (!actual) return;
-  const condicion = document.getElementById('egresoCondicion').value;
-  const destino = document.getElementById('egresoDestino').value;
-  if (!condicion || !destino) { toast('Seleccione condición y destino de egreso', 'error'); return; }
+  var condicion = document.getElementById('egresoCondicion').value;
+  var destino = document.getElementById('egresoDestino').value;
+  if (!condicion || !destino) { toast('Seleccione condicion y destino de egreso', 'error'); return; }
 
-  const btn = document.getElementById('btnAtendido');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Completando...';
+  if (!confirm('Confirma completar la atencion del paciente?')) return;
+
+  var btn = document.getElementById('btnAtendido');
+  setBtn(btn, true, 'Completando...');
   try {
-    // Save egreso data
-    if (actual.id) {
-      await api('POST', '/api/atencion/accion', {
-        id: actual.id,
-        condicion_egreso: condicion,
-        destino_egreso: destino,
-        diagnostico_egreso: document.getElementById('egresoDx').value,
-      });
+    /* Save egreso dx first if HC exists */
+    if (hcId) {
+      var dx = document.getElementById('egresoDx').value.trim();
+      if (dx) {
+        try {
+          await api('PUT', '/api/hc/' + hcId + '/diagnostico-egreso', {
+            cod_cie10_egreso: dx,
+            diagnosticos_relacionados: document.getElementById('egresoDxRel').value,
+            condicion_egreso: condicion,
+            destino_egreso: destino
+          });
+        } catch(e) { /* continue anyway */ }
+      }
     }
-    toast('Atención completada', 'success');
-    actual = null; triageData = null; hcId = null;
+
+    /* Complete attention */
+    await api('POST', '/api/atencion/accion', { id: actual.id });
+    toast('Atencion completada correctamente', 'success');
+    actual = null; triageData = null; hcId = null; hcData = null; localPrescripciones = [];
     await fetchCola();
     renderWorkspace();
   } catch(e) {
     toast('Error: ' + e.message, 'error');
-    btn.disabled = false; btn.textContent = '✓ Completar atención';
+    setBtn(btn, false, 'Completar atencion');
+  }
+}
+
+function imprimir(tipo) {
+  if (!hcId) { toast('No hay HC abierta para imprimir', 'error'); return; }
+  window.open('/api/impresion/' + tipo + '/' + hcId, '_blank');
+}
+
+/* ══════════════════════════════════════════
+   PATIENT ACTIONS
+   ══════════════════════════════════════════ */
+async function callNext() {
+  var btn = document.getElementById('btnNext');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
+  try {
+    var data = await api('POST', '/api/atencion/siguiente', {});
+    actual = data.turno || data.actual || data;
+    hcId = null; hcData = null; localPrescripciones = [];
+    /* Try to load existing HC */
+    await tryLoadExistingHC(actual.id);
+    renderWorkspace();
+    fetchCola();
+  } catch(e) {
+    toast(e.message || 'No hay pacientes en cola', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Llamar siguiente paciente'; }
   }
 }
 
 async function rellamar() {
   if (!actual) return;
-  try { await api('POST', '/api/atencion/re-llamar', { id: actual.id }); toast('Paciente re-llamado', 'info'); }
-  catch(e) { toast('Error: ' + e.message, 'error'); }
+  try {
+    await api('POST', '/api/atencion/re-llamar', { id: actual.id });
+    toast('Paciente re-llamado', 'info');
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
 async function noPresento() {
   if (!actual) return;
+  if (!confirm('Devolver paciente a la cola?')) return;
   try {
     await api('POST', '/api/atencion/devolver', { id: actual.id });
     toast('Paciente devuelto a cola', 'info');
-    actual = null; renderWorkspace(); fetchCola();
+    actual = null; hcId = null; hcData = null; localPrescripciones = [];
+    renderWorkspace(); fetchCola();
   } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// LOGOUT
+/* ══════════════════════════════════════════
+   LOGOUT
+   ══════════════════════════════════════════ */
 document.getElementById('btnLogout').addEventListener('click', async function() {
   try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }); } catch(e) {}
   if (evtSource) evtSource.close();
   if (pollTimer) clearInterval(pollTimer);
   if (clockTimer) clearInterval(clockTimer);
   user = null; puesto = null; actual = null; cola = [];
+  hcId = null; hcData = null; triageData = null; localPrescripciones = [];
   showScreen('loginScreen');
 });
 
-// SSE
+/* ══════════════════════════════════════════
+   SSE + POLLING
+   ══════════════════════════════════════════ */
 function connectSSE() {
   if (evtSource) evtSource.close();
-  const dot = document.getElementById('statusDot');
+  var dot = document.getElementById('statusDot');
   try {
-    const es = new EventSource('/api/sse');
+    var es = new EventSource('/api/sse');
     evtSource = es;
-    es.onopen = () => { dot.classList.remove('disconnected'); };
-    es.onerror = () => { dot.classList.add('disconnected'); };
-    es.addEventListener('turno_admision', () => { playNotif(); fetchCola(); });
-    es.addEventListener('turno_atendido', () => { fetchCola(); });
+    es.onopen = function() { dot.classList.remove('disconnected'); };
+    es.onerror = function() { dot.classList.add('disconnected'); };
+    es.addEventListener('turno_admision', function() { playNotif(); fetchCola(); });
+    es.addEventListener('turno_atendido', function() { fetchCola(); });
+    es.addEventListener('orden_resultado', function() { if (activeTab === 'ordenes') loadOrdenes(); });
+    es.addEventListener('interconsulta_respondida', function() { if (activeTab === 'ic') loadInterconsultas(); });
     es.onmessage = function(e) {
-      try { const d = JSON.parse(e.data);
+      try {
+        var d = JSON.parse(e.data);
         if (d.tipo === 'turno_admision') { playNotif(); fetchCola(); }
         else if (d.tipo === 'turno_atendido' || d.tipo === 'turno_devuelto') fetchCola();
+        else if (d.tipo === 'orden_resultado' && activeTab === 'ordenes') loadOrdenes();
+        else if (d.tipo === 'interconsulta_respondida' && activeTab === 'ic') loadInterconsultas();
       } catch(ex) {}
     };
   } catch(e) { dot.classList.add('disconnected'); }
 }
 
-function startPolling() { if (pollTimer) clearInterval(pollTimer); pollTimer = setInterval(fetchCola, 10000); }
+function startPolling() {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(fetchCola, 10000);
+}
 
-// PUBLIC
-window.APP = { callNext, completarAtencion, rellamar, noPresento, switchTab, abrirHC, guardarEvolucion };
+/* ══════════════════════════════════════════
+   PUBLIC API
+   ══════════════════════════════════════════ */
+window.APP = {
+  callNext: callNext,
+  completarAtencion: completarAtencion,
+  rellamar: rellamar,
+  noPresento: noPresento,
+  switchTab: switchTab,
+  abrirHC: abrirHC,
+  guardarEvolucion: guardarEvolucion,
+  crearOrden: crearOrden,
+  verResultados: verResultados,
+  solicitarIC: solicitarIC,
+  agregarRx: agregarRx,
+  eliminarRx: eliminarRx,
+  guardarEgresoDx: guardarEgresoDx,
+  cerrarHC: cerrarHC,
+  imprimir: imprimir
+};
 
-// INIT
+/* ══════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════ */
 (async function() {
-  try { user = await api('GET', '/api/auth/me'); await checkPuesto(); }
-  catch(e) { showScreen('loginScreen'); }
+  try {
+    user = await api('GET', '/api/auth/me');
+    await checkPuesto();
+  } catch(e) {
+    showScreen('loginScreen');
+  }
 })();
 
 })();
