@@ -91,7 +91,11 @@ CREATE TABLE IF NOT EXISTS roles(id {S},nombre TEXT UNIQUE NOT NULL,descripcion 
 CREATE TABLE IF NOT EXISTS usuarios(id {S},usuario TEXT UNIQUE NOT NULL,nombre TEXT,email TEXT,pass_hash TEXT,rol_id INTEGER,rol_nombre TEXT,activo INTEGER DEFAULT 1,ultimo_acceso {T},creado_en {T} {D});
 CREATE TABLE IF NOT EXISTS copago_param(id {S},anio INTEGER,concepto TEXT,rango TEXT,pct REAL DEFAULT 0,valor REAL DEFAULT 0,tope_evento REAL DEFAULT 0,tope_anio REAL DEFAULT 0,fuente TEXT,activo INTEGER DEFAULT 1);
 CREATE TABLE IF NOT EXISTS kiosco_anuncios(id {S},titulo TEXT NOT NULL,descripcion TEXT,media_type TEXT DEFAULT 'none',media_url TEXT,activo INTEGER DEFAULT 1,orden INTEGER DEFAULT 0,creado_en {T} {D});
-CREATE TABLE IF NOT EXISTS kiosco_servicios(id {S},codigo TEXT UNIQUE,nombre TEXT NOT NULL,icono TEXT DEFAULT '●',activo INTEGER DEFAULT 1,orden INTEGER DEFAULT 0,modo TEXT DEFAULT 'general')
+CREATE TABLE IF NOT EXISTS kiosco_servicios(id {S},codigo TEXT UNIQUE,nombre TEXT NOT NULL,icono TEXT DEFAULT '●',activo INTEGER DEFAULT 1,orden INTEGER DEFAULT 0,modo TEXT DEFAULT 'general');
+CREATE TABLE IF NOT EXISTS puestos_atencion(id {S},codigo TEXT UNIQUE NOT NULL,nombre TEXT NOT NULL,tipo TEXT NOT NULL,activo INTEGER DEFAULT 1,modo TEXT DEFAULT 'urgencias',creado_en {T} {D});
+CREATE TABLE IF NOT EXISTS admision_timeline(id {S},admision_id INTEGER NOT NULL,evento TEXT NOT NULL,detalle TEXT,usuario TEXT,puesto TEXT,ts {T} {D});
+CREATE TABLE IF NOT EXISTS historia_clinica_urgencias(id {S},admision_id INTEGER UNIQUE NOT NULL,paciente_id INTEGER NOT NULL,motivo_consulta TEXT,enfermedad_actual TEXT,antecedentes TEXT,examen_fisico TEXT,signos_vitales TEXT,diagnostico_ingreso TEXT,cod_cie10_ingreso TEXT,diagnostico_egreso TEXT,cod_cie10_egreso TEXT,diagnosticos_relacionados TEXT,conducta TEXT,tratamiento TEXT,observaciones TEXT,condicion_salida TEXT,destino_salida TEXT,medico_id INTEGER,medico_nombre TEXT,creado_por TEXT,creado_en {T} {D},actualizado_en {T} {D});
+CREATE TABLE IF NOT EXISTS pagador_validacion(id {S},admision_id INTEGER NOT NULL,tipo_pagador TEXT NOT NULL,entidad_nombre TEXT,entidad_codigo TEXT,regimen TEXT,estado_afiliacion TEXT,fecha_afiliacion TEXT,nivel_sisben TEXT,grupo_ingreso TEXT,numero_poliza TEXT,numero_autorizacion TEXT,placa_vehiculo TEXT,fecha_accidente TEXT,empresa_nombre TEXT,nit_empresa TEXT,copago_aplica INTEGER DEFAULT 0,copago_valor REAL DEFAULT 0,copago_excento INTEGER DEFAULT 0,copago_motivo_exencion TEXT,validado INTEGER DEFAULT 0,validado_por TEXT,validado_en {T},datos_json TEXT DEFAULT '{{}}',creado_en {T} {D})
 """
     for s in tables.strip().split(';'):
         s = s.strip()
@@ -113,6 +117,23 @@ CREATE TABLE IF NOT EXISTS kiosco_servicios(id {S},codigo TEXT UNIQUE,nombre TEX
         "ALTER TABLE admisiones ADD COLUMN triage_enfermera TEXT",
         "ALTER TABLE admisiones ADD COLUMN destino TEXT",
         "ALTER TABLE admisiones ADD COLUMN llamado_count INTEGER DEFAULT 0",
+        "ALTER TABLE admisiones ADD COLUMN puesto_id INTEGER",
+        # Admisiones urgencias extensions
+        "ALTER TABLE admisiones ADD COLUMN tipo_pagador TEXT DEFAULT 'eps_contributivo'",
+        "ALTER TABLE admisiones ADD COLUMN pagador_entidad TEXT",
+        "ALTER TABLE admisiones ADD COLUMN pagador_regimen TEXT",
+        "ALTER TABLE admisiones ADD COLUMN pagador_estado TEXT",
+        "ALTER TABLE admisiones ADD COLUMN pagador_validado INTEGER DEFAULT 0",
+        "ALTER TABLE admisiones ADD COLUMN copago_calculado REAL DEFAULT 0",
+        "ALTER TABLE admisiones ADD COLUMN copago_excento INTEGER DEFAULT 0",
+        "ALTER TABLE admisiones ADD COLUMN copago_motivo_exencion TEXT",
+        "ALTER TABLE admisiones ADD COLUMN hc_abierta INTEGER DEFAULT 0",
+        "ALTER TABLE admisiones ADD COLUMN hc_id INTEGER",
+        "ALTER TABLE admisiones ADD COLUMN admision_completa INTEGER DEFAULT 0",
+        "ALTER TABLE admisiones ADD COLUMN admisionista TEXT",
+        "ALTER TABLE admisiones ADD COLUMN causa_atencion TEXT DEFAULT 'urgencia'",
+        "ALTER TABLE admisiones ADD COLUMN cod_diagnostico_ingreso TEXT",
+        "ALTER TABLE admisiones ADD COLUMN rips_json TEXT DEFAULT '{}'",
     ]:
         try:
             cur.execute(mig)
@@ -172,6 +193,21 @@ CREATE TABLE IF NOT EXISTS kiosco_servicios(id {S},codigo TEXT UNIQUE,nombre TEX
             ('urg', 'Urgencias', '🚨', 1, 6, 'urgencias'),
         ]:
             cur.execute(core.adapt("INSERT INTO kiosco_servicios(codigo,nombre,icono,activo,orden,modo)VALUES(?,?,?,?,?,?)", db), s)
+
+    # Puestos de atención seed
+    cur.execute("SELECT COUNT(*) FROM puestos_atencion")
+    if cur.fetchone()[0] == 0:
+        for pt in [
+            ('T1', 'Triage 1', 'triage', 1, 'urgencias'),
+            ('T2', 'Triage 2', 'triage', 1, 'urgencias'),
+            ('A1', 'Admisiones 1', 'admisiones', 1, 'urgencias'),
+            ('A2', 'Admisiones 2', 'admisiones', 1, 'urgencias'),
+            ('C1', 'Consultorio 1', 'consultorio', 1, 'urgencias'),
+            ('C2', 'Consultorio 2', 'consultorio', 1, 'urgencias'),
+            ('C3', 'Consultorio 3', 'consultorio', 1, 'urgencias'),
+        ]:
+            cur.execute(core.adapt(
+                "INSERT INTO puestos_atencion(codigo,nombre,tipo,activo,modo)VALUES(?,?,?,?,?)", db), pt)
 
     # Kiosco anuncios seed
     cur.execute("SELECT COUNT(*) FROM kiosco_anuncios")
@@ -396,6 +432,22 @@ def kiosco_modo_page(modo):
 def kiosco_tv_modo_page(modo):
     return send_from_directory('static', 'kiosco-tv.html')
 
+@app.route('/atencion/triage')
+def atencion_triage_page():
+    return send_from_directory('static', 'atencion-triage.html')
+
+@app.route('/atencion/admisiones')
+def atencion_admisiones_page():
+    return send_from_directory('static', 'atencion-admisiones.html')
+
+@app.route('/atencion/consulta')
+def atencion_consulta_page():
+    return send_from_directory('static', 'atencion-consulta.html')
+
+@app.route('/admisiones/dashboard')
+def admisiones_dashboard_page():
+    return send_from_directory('static', 'admisiones-dashboard.html')
+
 @app.route('/health')
 def health():
     return jsonify({
@@ -413,6 +465,20 @@ try:
 except Exception as e:
     print(f"⚠ kiosco_engine no disponible: {e}")
 
+try:
+    from atencion_engine import atencion_bp
+    app.register_blueprint(atencion_bp)
+    print("🩺 Módulo Atención registrado en /api/atencion")
+except Exception as e:
+    print(f"⚠ atencion_engine no disponible: {e}")
+
+try:
+    from admisiones_engine import admisiones_bp
+    app.register_blueprint(admisiones_bp)
+    print("📋 Módulo Admisiones registrado en /api/admisiones")
+except Exception as e:
+    print(f"⚠ admisiones_engine no disponible: {e}")
+
 # ── INIT ──────────────────────────────────────────────────────────────────────
 
 init_db()
@@ -423,5 +489,6 @@ if __name__ == '__main__':
         host='0.0.0.0',
         port=int(os.getenv('PORT', 5050)),
         debug=os.getenv('FLASK_ENV') != 'production',
+        use_reloader=os.getenv('NO_RELOAD') != '1',
         threaded=True,
     )

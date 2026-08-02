@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admisiones Urgencias - Arthemis Health</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary: #5147C4;
+  --primary-light: #6E65D4;
+  --primary-dark: #3F37A0;
+  --bg: #FAF8F4;
+  --dark: #1C1916;
+  --dark-light: #3D3833;
+  --border: #E5E1DA;
+  --card-bg: #FFFFFF;
+  --triage-i: #DC2626;
+  --triage-ii: #EA580C;
+  --triage-iii: #D97706;
+  --triage-iv: #16A34A;
+  --triage-v: #2563EB;
+  --green: #16A34A;
+  --red: #DC2626;
+  --amber: #D97706;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--dark);
+  min-height: 100vh;
+}
+
+/* ── LOGIN ─────────────────────────────────────────────────── */
+.login-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--bg) 0%, #EDE9FF 100%);
+}
+
+.login-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 4px 24px rgba(28,25,22,0.08);
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.login-logo .logo-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--primary);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-logo .logo-icon svg { width: 26px; height: 26px; }
+.login-logo span { font-size: 22px; font-weight: 700; color: var(--dark); }
+
+.login-card h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--dark-light);
+  margin: 20px 0 28px;
+}
+
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: var(--dark-light); }
+
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  background: var(--bg);
+}
+
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(81,71,196,0.12);
+}
+
+.form-group textarea { resize: vertical; min-height: 80px; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-light); }
+
+.btn-success { background: var(--green); color: #fff; }
+.btn-success:hover:not(:disabled) { background: #15803D; }
+
+.btn-outline {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  color: var(--dark);
+}
+.btn-outline:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+
+.btn-danger-outline {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  color: var(--dark);
+}
+.btn-danger-outline:hover:not(:disabled) { border-color: var(--red); color: var(--red); }
+
+.btn-full { width: 100%; padding: 14px; font-size: 16px; }
+
+.login-error {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: var(--red);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  display: none;
+}
+
+/* ── PUESTO SELECTION ──────────────────────────────────────── */
+.puesto-screen {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--bg) 0%, #EDE9FF 100%);
+}
+
+.puesto-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 24px rgba(28,25,22,0.08);
+}
+
+.puesto-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.puesto-card p { font-size: 14px; color: var(--dark-light); margin-bottom: 24px; }
+
+.puesto-list { display: flex; flex-direction: column; gap: 10px; }
+
+.puesto-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.puesto-item:hover { border-color: var(--primary); background: #F3F1FF; }
+.puesto-item .puesto-name { font-weight: 600; font-size: 15px; }
+.puesto-item .puesto-arrow { color: var(--primary); font-size: 18px; }
+
+/* ── MAIN VIEW ─────────────────────────────────────────────── */
+.main-screen { display: none; min-height: 100vh; flex-direction: column; }
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 56px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.header-left { display: flex; align-items: center; gap: 10px; }
+
+.header-left .logo-sm {
+  width: 32px;
+  height: 32px;
+  background: var(--primary);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-left .logo-sm svg { width: 18px; height: 18px; }
+.header-left span { font-weight: 700; font-size: 15px; }
+
+.header-center { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; }
+
+.status-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.status-dot.disconnected { background: var(--red); }
+
+.header-right { display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--dark-light); }
+.header-right .user-name { font-weight: 500; }
+.clock { font-variant-numeric: tabular-nums; font-weight: 500; color: var(--dark-light); }
+
+.btn-logout {
+  padding: 5px 12px;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--dark-light);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+/* ── CONTENT SPLIT ─────────────────────────────────────────── */
+.content { display: flex; flex: 1; overflow: hidden; }
+
+/* Queue panel */
+.queue-panel {
+  width: 320px;
+  min-width: 280px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg);
+}
+
+.panel-header {
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-header h3 { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+
+.queue-count {
+  background: var(--primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.queue-list { flex: 1; overflow-y: auto; padding: 10px 12px; }
+
+.queue-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100%;
+  color: var(--dark-light);
+  font-size: 13px;
+  gap: 8px;
+  opacity: 0.6;
+}
+
+.queue-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 6px;
+  cursor: default;
+  transition: border-color 0.2s;
+}
+
+.queue-card:hover { border-color: var(--primary-light); }
+
+.triage-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.triage-I { background: var(--triage-i); }
+.triage-II { background: var(--triage-ii); }
+.triage-III { background: var(--triage-iii); }
+.triage-IV { background: var(--triage-iv); }
+.triage-V { background: var(--triage-v); }
+
+.queue-card-info { flex: 1; min-width: 0; }
+.queue-card-info .turno { font-size: 12px; font-weight: 700; color: var(--primary); }
+.queue-card-info .nombre { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.queue-card-time { font-size: 12px; font-weight: 600; color: var(--dark-light); white-space: nowrap; }
+
+/* ── WORKSPACE ─────────────────────────────────────────────── */
+.workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* Empty state */
+.ws-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ws-empty p { font-size: 15px; color: var(--dark-light); }
+
+.btn-siguiente {
+  padding: 18px 44px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 4px 16px rgba(81,71,196,0.25);
+}
+
+.btn-siguiente:hover { background: var(--primary-light); transform: translateY(-1px); }
+.btn-siguiente:active { transform: scale(0.97); }
+.btn-siguiente:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* Workspace with patient */
+.ws-content { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+
+/* Workspace header bar */
+.ws-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.ws-patient-info { display: flex; align-items: center; gap: 14px; }
+
+.ws-turno { font-size: 20px; font-weight: 800; color: var(--primary); }
+.ws-nombre { font-size: 16px; font-weight: 600; }
+
+.ws-triage-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.ws-actions { display: flex; gap: 10px; }
+
+/* Tab bar */
+.tab-bar {
+  display: flex;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  flex-shrink: 0;
+}
+
+.tab-btn {
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--dark-light);
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  position: relative;
+}
+
+.tab-btn:hover { color: var(--dark); }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+.tab-btn .tab-check {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 10px;
+  line-height: 16px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.tab-check.done { background: var(--green); color: #fff; }
+.tab-check.pending { background: var(--border); color: var(--dark-light); }
+
+/* Tab content */
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* Form sections inside tabs */
+.section {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.section h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-subtitle {
+  font-size: 12px;
+  color: var(--dark-light);
+  margin-bottom: 14px;
+}
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.form-row .full { grid-column: 1 / -1; }
+
+.form-group-sm { margin-bottom: 14px; }
+.form-group-sm label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 4px; color: var(--dark-light); }
+
+.form-group-sm input, .form-group-sm select, .form-group-sm textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--bg);
+}
+
+.form-group-sm input:focus, .form-group-sm select:focus, .form-group-sm textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(81,71,196,0.10);
+}
+
+.form-group-sm textarea { resize: vertical; min-height: 60px; }
+
+/* Info display fields */
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.info-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.info-label { font-size: 11px; color: var(--dark-light); font-weight: 500; margin-bottom: 2px; }
+.info-value { font-size: 14px; font-weight: 500; }
+
+/* Pagador type cards */
+.pagador-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.pagador-card {
+  padding: 14px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: var(--card-bg);
+}
+
+.pagador-card:hover { border-color: var(--primary-light); background: #F3F1FF; }
+.pagador-card.selected { border-color: var(--primary); background: #F3F1FF; }
+
+.pagador-card .pagador-icon { font-size: 24px; margin-bottom: 6px; }
+.pagador-card .pagador-label { font-size: 12px; font-weight: 600; }
+
+/* Copago result */
+.copago-result {
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin-top: 16px;
+}
+
+.copago-result.excento { background: #F0FDF4; border: 1px solid #BBF7D0; }
+.copago-result.aplica { background: #FEF9C3; border: 1px solid #FDE68A; }
+
+.copago-label { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.copago-valor { font-size: 20px; font-weight: 800; }
+.copago-motivo { font-size: 12px; color: var(--dark-light); margin-top: 4px; }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 24px; }
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: var(--border);
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 18px;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--card-bg);
+}
+
+.timeline-item .tl-time {
+  font-size: 11px;
+  color: var(--dark-light);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.timeline-item .tl-evento {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.timeline-item .tl-detalle {
+  font-size: 12px;
+  color: var(--dark-light);
+  margin-top: 2px;
+}
+
+.timeline-item .tl-usuario {
+  font-size: 11px;
+  color: var(--primary);
+  margin-top: 2px;
+}
+
+/* Search result card */
+.search-result {
+  padding: 16px;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.search-not-found {
+  padding: 16px;
+  background: #FEF9C3;
+  border: 1px solid #FDE68A;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 14px 20px;
+  background: var(--dark);
+  color: #fff;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  transform: translateY(80px);
+  opacity: 0;
+  transition: transform 0.3s, opacity 0.3s;
+  z-index: 100;
+  max-width: 400px;
+}
+
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.error { background: var(--red); }
+
+/* Spinner */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.spinner-dark {
+  border-color: rgba(81,71,196,0.2);
+  border-top-color: var(--primary);
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Bottom action bar */
+.ws-bottom-bar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: var(--card-bg);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.ws-bottom-bar .progress-pills { display: flex; gap: 8px; align-items: center; }
+
+.progress-pill {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.progress-pill.done { background: #DCFCE7; color: #166534; }
+.progress-pill.pending { background: #F3F4F6; color: #6B7280; }
+.progress-pill.current { background: #EDE9FE; color: var(--primary); }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .content { flex-direction: column; }
+  .queue-panel { width: 100%; max-height: 35vh; min-width: unset; border-right: none; border-bottom: 1px solid var(--border); }
+  .pagador-grid { grid-template-columns: repeat(2, 1fr); }
+  .header-left span { display: none; }
+}
+
+@media (max-width: 500px) {
+  .login-card, .puesto-card { margin: 16px; padding: 32px 24px; }
+  .tab-content { padding: 16px; }
+  .ws-header { padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
+  .form-row { grid-template-columns: 1fr; }
+  .form-row-3 { grid-template-columns: 1fr; }
+  .pagador-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </div>
+      <span>Arthemis Health</span>
+    </div>
+    <h2>Admisiones Urgencias</h2>
+    <div class="login-error" id="loginError"></div>
+    <form id="loginForm" autocomplete="off">
+      <div class="form-group">
+        <label for="usuario">Usuario</label>
+        <input type="text" id="usuario" name="usuario" required placeholder="Ingrese su usuario" autofocus>
+      </div>
+      <div class="form-group">
+        <label for="password">Contrasena</label>
+        <input type="password" id="password" name="password" required placeholder="Ingrese su contrasena">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="loginBtn">Ingresar</button>
+    </form>
+  </div>
+</div>
+
+<!-- PUESTO SELECTION -->
+<div class="puesto-screen" id="puestoScreen">
+  <div class="puesto-card">
+    <div class="login-logo" style="margin-bottom:0;">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </div>
+      <span>Arthemis Health</span>
+    </div>
+    <h2>Seleccione su puesto de trabajo</h2>
+    <p>Elija el puesto de admisiones desde el cual atendera hoy.</p>
+    <div class="puesto-list" id="puestoList">
+      <div class="queue-empty"><span class="spinner spinner-dark" style="width:28px;height:28px;"></span><span>Cargando...</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN SCREEN -->
+<div class="main-screen" id="mainScreen">
+  <div class="header">
+    <div class="header-left">
+      <div class="logo-sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </div>
+      <span>Arthemis Health</span>
+    </div>
+    <div class="header-center">
+      <div class="status-dot" id="statusDot" title="Conexion SSE"></div>
+      <span id="puestoNombre">Admisiones</span>
+    </div>
+    <div class="header-right">
+      <span class="user-name" id="userName"></span>
+      <span class="clock" id="clock"></span>
+      <button class="btn-logout" id="logoutBtn">Salir</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Queue Panel -->
+    <div class="queue-panel">
+      <div class="panel-header">
+        <h3>Cola triaje <span class="queue-count" id="queueCount">0</span></h3>
+      </div>
+      <div class="queue-list" id="queueList">
+        <div class="queue-empty" id="queueEmpty">
+          <span>No hay pacientes en espera</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="workspace">
+      <!-- Empty state -->
+      <div class="ws-empty" id="wsEmpty">
+        <p>No hay paciente en atencion</p>
+        <button class="btn-siguiente" id="btnSiguiente" onclick="llamarSiguiente()">Siguiente</button>
+      </div>
+
+      <!-- Content with patient -->
+      <div class="ws-content" id="wsContent">
+        <!-- Workspace header -->
+        <div class="ws-header">
+          <div class="ws-patient-info">
+            <div class="ws-triage-badge" id="wsBadge"></div>
+            <div>
+              <div class="ws-turno" id="wsTurno"></div>
+              <div class="ws-nombre" id="wsNombre"></div>
+            </div>
+          </div>
+          <div class="ws-actions">
+            <button class="btn btn-outline" onclick="rellamarPaciente()">Re-llamar</button>
+            <button class="btn btn-danger-outline" onclick="devolverPaciente()">No se presento</button>
+          </div>
+        </div>
+
+        <!-- Tab bar -->
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="paciente" onclick="switchTab('paciente')">
+            Paciente <span class="tab-check pending" id="checkPaciente">1</span>
+          </button>
+          <button class="tab-btn" data-tab="aseguramiento" onclick="switchTab('aseguramiento')">
+            Aseguramiento <span class="tab-check pending" id="checkAseg">2</span>
+          </button>
+          <button class="tab-btn" data-tab="clinico" onclick="switchTab('clinico')">
+            Clinico <span class="tab-check pending" id="checkClinico">3</span>
+          </button>
+          <button class="tab-btn" data-tab="timeline" onclick="switchTab('timeline')">
+            Timeline
+          </button>
+        </div>
+
+        <!-- Tab content -->
+        <div class="tab-content">
+          <!-- TAB 1: PACIENTE -->
+          <div class="tab-pane active" id="tabPaciente">
+            <div class="section">
+              <h4>Buscar paciente</h4>
+              <div class="form-row">
+                <div class="form-group-sm">
+                  <label>Tipo documento</label>
+                  <select id="buscarTipoDoc">
+                    <option value="CC">CC - Cedula</option>
+                    <option value="TI">TI - Tarjeta de identidad</option>
+                    <option value="CE">CE - Cedula extranjeria</option>
+                    <option value="PA">PA - Pasaporte</option>
+                    <option value="RC">RC - Registro civil</option>
+                    <option value="MS">MS - Menor sin identificar</option>
+                    <option value="AS">AS - Adulto sin identificar</option>
+                  </select>
+                </div>
+                <div class="form-group-sm">
+                  <label>Numero de documento</label>
+                  <div style="display:flex;gap:8px;">
+                    <input type="text" id="buscarNumDoc" placeholder="Ej: 1023456789" style="flex:1;">
+                    <button class="btn btn-primary" onclick="buscarPaciente()" style="padding:9px 16px;font-size:13px;">Buscar</button>
+                  </div>
+                </div>
+              </div>
+              <div id="searchResult"></div>
+            </div>
+
+            <div class="section" id="pacienteForm" style="display:none;">
+              <h4 id="pacienteFormTitle">Datos del paciente</h4>
+              <div class="form-row">
+                <div class="form-group-sm">
+                  <label>Nombres *</label>
+                  <input type="text" id="pNombres">
+                </div>
+                <div class="form-group-sm">
+                  <label>Apellidos *</label>
+                  <input type="text" id="pApellidos">
+                </div>
+              </div>
+              <div class="form-row-3">
+                <div class="form-group-sm">
+                  <label>Fecha nacimiento</label>
+                  <input type="date" id="pFechaNac">
+                </div>
+                <div class="form-group-sm">
+                  <label>Genero</label>
+                  <select id="pGenero">
+                    <option value="">Seleccione</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                    <option value="I">Indeterminado</option>
+                  </select>
+                </div>
+                <div class="form-group-sm">
+                  <label>Celular</label>
+                  <input type="tel" id="pCelular">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group-sm">
+                  <label>Direccion</label>
+                  <input type="text" id="pDireccion">
+                </div>
+                <div class="form-group-sm">
+                  <label>Ciudad</label>
+                  <input type="text" id="pCiudad" value="Bogota">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group-sm">
+                  <label>Email</label>
+                  <input type="email" id="pEmail">
+                </div>
+                <div class="form-group-sm">
+                  <label>Telefono fijo</label>
+                  <input type="tel" id="pTelefono">
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:8px;">
+                <button class="btn btn-success" id="btnGuardarPaciente" onclick="guardarPaciente()">Guardar y vincular</button>
+                <button class="btn btn-primary" id="btnVincularExistente" onclick="vincularPaciente()" style="display:none;">Vincular a esta admision</button>
+              </div>
+            </div>
+
+            <div class="section" id="pacienteInfo" style="display:none;">
+              <h4>Paciente vinculado</h4>
+              <div class="info-grid" id="pacienteInfoGrid"></div>
+            </div>
+          </div>
+
+          <!-- TAB 2: ASEGURAMIENTO -->
+          <div class="tab-pane" id="tabAseguramiento">
+            <div class="section">
+              <h4>Tipo de pagador</h4>
+              <p class="section-subtitle">Seleccione el responsable del pago de la atencion</p>
+              <div class="pagador-grid" id="pagadorGrid">
+                <div class="pagador-card" data-tipo="eps_contributivo" onclick="selectPagador('eps_contributivo')">
+                  <div class="pagador-icon">EPS</div>
+                  <div class="pagador-label">EPS Contributivo</div>
+                </div>
+                <div class="pagador-card" data-tipo="eps_subsidiado" onclick="selectPagador('eps_subsidiado')">
+                  <div class="pagador-icon">EPS-S</div>
+                  <div class="pagador-label">EPS Subsidiado</div>
+                </div>
+                <div class="pagador-card" data-tipo="arl" onclick="selectPagador('arl')">
+                  <div class="pagador-icon">ARL</div>
+                  <div class="pagador-label">ARL</div>
+                </div>
+                <div class="pagador-card" data-tipo="soat" onclick="selectPagador('soat')">
+                  <div class="pagador-icon">SOAT</div>
+                  <div class="pagador-label">SOAT</div>
+                </div>
+                <div class="pagador-card" data-tipo="poliza" onclick="selectPagador('poliza')">
+                  <div class="pagador-icon">POL</div>
+                  <div class="pagador-label">Poliza de Salud</div>
+                </div>
+                <div class="pagador-card" data-tipo="particular" onclick="selectPagador('particular')">
+                  <div class="pagador-icon">$</div>
+                  <div class="pagador-label">Particular</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic payer form -->
+            <div class="section" id="pagadorForm" style="display:none;">
+              <h4 id="pagadorFormTitle">Datos del pagador</h4>
+              <div id="pagadorFields"></div>
+              <button class="btn btn-success" onclick="validarPagador()" id="btnValidarPagador" style="margin-top:12px;">Validar y guardar</button>
+            </div>
+
+            <!-- Copago result -->
+            <div id="copagoResult" style="display:none;"></div>
+
+            <!-- Pagador validated info -->
+            <div class="section" id="pagadorInfo" style="display:none;">
+              <h4>Pagador validado</h4>
+              <div id="pagadorInfoContent"></div>
+            </div>
+          </div>
+
+          <!-- TAB 3: CLINICO -->
+          <div class="tab-pane" id="tabClinico">
+            <div class="section">
+              <h4>Historia clinica de urgencias</h4>
+              <p class="section-subtitle">Apertura de HC para esta atencion de urgencias</p>
+              <div class="form-row">
+                <div class="form-group-sm">
+                  <label>Causa de atencion (RIPS)</label>
+                  <select id="hcCausa">
+                    <option value="urgencia">Urgencia</option>
+                    <option value="accidente_trabajo">Accidente de trabajo</option>
+                    <option value="accidente_transito">Accidente de transito</option>
+                    <option value="evento_catastrofico">Evento catastrofico</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+                <div class="form-group-sm">
+                  <label>Cod. diagnostico ingreso (CIE-10)</label>
+                  <input type="text" id="hcCie10" placeholder="Ej: R51 (Cefalea)">
+                </div>
+              </div>
+              <div class="form-group-sm">
+                <label>Motivo de consulta</label>
+                <textarea id="hcMotivo" placeholder="Describa el motivo principal de consulta del paciente..."></textarea>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:8px;">
+                <button class="btn btn-success" id="btnAbrirHC" onclick="abrirHC()">Abrir historia clinica</button>
+              </div>
+            </div>
+
+            <div class="section" id="hcInfo" style="display:none;">
+              <h4>HC abierta</h4>
+              <div id="hcInfoContent"></div>
+            </div>
+          </div>
+
+          <!-- TAB 4: TIMELINE -->
+          <div class="tab-pane" id="tabTimeline">
+            <div class="section">
+              <h4>Linea de tiempo</h4>
+              <p class="section-subtitle">Registro minuto a minuto de esta admision</p>
+              <div class="timeline" id="timelineList">
+                <div class="queue-empty" style="height:auto;padding:30px;"><span>Cargando timeline...</span></div>
+              </div>
+            </div>
+            <div class="section">
+              <h4>Agregar nota</h4>
+              <div class="form-group-sm">
+                <label>Evento</label>
+                <input type="text" id="tlEvento" placeholder="Tipo de evento (ej: observacion, procedimiento)">
+              </div>
+              <div class="form-group-sm">
+                <label>Detalle</label>
+                <textarea id="tlDetalle" placeholder="Descripcion del evento..."></textarea>
+              </div>
+              <button class="btn btn-primary" onclick="agregarTimeline()" style="margin-top:8px;">Agregar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom action bar -->
+        <div class="ws-bottom-bar" id="wsBottomBar">
+          <div class="progress-pills">
+            <span class="progress-pill pending" id="pillPaciente">Paciente</span>
+            <span class="progress-pill pending" id="pillAseg">Aseguramiento</span>
+            <span class="progress-pill pending" id="pillClinico">Clinico</span>
+          </div>
+          <button class="btn btn-success" id="btnCompletarAdmision" onclick="completarAdmision()" disabled>
+            Completar admision
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── State ──
+  let user = null;
+  let puestoActual = null;
+  let pacienteActual = null;   // currently called patient (from cola)
+  let pacienteVinculado = null; // linked patient record
+  let pagadorTipo = null;
+  let pagadorValidado = false;
+  let hcAbierta = false;
+  let hcId = null;
+  let eventSource = null;
+  let pollingInterval = null;
+  let sseConnected = false;
+
+  const TRIAGE_LABELS = {'I':'Resucitacion','II':'Emergencia','III':'Urgencia','IV':'Prioritaria','V':'No urgente'};
+  const TRIAGE_ORDER = {'I':0,'II':1,'III':2,'IV':3,'V':4};
+
+  // ── Sound ──
+  let audioCtx = null;
+  function playNotif() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.type='sine'; o.frequency.setValueAtTime(880,audioCtx.currentTime);
+      o.frequency.setValueAtTime(1100,audioCtx.currentTime+0.1);
+      g.gain.setValueAtTime(0.3,audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.4);
+      o.start(audioCtx.currentTime); o.stop(audioCtx.currentTime+0.4);
+    } catch(e){}
+  }
+
+  // ── Helpers ──
+  function showScreen(id) {
+    ['loginScreen','puestoScreen','mainScreen'].forEach(s =>
+      document.getElementById(s).style.display = 'none');
+    document.getElementById(id).style.display = id==='mainScreen'?'flex':'flex';
+  }
+
+  function showToast(msg, isErr) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isErr?' error':'');
+    setTimeout(() => { t.className='toast'; }, 3500);
+  }
+
+  async function api(method, path, body) {
+    const opts = { method, headers: {'Content-Type':'application/json'}, credentials: 'include' };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(path, opts);
+    if (res.status === 401) { logout(); throw new Error('Sesion expirada'); }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error||data.message||'Error');
+    return data;
+  }
+
+  function minutesSince(ts) {
+    if (!ts) return '--';
+    const diff = Math.floor((Date.now()-new Date(ts).getTime())/60000);
+    return diff < 1 ? '<1m' : diff+'m';
+  }
+
+  function fmtTime(ts) {
+    if (!ts) return '--';
+    try {
+      const d = new Date(ts);
+      return d.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    } catch(e) { return ts; }
+  }
+
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  // ── Login ──
+  document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    const err = document.getElementById('loginError');
+    const u = document.getElementById('usuario').value.trim();
+    const p = document.getElementById('password').value;
+    if (!u||!p) return;
+
+    btn.disabled = true; btn.innerHTML='<span class="spinner"></span>'; err.style.display='none';
+    try {
+      const data = await api('POST','/api/auth/login',{usuario:u,password:p});
+      user = data;
+      await checkPuesto();
+    } catch(ex) {
+      err.textContent = ex.message; err.style.display='block';
+    } finally {
+      btn.disabled=false; btn.textContent='Ingresar';
+    }
+  });
+
+  async function checkAuth() {
+    try {
+      const data = await api('GET','/api/auth/me');
+      if (data.autenticado) { user=data; await checkPuesto(); }
+      else showScreen('loginScreen');
+    } catch(e) { showScreen('loginScreen'); }
+  }
+
+  // ── Puesto ──
+  async function checkPuesto() {
+    try {
+      const data = await api('GET','/api/atencion/mi-puesto');
+      if (data && data.puesto) { puestoActual=data.puesto; enterMain(); }
+      else await loadPuestos();
+    } catch(e) { await loadPuestos(); }
+  }
+
+  async function loadPuestos() {
+    showScreen('puestoScreen');
+    const list = document.getElementById('puestoList');
+    try {
+      const data = await api('GET','/api/atencion/puestos?tipo=admisiones&activo=1');
+      const ps = data.puestos||[];
+      if (!ps.length) { list.innerHTML='<div class="queue-empty"><span>No hay puestos disponibles</span></div>'; return; }
+      list.innerHTML = ps.map(p =>
+        `<div class="puesto-item" onclick="seleccionarPuesto(${p.id},'${(p.nombre||'').replace(/'/g,"\\'")}')">
+          <span class="puesto-name">${p.nombre}</span><span class="puesto-arrow">&rarr;</span></div>`
+      ).join('');
+    } catch(e) { list.innerHTML='<div class="queue-empty"><span>Error al cargar puestos</span></div>'; }
+  }
+
+  window.seleccionarPuesto = async function(id, nombre) {
+    try {
+      const data = await api('POST','/api/atencion/seleccionar-puesto',{puesto_id:id});
+      puestoActual = data.puesto||{id,nombre};
+      enterMain();
+    } catch(e) { showToast(e.message,true); }
+  };
+
+  // ── Main ──
+  function enterMain() {
+    showScreen('mainScreen');
+    document.getElementById('puestoNombre').textContent = puestoActual.nombre||'Admisiones';
+    document.getElementById('userName').textContent = user?(user.nombre||user.usuario||''):'';
+    updateClock(); setInterval(updateClock,15000);
+    loadCola();
+    startSSE();
+    startPolling();
+  }
+
+  // ── Queue ──
+  let lastQueueLen = -1;
+
+  async function loadCola() {
+    try {
+      const data = await api('GET','/api/atencion/cola');
+      const cola = data.cola||[];
+      const actual = data.actual||null;
+
+      cola.sort((a,b) => {
+        const pa = a.prioritario?0:1, pb = b.prioritario?0:1;
+        if (pa!==pb) return pa-pb;
+        const ta = TRIAGE_ORDER[a.triage_nivel]??5, tb = TRIAGE_ORDER[b.triage_nivel]??5;
+        if (ta!==tb) return ta-tb;
+        return (a.creado_en||'').localeCompare(b.creado_en||'');
+      });
+
+      renderQueue(cola);
+
+      if (cola.length > lastQueueLen && lastQueueLen >= 0) playNotif();
+      lastQueueLen = cola.length;
+
+      if (actual && !pacienteActual) showPaciente(actual);
+      else if (actual) { /* keep current */ }
+      else if (!actual && pacienteActual) { /* patient was moved, clear */ clearPaciente(); }
+    } catch(e) {}
+  }
+
+  function renderQueue(cola) {
+    const list = document.getElementById('queueList');
+    const count = document.getElementById('queueCount');
+    count.textContent = cola.length;
+
+    if (!cola.length) {
+      list.innerHTML = '<div class="queue-empty"><span>No hay pacientes en espera</span></div>';
+      return;
+    }
+
+    list.innerHTML = cola.map(p => `
+      <div class="queue-card">
+        <div class="triage-badge triage-${p.triage_nivel||'V'}">${p.triage_nivel||'?'}</div>
+        <div class="queue-card-info">
+          <div class="turno">${p.turno||''}</div>
+          <div class="nombre">${p.nombre||''}</div>
+        </div>
+        <div class="queue-card-time">${minutesSince(p.triage_ts||p.creado_en)}</div>
+      </div>
+    `).join('');
+  }
+
+  // ── Show patient ──
+  function showPaciente(p) {
+    pacienteActual = p;
+    pacienteVinculado = null;
+    pagadorTipo = null;
+    pagadorValidado = false;
+    hcAbierta = false;
+    hcId = null;
+
+    document.getElementById('wsEmpty').style.display = 'none';
+    document.getElementById('wsContent').style.display = 'flex';
+    document.getElementById('wsBottomBar').style.display = 'flex';
+
+    // Header
+    const nivel = p.triage_nivel||'V';
+    const badge = document.getElementById('wsBadge');
+    badge.textContent = nivel;
+    badge.className = 'ws-triage-badge triage-'+nivel;
+    document.getElementById('wsTurno').textContent = p.turno||'';
+    document.getElementById('wsNombre').textContent = p.nombre||'';
+
+    // Reset tabs
+    switchTab('paciente');
+    resetAdmisionState();
+
+    // Pre-fill search with doc if available
+    if (p.doc_num) {
+      document.getElementById('buscarNumDoc').value = p.doc_num;
+      buscarPaciente();
+    }
+
+    // Load existing admission detail
+    loadAdmisionDetalle(p.id);
+  }
+
+  function clearPaciente() {
+    pacienteActual = null;
+    pacienteVinculado = null;
+    pagadorTipo = null;
+    pagadorValidado = false;
+    hcAbierta = false;
+    hcId = null;
+
+    document.getElementById('wsEmpty').style.display = 'flex';
+    document.getElementById('wsContent').style.display = 'none';
+    document.getElementById('wsBottomBar').style.display = 'none';
+  }
+
+  function resetAdmisionState() {
+    // Reset forms
+    document.getElementById('searchResult').innerHTML = '';
+    document.getElementById('pacienteForm').style.display = 'none';
+    document.getElementById('pacienteInfo').style.display = 'none';
+    document.getElementById('pagadorForm').style.display = 'none';
+    document.getElementById('copagoResult').style.display = 'none';
+    document.getElementById('pagadorInfo').style.display = 'none';
+    document.getElementById('hcInfo').style.display = 'none';
+
+    // Reset pagador selection
+    document.querySelectorAll('.pagador-card').forEach(c => c.classList.remove('selected'));
+
+    // Reset pills
+    updateProgressPills();
+
+    // Reset HC form
+    document.getElementById('hcMotivo').value = '';
+    document.getElementById('hcCie10').value = '';
+    document.getElementById('hcCausa').value = 'urgencia';
+    document.getElementById('btnAbrirHC').disabled = false;
+    document.getElementById('btnAbrirHC').textContent = 'Abrir historia clinica';
+  }
+
+  async function loadAdmisionDetalle(admId) {
+    try {
+      const data = await api('GET','/api/admisiones/detalle/'+admId);
+      const adm = data.admision;
+
+      // Check if patient is already linked
+      if (adm && adm.paciente_id) {
+        pacienteVinculado = {
+          id: adm.paciente_id,
+          nombres: adm.nombres, apellidos: adm.apellidos,
+          tipo_doc: adm.p_tipo_doc, num_doc: adm.p_num_doc,
+          fecha_nacimiento: adm.fecha_nacimiento, genero: adm.genero,
+          celular: adm.p_celular, telefono: adm.p_telefono,
+          email: adm.p_email, direccion: adm.p_direccion,
+          ciudad: adm.p_ciudad, eps: adm.p_eps,
+          tipo_afiliado: adm.p_tipo_afiliado,
+        };
+        showPacienteInfo(pacienteVinculado);
+      }
+
+      // Check pagador
+      if (data.pagador && data.pagador.validado) {
+        pagadorValidado = true;
+        pagadorTipo = data.pagador.tipo_pagador;
+        showPagadorInfo(data.pagador, adm);
+      }
+
+      // Check HC
+      if (data.hc) {
+        hcAbierta = true;
+        hcId = data.hc.id;
+        showHCInfo(data.hc);
+      }
+
+      // Load timeline
+      if (data.timeline) renderTimeline(data.timeline);
+
+      updateProgressPills();
+    } catch(e) {}
+  }
+
+  // ── Tab switching ──
+  window.switchTab = function(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('active');
+    document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('active');
+
+    if (tab === 'timeline' && pacienteActual) loadTimeline();
+  };
+
+  // ── Progress pills ──
+  function updateProgressPills() {
+    const done = 'progress-pill done';
+    const pending = 'progress-pill pending';
+    const current = 'progress-pill current';
+
+    document.getElementById('pillPaciente').className = pacienteVinculado ? done : current;
+    document.getElementById('pillAseg').className = pagadorValidado ? done : (pacienteVinculado ? current : pending);
+    document.getElementById('pillClinico').className = hcAbierta ? done : (pagadorValidado ? current : pending);
+
+    // Tab checks
+    document.getElementById('checkPaciente').className = 'tab-check '+(pacienteVinculado?'done':'pending');
+    document.getElementById('checkPaciente').textContent = pacienteVinculado?'':'1';
+    document.getElementById('checkAseg').className = 'tab-check '+(pagadorValidado?'done':'pending');
+    document.getElementById('checkAseg').textContent = pagadorValidado?'':'2';
+    document.getElementById('checkClinico').className = 'tab-check '+(hcAbierta?'done':'pending');
+    document.getElementById('checkClinico').textContent = hcAbierta?'':'3';
+
+    // Complete button
+    const btn = document.getElementById('btnCompletarAdmision');
+    btn.disabled = !(pacienteVinculado && pagadorValidado);
+  }
+
+  // ── TAB 1: Paciente ──
+  window.buscarPaciente = async function() {
+    const numDoc = document.getElementById('buscarNumDoc').value.trim();
+    if (!numDoc) return;
+
+    const res = document.getElementById('searchResult');
+    res.innerHTML = '<div style="padding:12px;text-align:center;"><span class="spinner spinner-dark"></span></div>';
+
+    try {
+      const data = await api('GET','/api/admisiones/buscar-paciente?num_doc='+encodeURIComponent(numDoc));
+      if (data.encontrado && data.paciente) {
+        const p = data.paciente;
+        res.innerHTML = `
+          <div class="search-result">
+            <div style="font-weight:700;font-size:15px;margin-bottom:6px;">${p.nombres} ${p.apellidos}</div>
+            <div class="info-grid" style="margin-bottom:12px;">
+              <div><span class="info-label">Documento</span><div class="info-value">${p.tipo_doc||'CC'} ${p.num_doc}</div></div>
+              <div><span class="info-label">EPS</span><div class="info-value">${p.eps||'--'}</div></div>
+              <div><span class="info-label">Celular</span><div class="info-value">${p.celular||'--'}</div></div>
+              <div><span class="info-label">Genero</span><div class="info-value">${p.genero||'--'}</div></div>
+            </div>
+            <button class="btn btn-primary" onclick="vincularExistente(${p.id})">Vincular a esta admision</button>
+          </div>`;
+        // Also show form pre-filled for editing
+        fillPacienteForm(p);
+        document.getElementById('pacienteForm').style.display = 'block';
+        document.getElementById('btnGuardarPaciente').style.display = 'none';
+        document.getElementById('btnVincularExistente').style.display = 'inline-flex';
+        document.getElementById('pacienteFormTitle').textContent = 'Datos del paciente (verificar)';
+      } else {
+        res.innerHTML = `
+          <div class="search-not-found">
+            <div style="font-weight:600;margin-bottom:4px;">Paciente no encontrado</div>
+            <div style="font-size:13px;color:var(--dark-light);">Complete el formulario para crear un nuevo registro.</div>
+          </div>`;
+        // Show empty form for new patient
+        clearPacienteForm();
+        document.getElementById('buscarNumDoc').value && (document.getElementById('pNombres').value = '');
+        document.getElementById('pacienteForm').style.display = 'block';
+        document.getElementById('btnGuardarPaciente').style.display = 'inline-flex';
+        document.getElementById('btnGuardarPaciente').textContent = 'Crear paciente y vincular';
+        document.getElementById('btnVincularExistente').style.display = 'none';
+        document.getElementById('pacienteFormTitle').textContent = 'Nuevo paciente';
+      }
+    } catch(e) {
+      res.innerHTML = '<div class="search-not-found">Error al buscar: '+e.message+'</div>';
+    }
+  };
+
+  function fillPacienteForm(p) {
+    document.getElementById('pNombres').value = p.nombres||'';
+    document.getElementById('pApellidos').value = p.apellidos||'';
+    document.getElementById('pFechaNac').value = p.fecha_nacimiento||'';
+    document.getElementById('pGenero').value = p.genero||'';
+    document.getElementById('pCelular').value = p.celular||'';
+    document.getElementById('pDireccion').value = p.direccion||'';
+    document.getElementById('pCiudad').value = p.ciudad||'Bogota';
+    document.getElementById('pEmail').value = p.email||'';
+    document.getElementById('pTelefono').value = p.telefono||'';
+  }
+
+  function clearPacienteForm() {
+    ['pNombres','pApellidos','pFechaNac','pGenero','pCelular','pDireccion','pEmail','pTelefono'].forEach(id =>
+      document.getElementById(id).value = '');
+    document.getElementById('pCiudad').value = 'Bogota';
+  }
+
+  window.vincularExistente = async function(pacienteId) {
+    if (!pacienteActual) return;
+    try {
+      const data = await api('PUT','/api/admisiones/vincular-paciente',{
+        admision_id: pacienteActual.id,
+        paciente_id: pacienteId,
+      });
+      pacienteVinculado = data.paciente;
+      showPacienteInfo(data.paciente);
+      showToast('Paciente vinculado correctamente');
+      updateProgressPills();
+    } catch(e) { showToast(e.message, true); }
+  };
+
+  window.guardarPaciente = async function() {
+    const nombres = document.getElementById('pNombres').value.trim();
+    const apellidos = document.getElementById('pApellidos').value.trim();
+    if (!nombres||!apellidos) { showToast('Nombres y apellidos requeridos',true); return; }
+
+    const numDoc = document.getElementById('buscarNumDoc').value.trim();
+    const tipoDoc = document.getElementById('buscarTipoDoc').value;
+
+    const btn = document.getElementById('btnGuardarPaciente');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+
+    try {
+      const data = await api('POST','/api/admisiones/crear-paciente',{
+        tipo_doc: tipoDoc,
+        num_doc: numDoc,
+        nombres,
+        apellidos,
+        fecha_nacimiento: document.getElementById('pFechaNac').value,
+        genero: document.getElementById('pGenero').value,
+        celular: document.getElementById('pCelular').value,
+        telefono: document.getElementById('pTelefono').value,
+        email: document.getElementById('pEmail').value,
+        direccion: document.getElementById('pDireccion').value,
+        ciudad: document.getElementById('pCiudad').value,
+      });
+
+      // Now link to admission
+      await api('PUT','/api/admisiones/vincular-paciente',{
+        admision_id: pacienteActual.id,
+        paciente_id: data.paciente.id,
+      });
+
+      pacienteVinculado = data.paciente;
+      showPacienteInfo(data.paciente);
+      showToast('Paciente creado y vinculado');
+      updateProgressPills();
+    } catch(e) {
+      showToast(e.message, true);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Crear paciente y vincular';
+    }
+  };
+
+  window.vincularPaciente = function() {
+    // This is for linking an existing searched patient
+    // The button has the paciente ID from the search
+  };
+
+  function showPacienteInfo(p) {
+    document.getElementById('pacienteForm').style.display = 'none';
+    document.getElementById('searchResult').innerHTML = '';
+    document.getElementById('pacienteInfo').style.display = 'block';
+
+    document.getElementById('pacienteInfoGrid').innerHTML = `
+      <div><span class="info-label">Nombre completo</span><div class="info-value">${p.nombres||''} ${p.apellidos||''}</div></div>
+      <div><span class="info-label">Documento</span><div class="info-value">${p.tipo_doc||'CC'} ${p.num_doc||''}</div></div>
+      <div><span class="info-label">Fecha nacimiento</span><div class="info-value">${p.fecha_nacimiento||'--'}</div></div>
+      <div><span class="info-label">Genero</span><div class="info-value">${p.genero||'--'}</div></div>
+      <div><span class="info-label">Celular</span><div class="info-value">${p.celular||'--'}</div></div>
+      <div><span class="info-label">EPS</span><div class="info-value">${p.eps||'--'}</div></div>
+      <div><span class="info-label">Tipo afiliado</span><div class="info-value">${p.tipo_afiliado||'--'}</div></div>
+      <div><span class="info-label">Ciudad</span><div class="info-value">${p.ciudad||'--'}</div></div>
+    `;
+  }
+
+  // ── TAB 2: Aseguramiento ──
+  const PAGADOR_FIELDS = {
+    eps_contributivo: `
+      <div class="form-row">
+        <div class="form-group-sm"><label>EPS</label><input type="text" id="pgEntidad" placeholder="Ej: Sanitas, Sura, Nueva EPS..."></div>
+        <div class="form-group-sm"><label>Codigo EPS</label><input type="text" id="pgCodigo" placeholder="Codigo ADRES"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group-sm"><label>Estado afiliacion</label>
+          <select id="pgEstado"><option value="Activo">Activo</option><option value="Suspendido">Suspendido</option><option value="Retirado">Retirado</option></select></div>
+        <div class="form-group-sm"><label>Grupo de ingreso</label>
+          <select id="pgGrupo"><option value="menor_2">Menor a 2 SMLMV</option><option value="entre_2_5">Entre 2 y 5 SMLMV</option><option value="mayor_5">Mayor a 5 SMLMV</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group-sm"><label>No. autorizacion</label><input type="text" id="pgAutorizacion" placeholder="Numero de autorizacion"></div>
+        <div class="form-group-sm"><label>Poblacion especial</label>
+          <select id="pgPoblacion"><option value="">Ninguna</option><option value="menor_edad">Menor de edad</option><option value="gestante">Gestante/Lactante</option><option value="alto_costo">Alto costo</option><option value="victima_conflicto">Victima conflicto</option><option value="adulto_mayor_sisben_1">Adulto mayor Sisben 1</option><option value="discapacidad">Discapacidad</option><option value="indigena">Indigena</option><option value="desplazado">Desplazado</option></select></div>
+      </div>`,
+    eps_subsidiado: `
+      <div class="form-row">
+        <div class="form-group-sm"><label>EPS-S</label><input type="text" id="pgEntidad" placeholder="Ej: Mutual Ser, Coosalud..."></div>
+        <div class="form-group-sm"><label>Codigo EPS</label><input type="text" id="pgCodigo" placeholder="Codigo ADRES"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group-sm"><label>Estado afiliacion</label>
+          <select id="pgEstado"><option value="Activo">Activo</option><option value="Suspendido">Suspendido</option></select></div>
+        <div class="form-group-sm"><label>Nivel Sisben</label>
+          <select id="pgSisben"><option value="">Seleccione</option><option value="A">Grupo A</option><option value="B">Grupo B</option><option value="C">Grupo C</option></select></div>
+      </div>
+      <div class="form-group-sm"><label>No. autorizacion</label><input type="text" id="pgAutorizacion" placeholder="Numero de autorizacion"></div>`,
+    arl: `
+      <div class="form-row">
+        <div class="form-group-sm"><label>ARL</label><input type="text" id="pgEntidad" placeholder="Ej: Sura, Positiva, Colmena..."></div>
+        <div class="form-group-sm"><label>Empresa</label><input type="text" id="pgEmpresa" placeholder="Nombre empresa empleadora"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group-sm"><label>NIT empresa</label><input type="text" id="pgNitEmpresa"></div>
+        <div class="form-group-sm"><label>Fecha accidente</label><input type="date" id="pgFechaAccidente"></div>
+      </div>
+      <div class="form-group-sm"><label>No. autorizacion</label><input type="text" id="pgAutorizacion"></div>`,
+    soat: `
+      <div class="form-row">
+        <div class="form-group-sm"><label>Aseguradora SOAT</label><input type="text" id="pgEntidad" placeholder="Ej: Suramericana, La Previsora..."></div>
+        <div class="form-group-sm"><label>No. poliza SOAT</label><input type="text" id="pgPoliza"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group-sm"><label>Placa vehiculo</label><input type="text" id="pgPlaca" placeholder="ABC123"></div>
+        <div class="form-group-sm"><label>Fecha accidente</label><input type="date" id="pgFechaAccidente"></div>
+      </div>
+      <div class="form-group-sm"><label>No. autorizacion</label><input type="text" id="pgAutorizacion"></div>`,
+    poliza: `
+      <div class="form-row">
+        <div class="form-group-sm"><label>Aseguradora</label><input type="text" id="pgEntidad" placeholder="Nombre aseguradora"></div>
+        <div class="form-group-sm"><label>No. poliza</label><input type="text" id="pgPoliza"></div>
+      </div>
+      <div class="form-group-sm"><label>No. autorizacion</label><input type="text" id="pgAutorizacion"></div>`,
+    particular: `
+      <div class="form-group-sm"><label>Observaciones</label><textarea id="pgObservaciones" placeholder="Motivo de atencion particular..."></textarea></div>`,
+  };
+
+  const PAGADOR_LABELS = {
+    eps_contributivo:'EPS Contributivo', eps_subsidiado:'EPS Subsidiado',
+    arl:'ARL', soat:'SOAT', poliza:'Poliza de Salud', particular:'Particular'
+  };
+
+  window.selectPagador = function(tipo) {
+    pagadorTipo = tipo;
+    document.querySelectorAll('.pagador-card').forEach(c => c.classList.remove('selected'));
+    document.querySelector(`.pagador-card[data-tipo="${tipo}"]`).classList.add('selected');
+
+    const form = document.getElementById('pagadorForm');
+    form.style.display = 'block';
+    document.getElementById('pagadorFormTitle').textContent = PAGADOR_LABELS[tipo]||tipo;
+    document.getElementById('pagadorFields').innerHTML = PAGADOR_FIELDS[tipo]||'';
+    document.getElementById('copagoResult').style.display = 'none';
+
+    // Pre-fill EPS from patient data
+    if (pacienteVinculado && pacienteVinculado.eps && (tipo==='eps_contributivo'||tipo==='eps_subsidiado')) {
+      const el = document.getElementById('pgEntidad');
+      if (el) el.value = pacienteVinculado.eps;
+    }
+  };
+
+  window.validarPagador = async function() {
+    if (!pacienteActual||!pagadorTipo) return;
+
+    const btn = document.getElementById('btnValidarPagador');
+    btn.disabled = true; btn.textContent = 'Validando...';
+
+    const body = {
+      admision_id: pacienteActual.id,
+      tipo_pagador: pagadorTipo,
+      entidad_nombre: (document.getElementById('pgEntidad')||{}).value||'',
+      entidad_codigo: (document.getElementById('pgCodigo')||{}).value||'',
+      estado_afiliacion: (document.getElementById('pgEstado')||{}).value||'Activo',
+      grupo_ingreso: (document.getElementById('pgGrupo')||{}).value||'menor_2',
+      nivel_sisben: (document.getElementById('pgSisben')||{}).value||'',
+      numero_autorizacion: (document.getElementById('pgAutorizacion')||{}).value||'',
+      numero_poliza: (document.getElementById('pgPoliza')||{}).value||'',
+      placa_vehiculo: (document.getElementById('pgPlaca')||{}).value||'',
+      fecha_accidente: (document.getElementById('pgFechaAccidente')||{}).value||'',
+      empresa_nombre: (document.getElementById('pgEmpresa')||{}).value||'',
+      nit_empresa: (document.getElementById('pgNitEmpresa')||{}).value||'',
+      poblacion_especial: (document.getElementById('pgPoblacion')||{}).value||'',
+    };
+
+    try {
+      const data = await api('POST','/api/admisiones/validar-pagador', body);
+      pagadorValidado = true;
+
+      // Show copago result
+      const cop = data.copago;
+      const resEl = document.getElementById('copagoResult');
+      resEl.style.display = 'block';
+
+      if (cop.excento || !cop.aplica) {
+        resEl.innerHTML = `<div class="copago-result excento">
+          <div class="copago-label">Copago</div>
+          <div class="copago-valor" style="color:var(--green);">$0 - Exento</div>
+          <div class="copago-motivo">${cop.motivo_exencion||''}</div>
+        </div>`;
+      } else {
+        resEl.innerHTML = `<div class="copago-result aplica">
+          <div class="copago-label">Copago estimado</div>
+          <div class="copago-valor" style="color:var(--amber);">$${(cop.valor||0).toLocaleString('es-CO')}</div>
+          <div class="copago-motivo">Porcentaje: ${((cop.pct||0)*100).toFixed(1)}% | Tope evento: $${(cop.tope_evento||0).toLocaleString('es-CO')}</div>
+        </div>`;
+      }
+
+      showToast('Pagador validado correctamente');
+      showPagadorInfo({tipo_pagador:pagadorTipo, entidad_nombre:body.entidad_nombre, ...body}, null);
+      updateProgressPills();
+    } catch(e) {
+      showToast(e.message, true);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Validar y guardar';
+    }
+  };
+
+  function showPagadorInfo(pg, adm) {
+    document.getElementById('pagadorInfo').style.display = 'block';
+    document.getElementById('pagadorInfoContent').innerHTML = `
+      <div class="info-grid">
+        <div><span class="info-label">Tipo pagador</span><div class="info-value">${PAGADOR_LABELS[pg.tipo_pagador]||pg.tipo_pagador}</div></div>
+        <div><span class="info-label">Entidad</span><div class="info-value">${pg.entidad_nombre||'N/A'}</div></div>
+        <div><span class="info-label">Estado</span><div class="info-value">${pg.estado_afiliacion||'Activo'}</div></div>
+        <div><span class="info-label">Autorizacion</span><div class="info-value">${pg.numero_autorizacion||'--'}</div></div>
+      </div>`;
+  }
+
+  // ── TAB 3: Clinico ──
+  window.abrirHC = async function() {
+    if (!pacienteActual) return;
+    if (!pacienteVinculado) { showToast('Debe vincular un paciente primero',true); return; }
+
+    const btn = document.getElementById('btnAbrirHC');
+    btn.disabled = true; btn.textContent = 'Abriendo HC...';
+
+    try {
+      const data = await api('POST','/api/admisiones/abrir-hc',{
+        admision_id: pacienteActual.id,
+        motivo_consulta: document.getElementById('hcMotivo').value,
+        causa_atencion: document.getElementById('hcCausa').value,
+        cod_cie10_ingreso: document.getElementById('hcCie10').value,
+      });
+
+      hcAbierta = true;
+      hcId = data.hc_id;
+      showHCInfo({
+        id: data.hc_id,
+        motivo_consulta: document.getElementById('hcMotivo').value,
+        causa_atencion: document.getElementById('hcCausa').value,
+        cod_cie10_ingreso: document.getElementById('hcCie10').value,
+      });
+      showToast('Historia clinica abierta');
+      updateProgressPills();
+    } catch(e) {
+      showToast(e.message, true);
+      btn.disabled = false; btn.textContent = 'Abrir historia clinica';
+    }
+  };
+
+  function showHCInfo(hc) {
+    document.getElementById('hcInfo').style.display = 'block';
+    document.getElementById('btnAbrirHC').disabled = true;
+    document.getElementById('btnAbrirHC').textContent = 'HC abierta';
+
+    const causaLabels = {
+      urgencia:'Urgencia', accidente_trabajo:'Accidente de trabajo',
+      accidente_transito:'Accidente de transito', evento_catastrofico:'Evento catastrofico', otro:'Otro'
+    };
+
+    document.getElementById('hcInfoContent').innerHTML = `
+      <div class="info-grid">
+        <div><span class="info-label">HC #</span><div class="info-value">${hc.id||'--'}</div></div>
+        <div><span class="info-label">Causa atencion</span><div class="info-value">${causaLabels[hc.causa_atencion]||hc.causa_atencion||'--'}</div></div>
+        <div><span class="info-label">CIE-10 ingreso</span><div class="info-value">${hc.cod_cie10_ingreso||'--'}</div></div>
+        <div><span class="info-label">Estado</span><div class="info-value" style="color:var(--green);font-weight:700;">Abierta</div></div>
+      </div>
+      ${hc.motivo_consulta ? `<div style="margin-top:12px;"><span class="info-label">Motivo de consulta</span><div style="font-size:13px;margin-top:4px;">${hc.motivo_consulta}</div></div>` : ''}
+    `;
+  }
+
+  // ── TAB 4: Timeline ──
+  async function loadTimeline() {
+    if (!pacienteActual) return;
+    try {
+      const data = await api('GET','/api/admisiones/timeline/'+pacienteActual.id);
+      renderTimeline(data.timeline||[]);
+    } catch(e) {}
+  }
+
+  function renderTimeline(items) {
+    const el = document.getElementById('timelineList');
+    if (!items.length) {
+      el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--dark-light);font-size:13px;">Sin eventos registrados</div>';
+      return;
+    }
+    el.innerHTML = items.map(t => `
+      <div class="timeline-item">
+        <div class="tl-time">${fmtTime(t.ts)}</div>
+        <div class="tl-evento">${t.evento||''}</div>
+        ${t.detalle?`<div class="tl-detalle">${t.detalle}</div>`:''}
+        ${t.usuario?`<div class="tl-usuario">${t.usuario}${t.puesto?' - '+t.puesto:''}</div>`:''}
+      </div>
+    `).join('');
+  }
+
+  window.agregarTimeline = async function() {
+    if (!pacienteActual) return;
+    const evento = document.getElementById('tlEvento').value.trim();
+    const detalle = document.getElementById('tlDetalle').value.trim();
+    if (!evento) { showToast('Ingrese el tipo de evento',true); return; }
+
+    try {
+      await api('POST','/api/admisiones/timeline',{
+        admision_id: pacienteActual.id,
+        evento, detalle,
+      });
+      document.getElementById('tlEvento').value = '';
+      document.getElementById('tlDetalle').value = '';
+      loadTimeline();
+      showToast('Evento registrado');
+    } catch(e) { showToast(e.message, true); }
+  };
+
+  // ── Complete admission ──
+  window.completarAdmision = async function() {
+    if (!pacienteActual) return;
+
+    const btn = document.getElementById('btnCompletarAdmision');
+    btn.disabled = true; btn.textContent = 'Completando...';
+
+    try {
+      await api('POST','/api/admisiones/completar',{admision_id:pacienteActual.id});
+      showToast('Admision completada - paciente pasa a espera medica');
+      clearPaciente();
+      loadCola();
+    } catch(e) {
+      showToast(e.message, true);
+      btn.disabled = false; btn.textContent = 'Completar admision';
+    }
+  };
+
+  // ── Queue actions ──
+  window.llamarSiguiente = async function() {
+    const btn = document.getElementById('btnSiguiente');
+    btn.disabled = true; btn.innerHTML='<span class="spinner"></span>';
+    try {
+      const data = await api('POST','/api/atencion/siguiente');
+      if (data.paciente||data.turno) {
+        showPaciente(data.paciente||data);
+        showToast('Paciente llamado: '+(data.paciente?.turno||data.turno||''));
+      } else {
+        showToast('No hay pacientes en cola');
+      }
+      loadCola();
+    } catch(e) { showToast(e.message,true); }
+    finally { btn.disabled=false; btn.textContent='Siguiente'; }
+  };
+
+  window.rellamarPaciente = async function() {
+    if (!pacienteActual) return;
+    try {
+      await api('POST','/api/atencion/re-llamar',{id:pacienteActual.id});
+      showToast('Paciente re-llamado');
+    } catch(e) { showToast(e.message,true); }
+  };
+
+  window.devolverPaciente = async function() {
+    if (!pacienteActual) return;
+    try {
+      await api('POST','/api/atencion/devolver',{id:pacienteActual.id});
+      showToast('Paciente devuelto a cola');
+      clearPaciente();
+      loadCola();
+    } catch(e) { showToast(e.message,true); }
+  };
+
+  // ── SSE ──
+  function startSSE() {
+    if (eventSource) eventSource.close();
+    eventSource = new EventSource('/api/sse');
+    eventSource.onopen = function() {
+      sseConnected = true;
+      document.getElementById('statusDot').classList.remove('disconnected');
+    };
+    eventSource.onerror = function() {
+      sseConnected = false;
+      document.getElementById('statusDot').classList.add('disconnected');
+    };
+    eventSource.onmessage = function(e) {
+      try {
+        const d = JSON.parse(e.data);
+        if (['triage_asignado','turno_admision','turno_devuelto','llamar_turno'].includes(d.tipo)) {
+          if (d.tipo==='triage_asignado') playNotif();
+          loadCola();
+        }
+      } catch(ex){}
+    };
+  }
+
+  function startPolling() {
+    clearInterval(pollingInterval);
+    pollingInterval = setInterval(loadCola, 10000);
+  }
+
+  // ── Logout ──
+  function logout() {
+    user=null; puestoActual=null; pacienteActual=null;
+    pacienteVinculado=null; pagadorTipo=null; pagadorValidado=false;
+    hcAbierta=false; hcId=null;
+    if (eventSource) { eventSource.close(); eventSource=null; }
+    clearInterval(pollingInterval);
+    api('POST','/api/auth/logout').catch(()=>{});
+    showScreen('loginScreen');
+    document.getElementById('usuario').value='';
+    document.getElementById('password').value='';
+    document.getElementById('loginError').style.display='none';
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+
+  // ── Init ──
+  checkAuth();
+
+})();
+</script>
+</body>
+</html>

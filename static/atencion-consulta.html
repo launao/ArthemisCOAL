@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arthemis Health — Consulta Medica</title>
+<style>
+  :root {
+    --primary: #5147C4;
+    --primary-light: #6C63D4;
+    --primary-dark: #3F37A0;
+    --bg: #FAF8F4;
+    --dark: #1C1916;
+    --card: #FFFFFF;
+    --border: #E8E4DE;
+    --text: #1C1916;
+    --muted: #6B6560;
+    --green: #16A34A;
+    --red: #DC2626;
+    --orange: #EA580C;
+    --amber: #D97706;
+    --blue: #2563EB;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(28,25,22,.08), 0 4px 16px rgba(28,25,22,.06);
+    --shadow-lg: 0 4px 12px rgba(28,25,22,.1), 0 16px 40px rgba(28,25,22,.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  /* ===== LOGIN ===== */
+  #loginScreen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, var(--dark) 0%, #2A2520 50%, var(--primary-dark) 100%);
+  }
+  .login-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 44px 40px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: var(--shadow-lg);
+  }
+  .login-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .login-logo .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--primary);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 16px;
+  }
+  .login-logo span {
+    font-size: 20px; font-weight: 700; color: var(--dark);
+  }
+  .login-card .subtitle {
+    color: var(--muted); font-size: 14px; margin: 4px 0 28px;
+  }
+  .login-card label {
+    display: block; font-size: 13px; font-weight: 600;
+    color: var(--muted); margin: 16px 0 6px;
+  }
+  .login-card input {
+    width: 100%; padding: 12px 14px; border-radius: 8px;
+    border: 1px solid var(--border); font-family: inherit;
+    font-size: 15px; background: var(--bg); transition: border-color .2s;
+  }
+  .login-card input:focus {
+    outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(81,71,196,.15);
+  }
+  .login-card button {
+    width: 100%; margin-top: 24px; padding: 13px;
+    background: var(--primary); color: #fff; border: none;
+    border-radius: 8px; font-size: 15px; font-weight: 600;
+    font-family: inherit; cursor: pointer; transition: background .2s;
+  }
+  .login-card button:hover { background: var(--primary-light); }
+  .login-card button:disabled { opacity: .6; cursor: not-allowed; }
+  .login-error {
+    color: var(--red); font-size: 13px; margin-top: 12px;
+    text-align: center; min-height: 18px;
+  }
+
+  /* ===== PUESTO SELECTION ===== */
+  #puestoScreen {
+    min-height: 100vh; display: none;
+    align-items: center; justify-content: center;
+    background: var(--bg);
+  }
+  .puesto-container {
+    max-width: 520px; width: 100%; padding: 20px;
+  }
+  .puesto-container h2 {
+    font-size: 22px; font-weight: 700; margin-bottom: 4px;
+  }
+  .puesto-container .subtitle {
+    color: var(--muted); font-size: 14px; margin-bottom: 28px;
+  }
+  .puesto-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .puesto-btn {
+    padding: 20px; background: var(--card); border: 2px solid var(--border);
+    border-radius: var(--radius); cursor: pointer; text-align: center;
+    font-family: inherit; font-size: 15px; font-weight: 600;
+    color: var(--text); transition: all .2s;
+  }
+  .puesto-btn:hover {
+    border-color: var(--primary); background: rgba(81,71,196,.04);
+  }
+  .puesto-btn .puesto-icon {
+    font-size: 28px; margin-bottom: 8px; display: block;
+  }
+
+  /* ===== MAIN VIEW ===== */
+  #mainScreen { display: none; height: 100vh; flex-direction: column; }
+
+  /* Header */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; height: 60px; background: var(--card);
+    border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .header-left {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .header-logo {
+    width: 32px; height: 32px; background: var(--primary);
+    border-radius: 7px; display: flex; align-items: center;
+    justify-content: center; color: #fff; font-weight: 700; font-size: 14px;
+  }
+  .header-brand { font-size: 16px; font-weight: 700; color: var(--dark); }
+  .header-center {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 15px; font-weight: 600; color: var(--dark);
+  }
+  .sse-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--green); flex-shrink: 0;
+    transition: background .3s;
+  }
+  .sse-dot.offline { background: var(--red); }
+  .header-right {
+    display: flex; align-items: center; gap: 16px;
+    font-size: 14px; color: var(--muted);
+  }
+  .header-user { font-weight: 600; color: var(--dark); }
+  .header-clock { font-variant-numeric: tabular-nums; }
+  .btn-logout {
+    padding: 6px 14px; border: 1px solid var(--border);
+    border-radius: 6px; background: var(--card); cursor: pointer;
+    font-family: inherit; font-size: 13px; color: var(--muted);
+    transition: all .2s;
+  }
+  .btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+  /* Content split */
+  .content {
+    display: flex; flex: 1; overflow: hidden;
+  }
+
+  /* Left panel — Cola */
+  .panel-left {
+    width: 35%; border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; background: var(--card);
+  }
+  .panel-title {
+    padding: 20px 20px 16px; font-size: 14px; font-weight: 700;
+    color: var(--muted); text-transform: uppercase; letter-spacing: .8px;
+    border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .panel-title .count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 22px; height: 22px; padding: 0 6px;
+    background: var(--primary); color: #fff; border-radius: 11px;
+    font-size: 12px; font-weight: 700; margin-left: 8px;
+  }
+  .queue-list {
+    flex: 1; overflow-y: auto; padding: 12px;
+  }
+  .queue-empty {
+    text-align: center; padding: 60px 20px; color: var(--muted);
+    font-size: 14px;
+  }
+  .queue-empty .empty-icon { font-size: 40px; margin-bottom: 12px; display: block; }
+
+  /* Queue card */
+  .q-card {
+    padding: 14px 16px; border-radius: 10px; margin-bottom: 8px;
+    border: 1px solid var(--border); background: var(--bg);
+    cursor: default; transition: all .2s;
+  }
+  .q-card:hover { border-color: var(--primary); }
+  .q-card-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .q-turno {
+    font-size: 18px; font-weight: 800; color: var(--primary);
+  }
+  .q-card-name {
+    font-size: 14px; font-weight: 600; color: var(--dark);
+    margin-bottom: 4px;
+  }
+  .q-card-eps {
+    font-size: 12px; color: var(--muted);
+  }
+
+  /* Triage badge */
+  .triage-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .4px; color: #fff;
+  }
+  .triage-I   { background: #DC2626; }
+  .triage-II  { background: #EA580C; }
+  .triage-III { background: #D97706; }
+  .triage-IV  { background: #16A34A; }
+  .triage-V   { background: #2563EB; }
+
+  /* Right panel — Paciente actual */
+  .panel-right {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 40px; overflow-y: auto; background: var(--bg);
+  }
+
+  /* Empty state — Siguiente */
+  .empty-state {
+    text-align: center;
+  }
+  .empty-state .empty-icon {
+    font-size: 64px; margin-bottom: 16px; display: block; opacity: .6;
+  }
+  .empty-state p {
+    color: var(--muted); font-size: 15px; margin-bottom: 28px;
+  }
+  .btn-siguiente {
+    padding: 20px 48px; background: var(--primary); color: #fff;
+    border: none; border-radius: var(--radius); font-size: 18px;
+    font-weight: 700; font-family: inherit; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(81,71,196,.3);
+    transition: all .2s;
+  }
+  .btn-siguiente:hover {
+    background: var(--primary-light);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(81,71,196,.35);
+  }
+  .btn-siguiente:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+  /* Patient card */
+  .patient-card {
+    width: 100%; max-width: 560px;
+  }
+  .pc-turno {
+    font-size: 56px; font-weight: 900; color: var(--primary);
+    letter-spacing: -1px; line-height: 1;
+  }
+  .pc-name {
+    font-size: 24px; font-weight: 700; color: var(--dark);
+    margin: 8px 0 4px;
+  }
+  .pc-detail {
+    display: flex; flex-wrap: wrap; gap: 16px; margin: 12px 0 20px;
+    font-size: 14px; color: var(--muted);
+  }
+  .pc-detail span { display: flex; align-items: center; gap: 5px; }
+  .pc-detail .label { font-weight: 600; color: var(--dark); }
+
+  .pc-triage {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px; background: var(--card);
+    border-radius: 10px; border: 1px solid var(--border);
+    margin-bottom: 10px;
+  }
+  .pc-triage-label { font-size: 13px; color: var(--muted); }
+  .pc-triage-notas {
+    font-size: 13px; color: var(--text); margin-top: 4px;
+    font-style: italic;
+  }
+
+  .pc-llamado {
+    text-align: center; padding: 10px; margin: 10px 0;
+    font-size: 14px; font-weight: 600; color: var(--muted);
+    background: var(--card); border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .pc-actions {
+    display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap;
+  }
+  .btn-atendido {
+    flex: 2; padding: 16px 24px; background: var(--green); color: #fff;
+    border: none; border-radius: var(--radius); font-size: 16px;
+    font-weight: 700; font-family: inherit; cursor: pointer;
+    transition: all .2s;
+  }
+  .btn-atendido:hover { background: #15803D; }
+  .btn-rellamar {
+    flex: 1; padding: 16px 18px; background: var(--card); color: var(--primary);
+    border: 2px solid var(--primary); border-radius: var(--radius);
+    font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer;
+    transition: all .2s;
+  }
+  .btn-rellamar:hover { background: rgba(81,71,196,.06); }
+  .btn-nopresento {
+    flex: 1; padding: 16px 18px; background: var(--card); color: var(--red);
+    border: 2px solid var(--border); border-radius: var(--radius);
+    font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer;
+    transition: all .2s;
+  }
+  .btn-nopresento:hover { border-color: var(--red); background: rgba(220,38,38,.04); }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    padding: 14px 22px; border-radius: 10px;
+    background: var(--dark); color: #fff; font-size: 14px;
+    font-weight: 500; box-shadow: var(--shadow-lg);
+    transform: translateY(100px); opacity: 0;
+    transition: all .3s ease;
+    z-index: 1000;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { animation: fadeIn .3s ease; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .5; }
+  }
+  .pulse { animation: pulse 1.5s infinite; }
+
+  /* Scrollbar */
+  .queue-list::-webkit-scrollbar { width: 5px; }
+  .queue-list::-webkit-scrollbar-track { background: transparent; }
+  .queue-list::-webkit-scrollbar-thumb {
+    background: var(--border); border-radius: 3px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .content { flex-direction: column; }
+    .panel-left { width: 100%; height: 40%; border-right: none; border-bottom: 1px solid var(--border); }
+    .panel-right { padding: 20px; }
+    .pc-turno { font-size: 40px; }
+    .pc-name { font-size: 20px; }
+    .pc-actions { flex-direction: column; }
+    .header-brand { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">A</div>
+      <span>Arthemis Health</span>
+    </div>
+    <p class="subtitle">Consulta Medica — Ingrese sus credenciales</p>
+    <form id="loginForm" autocomplete="off">
+      <label>Usuario</label>
+      <input type="text" id="loginUser" placeholder="usuario" required autofocus>
+      <label>Contrasena</label>
+      <input type="password" id="loginPass" placeholder="contrasena" required>
+      <button type="submit" id="loginBtn">Iniciar sesion</button>
+      <div class="login-error" id="loginError"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== PUESTO SELECTION ===== -->
+<div id="puestoScreen">
+  <div class="puesto-container">
+    <h2>Seleccione su consultorio</h2>
+    <p class="subtitle">Elija el puesto donde atendera hoy</p>
+    <div class="puesto-grid" id="puestoGrid"></div>
+  </div>
+</div>
+
+<!-- ===== MAIN VIEW ===== -->
+<div id="mainScreen">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-logo">A</div>
+      <span class="header-brand">Arthemis Health</span>
+    </div>
+    <div class="header-center">
+      <span class="sse-dot" id="sseDot" title="Conexion SSE"></span>
+      <span id="puestoNombre">Consultorio</span>
+    </div>
+    <div class="header-right">
+      <span class="header-user" id="userName"></span>
+      <span class="header-clock" id="clock"></span>
+      <button class="btn-logout" onclick="logout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Cola -->
+    <div class="panel-left">
+      <div class="panel-title">
+        Cola de espera <span class="count" id="queueCount">0</span>
+      </div>
+      <div class="queue-list" id="queueList">
+        <div class="queue-empty">
+          <span class="empty-icon">&#128203;</span>
+          No hay pacientes en cola
+        </div>
+      </div>
+    </div>
+
+    <!-- Paciente actual -->
+    <div class="panel-right" id="panelRight">
+      <!-- filled dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  // ===== State =====
+  let token = localStorage.getItem('ah_token') || '';
+  let user = null;
+  let puesto = null;
+  let cola = [];
+  let actual = null;
+  let sseSource = null;
+  let pollTimer = null;
+
+  const TRIAGE_MAP = {
+    'I':   { label: 'Resucitacion', color: '#DC2626' },
+    'II':  { label: 'Emergencia',   color: '#EA580C' },
+    'III': { label: 'Urgencia',     color: '#D97706' },
+    'IV':  { label: 'Prioritaria',  color: '#16A34A' },
+    'V':   { label: 'No urgente',   color: '#2563EB' }
+  };
+
+  // ===== Screens =====
+  const $login   = document.getElementById('loginScreen');
+  const $puesto  = document.getElementById('puestoScreen');
+  const $main    = document.getElementById('mainScreen');
+
+  function showScreen(s) {
+    $login.style.display  = s === 'login'  ? 'flex'  : 'none';
+    $puesto.style.display = s === 'puesto' ? 'flex'  : 'none';
+    $main.style.display   = s === 'main'   ? 'flex'  : 'none';
+  }
+
+  // ===== API helper =====
+  async function api(method, url, body) {
+    const opts = {
+      method,
+      headers: { 'Content-Type': 'application/json' }
+    };
+    if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(url, opts);
+    if (res.status === 401) { logout(); throw new Error('No autorizado'); }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || data.message || 'Error');
+    return data;
+  }
+
+  // ===== Toast =====
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ===== Sound =====
+  function playNotif() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.4);
+    } catch(e) {}
+  }
+
+  // ===== Clock =====
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('clock').textContent = h + ':' + m;
+  }
+  setInterval(updateClock, 10000);
+  updateClock();
+
+  // ===== Login =====
+  document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    const err = document.getElementById('loginError');
+    err.textContent = '';
+    btn.disabled = true;
+    btn.textContent = 'Ingresando...';
+    try {
+      const data = await api('POST', '/api/auth/login', {
+        usuario: document.getElementById('loginUser').value.trim(),
+        password: document.getElementById('loginPass').value
+      });
+      token = data.token;
+      localStorage.setItem('ah_token', token);
+      await init();
+    } catch(ex) {
+      err.textContent = ex.message || 'Error de autenticacion';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Iniciar sesion';
+    }
+  });
+
+  function logout() {
+    token = '';
+    user = null;
+    puesto = null;
+    localStorage.removeItem('ah_token');
+    if (sseSource) { sseSource.close(); sseSource = null; }
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    showScreen('login');
+  }
+  window.logout = logout;
+
+  // ===== Init =====
+  async function init() {
+    try {
+      user = await api('GET', '/api/auth/me');
+      document.getElementById('userName').textContent = user.nombre || user.usuario || '';
+    } catch(e) {
+      showScreen('login');
+      return;
+    }
+    // Check if already has a puesto
+    try {
+      const mp = await api('GET', '/api/atencion/mi-puesto');
+      if (mp && mp.id) {
+        puesto = mp;
+        enterMain();
+        return;
+      }
+    } catch(e) {}
+    // Show puesto selection
+    await loadPuestos();
+  }
+
+  // ===== Puestos =====
+  async function loadPuestos() {
+    showScreen('puesto');
+    try {
+      const data = await api('GET', '/api/atencion/puestos?tipo=consultorio&activo=1');
+      const puestos = data.puestos || data || [];
+      const grid = document.getElementById('puestoGrid');
+      grid.innerHTML = '';
+      if (puestos.length === 0) {
+        grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">No hay consultorios disponibles</p>';
+        return;
+      }
+      puestos.forEach(p => {
+        const btn = document.createElement('button');
+        btn.className = 'puesto-btn';
+        btn.innerHTML = '<span class="puesto-icon">&#127973;</span>' + (p.nombre || 'Consultorio ' + p.id);
+        btn.addEventListener('click', () => selectPuesto(p));
+        grid.appendChild(btn);
+      });
+    } catch(e) {
+      toast('Error cargando consultorios');
+    }
+  }
+
+  async function selectPuesto(p) {
+    try {
+      await api('POST', '/api/atencion/seleccionar-puesto', { puesto_id: p.id });
+      puesto = p;
+      enterMain();
+    } catch(e) {
+      toast('Error seleccionando puesto: ' + e.message);
+    }
+  }
+
+  // ===== Main =====
+  function enterMain() {
+    document.getElementById('puestoNombre').textContent = puesto.nombre || 'Consultorio ' + puesto.id;
+    showScreen('main');
+    fetchCola();
+    startSSE();
+    pollTimer = setInterval(fetchCola, 10000);
+  }
+
+  // ===== Cola =====
+  async function fetchCola() {
+    try {
+      const data = await api('GET', '/api/atencion/cola');
+      const prevCount = cola.length;
+      cola = data.cola || [];
+      actual = data.actual || null;
+      renderQueue();
+      renderPatient();
+      if (cola.length > prevCount && prevCount > 0) {
+        playNotif();
+      }
+    } catch(e) {}
+  }
+
+  function renderQueue() {
+    const list = document.getElementById('queueList');
+    const count = document.getElementById('queueCount');
+    count.textContent = cola.length;
+
+    if (cola.length === 0) {
+      list.innerHTML = '<div class="queue-empty"><span class="empty-icon">&#128203;</span>No hay pacientes en cola</div>';
+      return;
+    }
+
+    // Sort by triage priority
+    const order = { 'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5 };
+    const sorted = [...cola].sort((a, b) => {
+      const na = order[a.triage_nivel] || 9;
+      const nb = order[b.triage_nivel] || 9;
+      return na - nb;
+    });
+
+    list.innerHTML = sorted.map(t => {
+      const nivel = t.triage_nivel || 'V';
+      const info = TRIAGE_MAP[nivel] || TRIAGE_MAP['V'];
+      return `<div class="q-card fade-in">
+        <div class="q-card-top">
+          <span class="q-turno">${esc(t.turno)}</span>
+          <span class="triage-badge triage-${esc(nivel)}">${esc(nivel)} &middot; ${esc(info.label)}</span>
+        </div>
+        <div class="q-card-name">${esc(t.paciente_nombre || 'Paciente')}</div>
+        <div class="q-card-eps">${esc(t.eps || '')}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderPatient() {
+    const panel = document.getElementById('panelRight');
+
+    if (!actual) {
+      panel.innerHTML = `<div class="empty-state fade-in">
+        <span class="empty-icon">&#129658;</span>
+        <p>No hay paciente en atencion.<br>Presione para llamar al siguiente.</p>
+        <button class="btn-siguiente" onclick="callNext()">Siguiente Paciente</button>
+      </div>`;
+      return;
+    }
+
+    const t = actual;
+    const nivel = t.triage_nivel || 'V';
+    const info = TRIAGE_MAP[nivel] || TRIAGE_MAP['V'];
+    const llamados = t.llamado_count || 1;
+    const maxLlamados = 3;
+
+    panel.innerHTML = `<div class="patient-card fade-in">
+      <div class="pc-turno">${esc(t.turno)}</div>
+      <div class="pc-name">${esc(t.paciente_nombre || 'Paciente')}</div>
+      <div class="pc-detail">
+        <span><span class="label">Documento:</span> ${esc(t.documento || '-')}</span>
+        <span><span class="label">EPS:</span> ${esc(t.eps || '-')}</span>
+        <span><span class="label">Celular:</span> ${esc(t.celular || '-')}</span>
+      </div>
+      <div class="pc-triage">
+        <span class="triage-badge triage-${esc(nivel)}" style="font-size:13px;padding:5px 14px;">
+          Triage ${esc(nivel)} &middot; ${esc(info.label)}
+        </span>
+        <div style="flex:1">
+          ${t.triage_notas ? `<div class="pc-triage-notas">${esc(t.triage_notas)}</div>` : ''}
+        </div>
+      </div>
+      <div class="pc-llamado">
+        Llamado ${llamados} de ${maxLlamados}
+      </div>
+      <div class="pc-actions">
+        <button class="btn-atendido" onclick="marcarAtendido(${t.id})">
+          &#10003; Atendido
+        </button>
+        <button class="btn-rellamar" onclick="rellamar(${t.id})">
+          &#128266; Re-llamar
+        </button>
+        <button class="btn-nopresento" onclick="noPresento(${t.id})">
+          &#10005; No se presento
+        </button>
+      </div>
+    </div>`;
+  }
+
+  // ===== Actions =====
+  window.callNext = async function() {
+    const btn = document.querySelector('.btn-siguiente');
+    if (btn) { btn.disabled = true; btn.textContent = 'Llamando...'; }
+    try {
+      await api('POST', '/api/atencion/siguiente', {});
+      await fetchCola();
+    } catch(e) {
+      toast('Error: ' + e.message);
+    }
+    if (btn) { btn.disabled = false; btn.textContent = 'Siguiente Paciente'; }
+  };
+
+  window.marcarAtendido = async function(id) {
+    try {
+      await api('POST', '/api/atencion/accion', { id });
+      actual = null;
+      renderPatient();
+      await fetchCola();
+      toast('Paciente marcado como atendido');
+    } catch(e) {
+      toast('Error: ' + e.message);
+    }
+  };
+
+  window.rellamar = async function(id) {
+    try {
+      await api('POST', '/api/atencion/re-llamar', { id });
+      await fetchCola();
+      toast('Paciente re-llamado');
+    } catch(e) {
+      toast('Error: ' + e.message);
+    }
+  };
+
+  window.noPresento = async function(id) {
+    try {
+      await api('POST', '/api/atencion/devolver', { id });
+      actual = null;
+      renderPatient();
+      await fetchCola();
+      toast('Paciente devuelto a la cola');
+    } catch(e) {
+      toast('Error: ' + e.message);
+    }
+  };
+
+  // ===== SSE =====
+  function startSSE() {
+    if (sseSource) sseSource.close();
+    const dot = document.getElementById('sseDot');
+
+    try {
+      sseSource = new EventSource('/api/sse');
+
+      sseSource.onopen = function() {
+        dot.classList.remove('offline');
+        dot.title = 'Conectado';
+      };
+
+      sseSource.onerror = function() {
+        dot.classList.add('offline');
+        dot.title = 'Desconectado — reintentando...';
+        // EventSource auto-reconnects
+      };
+
+      sseSource.addEventListener('turno_admision', function() {
+        playNotif();
+        fetchCola();
+      });
+
+      sseSource.addEventListener('llamar_turno', function(e) {
+        try {
+          const d = JSON.parse(e.data);
+          if (d.puesto_id === puesto.id) fetchCola();
+        } catch(_) { fetchCola(); }
+      });
+
+      sseSource.addEventListener('turno_atendido', function() {
+        fetchCola();
+      });
+
+      sseSource.addEventListener('turno_devuelto', function() {
+        fetchCola();
+      });
+
+      // Fallback: generic message
+      sseSource.onmessage = function() {
+        fetchCola();
+      };
+    } catch(e) {
+      dot.classList.add('offline');
+    }
+  }
+
+  // ===== Util =====
+  function esc(s) {
+    if (s == null) return '';
+    const d = document.createElement('div');
+    d.textContent = String(s);
+    return d.innerHTML;
+  }
+
+  // ===== Boot =====
+  if (token) {
+    init();
+  } else {
+    showScreen('login');
+  }
+})();
+</script>
+</body>
+</html>
