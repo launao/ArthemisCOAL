@@ -60,8 +60,14 @@ def _csrf_check():
     if not origin:
         return None
     # Allow same-origin requests (covers Railway, Render, etc.)
-    request_origin = f"{request.scheme}://{request.host}"
+    # Behind reverse proxy, request.scheme may be 'http' while Origin is 'https'
+    scheme = request.headers.get('X-Forwarded-Proto', request.scheme)
+    request_origin = f"{scheme}://{request.host}"
     if origin == request_origin:
+        return None
+    # Also check without scheme mismatch (http vs https same host)
+    origin_host = origin.split('://', 1)[-1] if '://' in origin else origin
+    if origin_host == request.host:
         return None
     if origin not in ALLOWED_ORIGINS:
         return jsonify({'error': 'Origen no permitido'}), 403
