@@ -814,9 +814,6 @@ body {
           <button class="tab-btn" data-tab="aseguramiento" onclick="switchTab('aseguramiento')">
             Aseguramiento <span class="tab-check pending" id="checkAseg">2</span>
           </button>
-          <button class="tab-btn" data-tab="clinico" onclick="switchTab('clinico')">
-            Clinico <span class="tab-check pending" id="checkClinico">3</span>
-          </button>
           <button class="tab-btn" data-tab="timeline" onclick="switchTab('timeline')">
             Timeline
           </button>
@@ -965,43 +962,7 @@ body {
             </div>
           </div>
 
-          <!-- TAB 3: CLINICO -->
-          <div class="tab-pane" id="tabClinico">
-            <div class="section">
-              <h4>Historia clinica de urgencias</h4>
-              <p class="section-subtitle">Apertura de HC para esta atencion de urgencias</p>
-              <div class="form-row">
-                <div class="form-group-sm">
-                  <label>Causa de atencion (RIPS)</label>
-                  <select id="hcCausa">
-                    <option value="urgencia">Urgencia</option>
-                    <option value="accidente_trabajo">Accidente de trabajo</option>
-                    <option value="accidente_transito">Accidente de transito</option>
-                    <option value="evento_catastrofico">Evento catastrofico</option>
-                    <option value="otro">Otro</option>
-                  </select>
-                </div>
-                <div class="form-group-sm">
-                  <label>Cod. diagnostico ingreso (CIE-10)</label>
-                  <input type="text" id="hcCie10" placeholder="Ej: R51 (Cefalea)">
-                </div>
-              </div>
-              <div class="form-group-sm">
-                <label>Motivo de consulta</label>
-                <textarea id="hcMotivo" placeholder="Describa el motivo principal de consulta del paciente..."></textarea>
-              </div>
-              <div style="display:flex;gap:10px;margin-top:8px;">
-                <button class="btn btn-success" id="btnAbrirHC" onclick="abrirHC()">Abrir historia clinica</button>
-              </div>
-            </div>
-
-            <div class="section" id="hcInfo" style="display:none;">
-              <h4>HC abierta</h4>
-              <div id="hcInfoContent"></div>
-            </div>
-          </div>
-
-          <!-- TAB 4: TIMELINE -->
+          <!-- TAB 3: TIMELINE -->
           <div class="tab-pane" id="tabTimeline">
             <div class="section">
               <h4>Linea de tiempo</h4>
@@ -1030,7 +991,6 @@ body {
           <div class="progress-pills">
             <span class="progress-pill pending" id="pillPaciente">Paciente</span>
             <span class="progress-pill pending" id="pillAseg">Aseguramiento</span>
-            <span class="progress-pill pending" id="pillClinico">Clinico</span>
           </div>
           <button class="btn btn-success" id="btnCompletarAdmision" onclick="completarAdmision()" disabled>
             Completar admision
@@ -1054,8 +1014,7 @@ body {
   let pacienteVinculado = null; // linked patient record
   let pagadorTipo = null;
   let pagadorValidado = false;
-  let hcAbierta = false;
-  let hcId = null;
+  // HC moved to consultorio médico (level 3)
   let eventSource = null;
   let pollingInterval = null;
   let sseConnected = false;
@@ -1249,8 +1208,7 @@ body {
     pacienteVinculado = null;
     pagadorTipo = null;
     pagadorValidado = false;
-    hcAbierta = false;
-    hcId = null;
+    // HC state removed — now in consultorio
 
     document.getElementById('wsEmpty').style.display = 'none';
     document.getElementById('wsContent').style.display = 'flex';
@@ -1283,8 +1241,7 @@ body {
     pacienteVinculado = null;
     pagadorTipo = null;
     pagadorValidado = false;
-    hcAbierta = false;
-    hcId = null;
+    // HC state removed — now in consultorio
 
     document.getElementById('wsEmpty').style.display = 'flex';
     document.getElementById('wsContent').style.display = 'none';
@@ -1307,12 +1264,6 @@ body {
     // Reset pills
     updateProgressPills();
 
-    // Reset HC form
-    document.getElementById('hcMotivo').value = '';
-    document.getElementById('hcCie10').value = '';
-    document.getElementById('hcCausa').value = 'urgencia';
-    document.getElementById('btnAbrirHC').disabled = false;
-    document.getElementById('btnAbrirHC').textContent = 'Abrir historia clinica';
   }
 
   async function loadAdmisionDetalle(admId) {
@@ -1342,13 +1293,6 @@ body {
         showPagadorInfo(data.pagador, adm);
       }
 
-      // Check HC
-      if (data.hc) {
-        hcAbierta = true;
-        hcId = data.hc.id;
-        showHCInfo(data.hc);
-      }
-
       // Load timeline
       if (data.timeline) renderTimeline(data.timeline);
 
@@ -1374,17 +1318,14 @@ body {
 
     document.getElementById('pillPaciente').className = pacienteVinculado ? done : current;
     document.getElementById('pillAseg').className = pagadorValidado ? done : (pacienteVinculado ? current : pending);
-    document.getElementById('pillClinico').className = hcAbierta ? done : (pagadorValidado ? current : pending);
 
     // Tab checks
     document.getElementById('checkPaciente').className = 'tab-check '+(pacienteVinculado?'done':'pending');
     document.getElementById('checkPaciente').textContent = pacienteVinculado?'':'1';
     document.getElementById('checkAseg').className = 'tab-check '+(pagadorValidado?'done':'pending');
     document.getElementById('checkAseg').textContent = pagadorValidado?'':'2';
-    document.getElementById('checkClinico').className = 'tab-check '+(hcAbierta?'done':'pending');
-    document.getElementById('checkClinico').textContent = hcAbierta?'':'3';
 
-    // Complete button
+    // Complete button — admisionista only needs patient + pagador
     const btn = document.getElementById('btnCompletarAdmision');
     btn.disabled = !(pacienteVinculado && pagadorValidado);
   }
@@ -1686,59 +1627,7 @@ body {
   }
 
   // ── TAB 3: Clinico ──
-  window.abrirHC = async function() {
-    if (!pacienteActual) return;
-    if (!pacienteVinculado) { showToast('Debe vincular un paciente primero',true); return; }
-
-    const btn = document.getElementById('btnAbrirHC');
-    btn.disabled = true; btn.textContent = 'Abriendo HC...';
-
-    try {
-      const data = await api('POST','/api/admisiones/abrir-hc',{
-        admision_id: pacienteActual.id,
-        motivo_consulta: document.getElementById('hcMotivo').value,
-        causa_atencion: document.getElementById('hcCausa').value,
-        cod_cie10_ingreso: document.getElementById('hcCie10').value,
-      });
-
-      hcAbierta = true;
-      hcId = data.hc_id;
-      showHCInfo({
-        id: data.hc_id,
-        motivo_consulta: document.getElementById('hcMotivo').value,
-        causa_atencion: document.getElementById('hcCausa').value,
-        cod_cie10_ingreso: document.getElementById('hcCie10').value,
-      });
-      showToast('Historia clinica abierta');
-      updateProgressPills();
-    } catch(e) {
-      showToast(e.message, true);
-      btn.disabled = false; btn.textContent = 'Abrir historia clinica';
-    }
-  };
-
-  function showHCInfo(hc) {
-    document.getElementById('hcInfo').style.display = 'block';
-    document.getElementById('btnAbrirHC').disabled = true;
-    document.getElementById('btnAbrirHC').textContent = 'HC abierta';
-
-    const causaLabels = {
-      urgencia:'Urgencia', accidente_trabajo:'Accidente de trabajo',
-      accidente_transito:'Accidente de transito', evento_catastrofico:'Evento catastrofico', otro:'Otro'
-    };
-
-    document.getElementById('hcInfoContent').innerHTML = `
-      <div class="info-grid">
-        <div><span class="info-label">HC #</span><div class="info-value">${hc.id||'--'}</div></div>
-        <div><span class="info-label">Causa atencion</span><div class="info-value">${causaLabels[hc.causa_atencion]||hc.causa_atencion||'--'}</div></div>
-        <div><span class="info-label">CIE-10 ingreso</span><div class="info-value">${hc.cod_cie10_ingreso||'--'}</div></div>
-        <div><span class="info-label">Estado</span><div class="info-value" style="color:var(--green);font-weight:700;">Abierta</div></div>
-      </div>
-      ${hc.motivo_consulta ? `<div style="margin-top:12px;"><span class="info-label">Motivo de consulta</span><div style="font-size:13px;margin-top:4px;">${hc.motivo_consulta}</div></div>` : ''}
-    `;
-  }
-
-  // ── TAB 4: Timeline ──
+  // ── TAB 3: Timeline ──
   async function loadTimeline() {
     if (!pacienteActual) return;
     try {
@@ -1866,7 +1755,7 @@ body {
   function logout() {
     user=null; puestoActual=null; pacienteActual=null;
     pacienteVinculado=null; pagadorTipo=null; pagadorValidado=false;
-    hcAbierta=false; hcId=null;
+    // HC state removed — now in consultorio
     if (eventSource) { eventSource.close(); eventSource=null; }
     clearInterval(pollingInterval);
     api('POST','/api/auth/logout').catch(()=>{});

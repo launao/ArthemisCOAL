@@ -3,832 +3,602 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arthemis Health — Consulta Medica</title>
+<title>Arthemis Health · Consultorio Médico</title>
 <style>
-  :root {
-    --primary: #5147C4;
-    --primary-light: #6C63D4;
-    --primary-dark: #3F37A0;
-    --bg: #FAF8F4;
-    --dark: #1C1916;
-    --card: #FFFFFF;
-    --border: #E8E4DE;
-    --text: #1C1916;
-    --muted: #6B6560;
-    --green: #16A34A;
-    --red: #DC2626;
-    --orange: #EA580C;
-    --amber: #D97706;
-    --blue: #2563EB;
-    --radius: 12px;
-    --shadow: 0 1px 3px rgba(28,25,22,.08), 0 4px 16px rgba(28,25,22,.06);
-    --shadow-lg: 0 4px 12px rgba(28,25,22,.1), 0 16px 40px rgba(28,25,22,.1);
-  }
+:root {
+  --primary: #5147C4; --accent: #7269D8; --bg: #FAF8F4; --dark: #1C1916;
+  --white: #FFFFFF; --iv2: #F2EFE9; --line: #E6E1D8; --line2: #D8D2C7;
+  --ink: #1C1916; --ink2: #3D3834; --ink3: #6B6460; --ink4: #A09890;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --triage-i: #DC2626; --triage-ii: #EA580C; --triage-iii: #D97706; --triage-iv: #16A34A; --triage-v: #2563EB;
+  --success: #16A34A; --danger: #DC2626; --warning: #D97706;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; font-family: var(--font); color: var(--ink); background: var(--bg); }
+button, input, textarea, select { font-family: var(--font); }
+input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body {
-    height: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-  }
+.screen { display: none; width: 100%; height: 100%; }
+.screen.active { display: flex; }
 
-  /* ===== LOGIN ===== */
-  #loginScreen {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(160deg, var(--dark) 0%, #2A2520 50%, var(--primary-dark) 100%);
-  }
-  .login-card {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 44px 40px;
-    width: 100%;
-    max-width: 380px;
-    box-shadow: var(--shadow-lg);
-  }
-  .login-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
-  }
-  .login-logo .logo-icon {
-    width: 36px; height: 36px;
-    background: var(--primary);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-weight: 700; font-size: 16px;
-  }
-  .login-logo span {
-    font-size: 20px; font-weight: 700; color: var(--dark);
-  }
-  .login-card .subtitle {
-    color: var(--muted); font-size: 14px; margin: 4px 0 28px;
-  }
-  .login-card label {
-    display: block; font-size: 13px; font-weight: 600;
-    color: var(--muted); margin: 16px 0 6px;
-  }
-  .login-card input {
-    width: 100%; padding: 12px 14px; border-radius: 8px;
-    border: 1px solid var(--border); font-family: inherit;
-    font-size: 15px; background: var(--bg); transition: border-color .2s;
-  }
-  .login-card input:focus {
-    outline: none; border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(81,71,196,.15);
-  }
-  .login-card button {
-    width: 100%; margin-top: 24px; padding: 13px;
-    background: var(--primary); color: #fff; border: none;
-    border-radius: 8px; font-size: 15px; font-weight: 600;
-    font-family: inherit; cursor: pointer; transition: background .2s;
-  }
-  .login-card button:hover { background: var(--primary-light); }
-  .login-card button:disabled { opacity: .6; cursor: not-allowed; }
-  .login-error {
-    color: var(--red); font-size: 13px; margin-top: 12px;
-    text-align: center; min-height: 18px;
-  }
+/* LOGIN */
+#loginScreen { align-items: center; justify-content: center;
+  background: linear-gradient(160deg, var(--dark) 0%, #2A2520 50%, #3F37A0 100%); }
+.login-card { background: var(--white); border-radius: 16px; padding: 44px 40px; width: 100%; max-width: 380px; box-shadow: 0 4px 40px rgba(0,0,0,.2); }
+.login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.logo-icon { width: 36px; height: 36px; background: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 16px; }
+.login-title { font-size: 20px; font-weight: 700; }
+.login-sub { color: var(--ink3); font-size: 13px; margin-bottom: 24px; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--ink3); margin-bottom: 4px; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; background: var(--bg); }
+.btn-primary { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; color: #fff; background: var(--primary); cursor: pointer; }
+.btn-primary:hover { background: var(--accent); }
+.btn-primary:disabled { opacity: .5; }
+.login-error { color: var(--danger); font-size: 12px; margin-top: 8px; display: none; text-align: center; }
 
-  /* ===== PUESTO SELECTION ===== */
-  #puestoScreen {
-    min-height: 100vh; display: none;
-    align-items: center; justify-content: center;
-    background: var(--bg);
-  }
-  .puesto-container {
-    max-width: 520px; width: 100%; padding: 20px;
-  }
-  .puesto-container h2 {
-    font-size: 22px; font-weight: 700; margin-bottom: 4px;
-  }
-  .puesto-container .subtitle {
-    color: var(--muted); font-size: 14px; margin-bottom: 28px;
-  }
-  .puesto-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-  }
-  .puesto-btn {
-    padding: 20px; background: var(--card); border: 2px solid var(--border);
-    border-radius: var(--radius); cursor: pointer; text-align: center;
-    font-family: inherit; font-size: 15px; font-weight: 600;
-    color: var(--text); transition: all .2s;
-  }
-  .puesto-btn:hover {
-    border-color: var(--primary); background: rgba(81,71,196,.04);
-  }
-  .puesto-btn .puesto-icon {
-    font-size: 28px; margin-bottom: 8px; display: block;
-  }
+/* PUESTO */
+#puestoScreen { flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+.puesto-title { font-size: 20px; font-weight: 700; }
+.puesto-grid { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; padding: 20px; }
+.puesto-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 24px 32px; background: var(--white); border: 2px solid var(--line); border-radius: 16px; cursor: pointer; font-size: 15px; font-weight: 600; color: var(--ink); transition: all .2s; }
+.puesto-btn:hover { border-color: var(--primary); background: #F3F1FF; }
 
-  /* ===== MAIN VIEW ===== */
-  #mainScreen { display: none; height: 100vh; flex-direction: column; }
+/* HEADER */
+.header { display: flex; align-items: center; padding: 0 20px; height: 56px; background: var(--white); border-bottom: 1px solid var(--line); gap: 14px; flex-shrink: 0; }
+.hdr-mark { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(145deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #fff; }
+.hdr-title { font-size: 15px; font-weight: 700; }
+.hdr-badge { background: var(--success); color: #fff; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.hdr-spacer { flex: 1; }
+.hdr-meta { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--ink3); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+.status-dot.disconnected { background: var(--danger); }
+.btn-logout { padding: 6px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); font-size: 13px; color: var(--ink3); cursor: pointer; }
+.btn-logout:hover { border-color: var(--danger); color: var(--danger); }
 
-  /* Header */
-  .header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 24px; height: 60px; background: var(--card);
-    border-bottom: 1px solid var(--border); flex-shrink: 0;
-  }
-  .header-left {
-    display: flex; align-items: center; gap: 10px;
-  }
-  .header-logo {
-    width: 32px; height: 32px; background: var(--primary);
-    border-radius: 7px; display: flex; align-items: center;
-    justify-content: center; color: #fff; font-weight: 700; font-size: 14px;
-  }
-  .header-brand { font-size: 16px; font-weight: 700; color: var(--dark); }
-  .header-center {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 15px; font-weight: 600; color: var(--dark);
-  }
-  .sse-dot {
-    width: 9px; height: 9px; border-radius: 50%;
-    background: var(--green); flex-shrink: 0;
-    transition: background .3s;
-  }
-  .sse-dot.offline { background: var(--red); }
-  .header-right {
-    display: flex; align-items: center; gap: 16px;
-    font-size: 14px; color: var(--muted);
-  }
-  .header-user { font-weight: 600; color: var(--dark); }
-  .header-clock { font-variant-numeric: tabular-nums; }
-  .btn-logout {
-    padding: 6px 14px; border: 1px solid var(--border);
-    border-radius: 6px; background: var(--card); cursor: pointer;
-    font-family: inherit; font-size: 13px; color: var(--muted);
-    transition: all .2s;
-  }
-  .btn-logout:hover { border-color: var(--red); color: var(--red); }
+/* LAYOUT */
+#mainScreen { flex-direction: column; }
+.main-body { display: flex; flex: 1; overflow: hidden; }
+.sidebar { width: 280px; border-right: 1px solid var(--line); background: var(--white); display: flex; flex-direction: column; flex-shrink: 0; }
+.sidebar-header { padding: 16px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+.sidebar-title { font-size: 14px; font-weight: 700; }
+.queue-count { background: var(--primary); color: #fff; padding: 2px 10px; border-radius: 10px; font-size: 12px; font-weight: 700; }
+.queue-list { flex: 1; overflow-y: auto; padding: 8px; }
+.q-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); margin-bottom: 6px; }
+.q-turno { font-weight: 700; font-size: 15px; color: var(--primary); min-width: 44px; }
+.q-info { flex: 1; min-width: 0; }
+.q-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.q-meta { display: flex; gap: 6px; margin-top: 3px; align-items: center; }
+.triage-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 700; color: #fff; }
+.triage-I { background: var(--triage-i); } .triage-II { background: var(--triage-ii); } .triage-III { background: var(--triage-iii); }
+.triage-IV { background: var(--triage-iv); } .triage-V { background: var(--triage-v); }
+.queue-empty { padding: 32px; text-align: center; color: var(--ink4); }
 
-  /* Content split */
-  .content {
-    display: flex; flex: 1; overflow: hidden;
-  }
+/* WORKSPACE */
+.workspace { flex: 1; overflow-y: auto; padding: 20px; }
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 16px; }
+.btn-siguiente { padding: 16px 48px; font-size: 18px; font-weight: 700; border: none; border-radius: 14px; background: var(--primary); color: #fff; cursor: pointer; }
+.btn-siguiente:hover { background: var(--accent); }
+.btn-siguiente:disabled { opacity: .4; cursor: not-allowed; }
+.empty-hint { color: var(--ink4); font-size: 13px; }
 
-  /* Left panel — Cola */
-  .panel-left {
-    width: 35%; border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; background: var(--card);
-  }
-  .panel-title {
-    padding: 20px 20px 16px; font-size: 14px; font-weight: 700;
-    color: var(--muted); text-transform: uppercase; letter-spacing: .8px;
-    border-bottom: 1px solid var(--border); flex-shrink: 0;
-  }
-  .panel-title .count {
-    display: inline-flex; align-items: center; justify-content: center;
-    min-width: 22px; height: 22px; padding: 0 6px;
-    background: var(--primary); color: #fff; border-radius: 11px;
-    font-size: 12px; font-weight: 700; margin-left: 8px;
-  }
-  .queue-list {
-    flex: 1; overflow-y: auto; padding: 12px;
-  }
-  .queue-empty {
-    text-align: center; padding: 60px 20px; color: var(--muted);
-    font-size: 14px;
-  }
-  .queue-empty .empty-icon { font-size: 40px; margin-bottom: 12px; display: block; }
+/* Patient header */
+.patient-header { display: flex; align-items: center; gap: 16px; padding: 16px 20px; background: var(--white); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 16px; }
+.pat-turno { font-size: 24px; font-weight: 800; color: var(--primary); }
+.pat-info { flex: 1; }
+.pat-name { font-size: 16px; font-weight: 700; }
+.pat-doc { font-size: 13px; color: var(--ink3); }
+.pat-actions-top { display: flex; gap: 8px; }
+.btn-sm { padding: 6px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); font-size: 12px; cursor: pointer; color: var(--ink3); }
+.btn-sm:hover { border-color: var(--primary); color: var(--primary); }
+.btn-sm.danger:hover { border-color: var(--danger); color: var(--danger); }
 
-  /* Queue card */
-  .q-card {
-    padding: 14px 16px; border-radius: 10px; margin-bottom: 8px;
-    border: 1px solid var(--border); background: var(--bg);
-    cursor: default; transition: all .2s;
-  }
-  .q-card:hover { border-color: var(--primary); }
-  .q-card-top {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 6px;
-  }
-  .q-turno {
-    font-size: 18px; font-weight: 800; color: var(--primary);
-  }
-  .q-card-name {
-    font-size: 14px; font-weight: 600; color: var(--dark);
-    margin-bottom: 4px;
-  }
-  .q-card-eps {
-    font-size: 12px; color: var(--muted);
-  }
+/* Sections */
+.section-card { background: var(--white); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+.section-title { font-size: 14px; font-weight: 700; color: var(--ink2); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--line); text-transform: uppercase; letter-spacing: .5px; }
+.info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.info-item label { display: block; font-size: 11px; font-weight: 600; color: var(--ink4); text-transform: uppercase; letter-spacing: .3px; }
+.info-value { font-size: 14px; font-weight: 600; color: var(--ink); }
+.fields-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.field-item label { display: block; font-size: 12px; font-weight: 600; color: var(--ink3); margin-bottom: 4px; }
+.field-item input, .field-item select, .field-item textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; background: var(--bg); }
+.field-item textarea { min-height: 70px; resize: vertical; }
+.field-full { grid-column: 1 / -1; }
 
-  /* Triage badge */
-  .triage-badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 3px 10px; border-radius: 20px;
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .4px; color: #fff;
-  }
-  .triage-I   { background: #DC2626; }
-  .triage-II  { background: #EA580C; }
-  .triage-III { background: #D97706; }
-  .triage-IV  { background: #16A34A; }
-  .triage-V   { background: #2563EB; }
+/* Triage summary */
+.triage-summary { display: flex; gap: 16px; flex-wrap: wrap; }
+.triage-stat { text-align: center; padding: 10px 16px; background: var(--iv2); border-radius: 10px; min-width: 80px; }
+.triage-stat-value { font-size: 20px; font-weight: 800; color: var(--primary); }
+.triage-stat-label { font-size: 11px; color: var(--ink4); }
 
-  /* Right panel — Paciente actual */
-  .panel-right {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    padding: 40px; overflow-y: auto; background: var(--bg);
-  }
+/* Tabs */
+.tab-bar { display: flex; gap: 4px; margin-bottom: 16px; background: var(--iv2); border-radius: 10px; padding: 4px; }
+.tab-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--ink3); cursor: pointer; }
+.tab-btn.active { background: var(--white); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
 
-  /* Empty state — Siguiente */
-  .empty-state {
-    text-align: center;
-  }
-  .empty-state .empty-icon {
-    font-size: 64px; margin-bottom: 16px; display: block; opacity: .6;
-  }
-  .empty-state p {
-    color: var(--muted); font-size: 15px; margin-bottom: 28px;
-  }
-  .btn-siguiente {
-    padding: 20px 48px; background: var(--primary); color: #fff;
-    border: none; border-radius: var(--radius); font-size: 18px;
-    font-weight: 700; font-family: inherit; cursor: pointer;
-    box-shadow: 0 4px 16px rgba(81,71,196,.3);
-    transition: all .2s;
-  }
-  .btn-siguiente:hover {
-    background: var(--primary-light);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 24px rgba(81,71,196,.35);
-  }
-  .btn-siguiente:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+/* Submit */
+.submit-bar { display: flex; gap: 12px; padding: 16px 20px; background: var(--white); border: 1px solid var(--line); border-radius: 14px; align-items: center; }
+.btn-action { padding: 12px 28px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; color: #fff; }
+.btn-action.primary { background: var(--primary); }
+.btn-action.primary:hover { background: var(--accent); }
+.btn-action.success { background: var(--success); }
+.btn-action.success:hover { background: #15803D; }
+.btn-action:disabled { opacity: .4; cursor: not-allowed; }
 
-  /* Patient card */
-  .patient-card {
-    width: 100%; max-width: 560px;
-  }
-  .pc-turno {
-    font-size: 56px; font-weight: 900; color: var(--primary);
-    letter-spacing: -1px; line-height: 1;
-  }
-  .pc-name {
-    font-size: 24px; font-weight: 700; color: var(--dark);
-    margin: 8px 0 4px;
-  }
-  .pc-detail {
-    display: flex; flex-wrap: wrap; gap: 16px; margin: 12px 0 20px;
-    font-size: 14px; color: var(--muted);
-  }
-  .pc-detail span { display: flex; align-items: center; gap: 5px; }
-  .pc-detail .label { font-weight: 600; color: var(--dark); }
+/* Toast */
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px); padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 500; color: #fff; opacity: 0; transition: all .3s; z-index: 9999; pointer-events: none; }
+.toast.info { background: var(--primary); } .toast.success { background: var(--success); } .toast.error { background: var(--danger); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  .pc-triage {
-    display: flex; align-items: center; gap: 12px;
-    padding: 14px 18px; background: var(--card);
-    border-radius: 10px; border: 1px solid var(--border);
-    margin-bottom: 10px;
-  }
-  .pc-triage-label { font-size: 13px; color: var(--muted); }
-  .pc-triage-notas {
-    font-size: 13px; color: var(--text); margin-top: 4px;
-    font-style: italic;
-  }
-
-  .pc-llamado {
-    text-align: center; padding: 10px; margin: 10px 0;
-    font-size: 14px; font-weight: 600; color: var(--muted);
-    background: var(--card); border-radius: 8px;
-    border: 1px solid var(--border);
-  }
-
-  .pc-actions {
-    display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap;
-  }
-  .btn-atendido {
-    flex: 2; padding: 16px 24px; background: var(--green); color: #fff;
-    border: none; border-radius: var(--radius); font-size: 16px;
-    font-weight: 700; font-family: inherit; cursor: pointer;
-    transition: all .2s;
-  }
-  .btn-atendido:hover { background: #15803D; }
-  .btn-rellamar {
-    flex: 1; padding: 16px 18px; background: var(--card); color: var(--primary);
-    border: 2px solid var(--primary); border-radius: var(--radius);
-    font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer;
-    transition: all .2s;
-  }
-  .btn-rellamar:hover { background: rgba(81,71,196,.06); }
-  .btn-nopresento {
-    flex: 1; padding: 16px 18px; background: var(--card); color: var(--red);
-    border: 2px solid var(--border); border-radius: var(--radius);
-    font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer;
-    transition: all .2s;
-  }
-  .btn-nopresento:hover { border-color: var(--red); background: rgba(220,38,38,.04); }
-
-  /* Toast */
-  .toast {
-    position: fixed; bottom: 24px; right: 24px;
-    padding: 14px 22px; border-radius: 10px;
-    background: var(--dark); color: #fff; font-size: 14px;
-    font-weight: 500; box-shadow: var(--shadow-lg);
-    transform: translateY(100px); opacity: 0;
-    transition: all .3s ease;
-    z-index: 1000;
-  }
-  .toast.show { transform: translateY(0); opacity: 1; }
-
-  /* Animations */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .fade-in { animation: fadeIn .3s ease; }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: .5; }
-  }
-  .pulse { animation: pulse 1.5s infinite; }
-
-  /* Scrollbar */
-  .queue-list::-webkit-scrollbar { width: 5px; }
-  .queue-list::-webkit-scrollbar-track { background: transparent; }
-  .queue-list::-webkit-scrollbar-thumb {
-    background: var(--border); border-radius: 3px;
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .content { flex-direction: column; }
-    .panel-left { width: 100%; height: 40%; border-right: none; border-bottom: 1px solid var(--border); }
-    .panel-right { padding: 20px; }
-    .pc-turno { font-size: 40px; }
-    .pc-name { font-size: 20px; }
-    .pc-actions { flex-direction: column; }
-    .header-brand { display: none; }
-  }
+@media (max-width: 768px) {
+  .sidebar { width: 100%; max-height: 200px; border-right: none; border-bottom: 1px solid var(--line); }
+  .main-body { flex-direction: column; }
+}
 </style>
 </head>
 <body>
 
-<!-- ===== LOGIN ===== -->
-<div id="loginScreen">
+<!-- LOGIN -->
+<div class="screen active" id="loginScreen">
   <div class="login-card">
-    <div class="login-logo">
-      <div class="logo-icon">A</div>
-      <span>Arthemis Health</span>
-    </div>
-    <p class="subtitle">Consulta Medica — Ingrese sus credenciales</p>
-    <form id="loginForm" autocomplete="off">
-      <label>Usuario</label>
-      <input type="text" id="loginUser" placeholder="usuario" required autofocus>
-      <label>Contrasena</label>
-      <input type="password" id="loginPass" placeholder="contrasena" required>
-      <button type="submit" id="loginBtn">Iniciar sesion</button>
+    <div class="login-logo"><div class="logo-icon">A</div><div class="login-title">Arthemis Health</div></div>
+    <div class="login-sub">Consultorio Médico · Urgencias</div>
+    <form id="loginForm">
+      <div class="form-group"><label>Usuario</label><input type="text" id="usuario" required autocomplete="username"></div>
+      <div class="form-group"><label>Contraseña</label><input type="password" id="password" required autocomplete="current-password"></div>
+      <button type="submit" class="btn-primary" id="loginBtn">Iniciar sesión</button>
       <div class="login-error" id="loginError"></div>
     </form>
   </div>
 </div>
 
-<!-- ===== PUESTO SELECTION ===== -->
-<div id="puestoScreen">
-  <div class="puesto-container">
-    <h2>Seleccione su consultorio</h2>
-    <p class="subtitle">Elija el puesto donde atendera hoy</p>
-    <div class="puesto-grid" id="puestoGrid"></div>
-  </div>
+<!-- PUESTO -->
+<div class="screen" id="puestoScreen">
+  <div class="puesto-title">Seleccionar Consultorio</div>
+  <div class="puesto-grid" id="puestoGrid"></div>
 </div>
 
-<!-- ===== MAIN VIEW ===== -->
-<div id="mainScreen">
+<!-- MAIN -->
+<div class="screen" id="mainScreen">
   <div class="header">
-    <div class="header-left">
-      <div class="header-logo">A</div>
-      <span class="header-brand">Arthemis Health</span>
+    <div class="hdr-mark">A</div>
+    <div class="hdr-title">Consultorio Médico</div>
+    <div class="hdr-badge">Urgencias</div>
+    <div class="hdr-spacer"></div>
+    <div class="hdr-meta">
+      <span id="hdrPuesto"></span><span>·</span>
+      <span id="hdrUser"></span><span>·</span>
+      <span id="hdrClock">--:--:--</span>
+      <div class="status-dot" id="statusDot"></div>
     </div>
-    <div class="header-center">
-      <span class="sse-dot" id="sseDot" title="Conexion SSE"></span>
-      <span id="puestoNombre">Consultorio</span>
-    </div>
-    <div class="header-right">
-      <span class="header-user" id="userName"></span>
-      <span class="header-clock" id="clock"></span>
-      <button class="btn-logout" onclick="logout()">Salir</button>
-    </div>
+    <button class="btn-logout" id="btnLogout">Salir</button>
   </div>
-
-  <div class="content">
-    <!-- Cola -->
-    <div class="panel-left">
-      <div class="panel-title">
-        Cola de espera <span class="count" id="queueCount">0</span>
+  <div class="main-body">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">Cola admitidos</div>
+        <div class="queue-count" id="queueCount">0</div>
       </div>
-      <div class="queue-list" id="queueList">
-        <div class="queue-empty">
-          <span class="empty-icon">&#128203;</span>
-          No hay pacientes en cola
-        </div>
-      </div>
+      <div class="queue-list" id="queueList"><div class="queue-empty">No hay pacientes</div></div>
     </div>
-
-    <!-- Paciente actual -->
-    <div class="panel-right" id="panelRight">
-      <!-- filled dynamically -->
-    </div>
+    <div class="workspace" id="workspace"></div>
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-(function(){
-  // ===== State =====
-  let token = localStorage.getItem('ah_token') || '';
-  let user = null;
-  let puesto = null;
-  let cola = [];
-  let actual = null;
-  let sseSource = null;
-  let pollTimer = null;
+(function() {
+'use strict';
 
-  const TRIAGE_MAP = {
-    'I':   { label: 'Resucitacion', color: '#DC2626' },
-    'II':  { label: 'Emergencia',   color: '#EA580C' },
-    'III': { label: 'Urgencia',     color: '#D97706' },
-    'IV':  { label: 'Prioritaria',  color: '#16A34A' },
-    'V':   { label: 'No urgente',   color: '#2563EB' }
-  };
+let user = null, puesto = null, actual = null, cola = [];
+let triageData = null, hcId = null;
+let evtSource = null, pollTimer = null, clockTimer = null;
 
-  // ===== Screens =====
-  const $login   = document.getElementById('loginScreen');
-  const $puesto  = document.getElementById('puestoScreen');
-  const $main    = document.getElementById('mainScreen');
+const TRIAGE = {
+  I: { label: 'Resucitación', color: 'var(--triage-i)' },
+  II: { label: 'Emergencia', color: 'var(--triage-ii)' },
+  III: { label: 'Urgencia', color: 'var(--triage-iii)' },
+  IV: { label: 'Prioritaria', color: 'var(--triage-iv)' },
+  V: { label: 'No urgente', color: 'var(--triage-v)' },
+};
 
-  function showScreen(s) {
-    $login.style.display  = s === 'login'  ? 'flex'  : 'none';
-    $puesto.style.display = s === 'puesto' ? 'flex'  : 'none';
-    $main.style.display   = s === 'main'   ? 'flex'  : 'none';
+function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function toast(msg, type='info') { const el = document.getElementById('toast'); el.textContent = msg; el.className = 'toast '+type+' show'; clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 3500); }
+
+async function api(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin' };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(path, opts);
+  if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.error || 'Error ' + res.status); }
+  return res.json();
+}
+
+function startClock() {
+  function tick() { const n = new Date(); document.getElementById('hdrClock').textContent = [n.getHours(),n.getMinutes(),n.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':'); }
+  tick(); clockTimer = setInterval(tick, 1000);
+}
+
+function playNotif() {
+  try { const c = new (window.AudioContext||window.webkitAudioContext)(), o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination); o.type='sine'; o.frequency.value=660; g.gain.value=0.12; o.start(); g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.4); o.stop(c.currentTime+0.4); } catch(e){}
+}
+
+// AUTH
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const err = document.getElementById('loginError'); err.style.display = 'none';
+  const btn = document.getElementById('loginBtn'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  try {
+    const data = await api('POST', '/api/auth/login', { usuario: document.getElementById('usuario').value, password: document.getElementById('password').value });
+    user = data.user || data;
+    await checkPuesto();
+  } catch(ex) { err.textContent = ex.message; err.style.display = 'block'; }
+  finally { btn.disabled = false; btn.textContent = 'Iniciar sesión'; }
+});
+
+async function checkPuesto() {
+  try { const d = await api('GET', '/api/atencion/mi-puesto'); if (d && d.puesto_id) { puesto = d; enterMain(); return; } } catch(e) {}
+  loadPuestos();
+}
+
+async function loadPuestos() {
+  showScreen('puestoScreen');
+  try {
+    const data = await api('GET', '/api/atencion/puestos?tipo=consultorio&activo=1');
+    const list = data.puestos || [];
+    const grid = document.getElementById('puestoGrid'); grid.innerHTML = '';
+    if (!list.length) { grid.innerHTML = '<p style="color:var(--ink4)">No hay consultorios disponibles</p>'; return; }
+    list.forEach(p => { const b = document.createElement('button'); b.className = 'puesto-btn'; b.innerHTML = '<span style="font-size:24px">🩺</span>' + esc(p.nombre); b.onclick = () => selectPuesto(p); grid.appendChild(b); });
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function selectPuesto(p) {
+  try { await api('POST', '/api/atencion/seleccionar-puesto', { puesto_id: p.id }); puesto = p; enterMain(); }
+  catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+function enterMain() {
+  showScreen('mainScreen');
+  document.getElementById('hdrPuesto').textContent = puesto.nombre || 'Consultorio';
+  document.getElementById('hdrUser').textContent = user ? (user.nombre || user.usuario || '') : '';
+  startClock(); fetchCola(); startPolling(); connectSSE(); renderWorkspace();
+}
+
+// QUEUE
+async function fetchCola() {
+  try {
+    const data = await api('GET', '/api/atencion/cola');
+    const prev = cola.length;
+    cola = data.cola || [];
+    if (data.actual !== undefined) actual = data.actual;
+    if (cola.length > prev && prev > 0) playNotif();
+    renderQueue();
+  } catch(e) {}
+}
+
+function renderQueue() {
+  const c = document.getElementById('queueList');
+  document.getElementById('queueCount').textContent = cola.length;
+  if (!cola.length) { c.innerHTML = '<div class="queue-empty">No hay pacientes en cola</div>'; return; }
+  const order = { I:1, II:2, III:3, IV:4, V:5 };
+  const sorted = [...cola].sort((a,b) => (order[a.triage_nivel]||9) - (order[b.triage_nivel]||9));
+  c.innerHTML = sorted.map(t => {
+    const nv = t.triage_nivel || 'V';
+    return '<div class="q-card"><div class="q-turno">' + esc(t.turno) + '</div>' +
+      '<div class="q-info"><div class="q-name">' + esc(t.paciente_nombre || 'Paciente') + '</div>' +
+      '<div class="q-meta"><span class="triage-badge triage-' + nv + '">' + nv + ' · ' + (TRIAGE[nv]?.label || nv) + '</span></div></div></div>';
+  }).join('');
+}
+
+// WORKSPACE
+function renderWorkspace() {
+  const ws = document.getElementById('workspace');
+  triageData = null; hcId = null;
+
+  if (!actual) {
+    ws.innerHTML = '<div class="empty-state">' +
+      '<button class="btn-siguiente" id="btnNext" onclick="APP.callNext()"' + (cola.length ? '' : ' disabled') + '>Llamar siguiente paciente</button>' +
+      '<div class="empty-hint">Pacientes admitidos esperando atención médica</div></div>';
+    return;
   }
 
-  // ===== API helper =====
-  async function api(method, url, body) {
-    const opts = {
-      method,
-      headers: { 'Content-Type': 'application/json' }
-    };
-    if (token) opts.headers['Authorization'] = 'Bearer ' + token;
-    if (body) opts.body = JSON.stringify(body);
-    const res = await fetch(url, opts);
-    if (res.status === 401) { logout(); throw new Error('No autorizado'); }
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || data.message || 'Error');
-    return data;
-  }
+  const p = actual;
+  const nv = p.triage_nivel || '?';
+  const nvInfo = TRIAGE[nv] || { label: nv, color: 'var(--ink3)' };
 
-  // ===== Toast =====
-  function toast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-  }
+  let html = '';
 
-  // ===== Sound =====
-  function playNotif() {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, ctx.currentTime);
-      osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.1);
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.4);
-    } catch(e) {}
-  }
+  // Patient header
+  html += '<div class="patient-header">' +
+    '<div class="pat-turno">' + esc(p.turno || '—') + '</div>' +
+    '<div class="pat-info"><div class="pat-name">' + esc(p.paciente_nombre || p.nombre || 'Paciente') + '</div>' +
+    '<div class="pat-doc">' + esc((p.doc_type_temp||'CC') + ' ' + (p.doc_num_temp||p.documento||'')) + ' · Triage <span class="triage-badge triage-' + nv + '">' + nv + '</span></div></div>' +
+    '<div class="pat-actions-top">' +
+    '<button class="btn-sm" onclick="APP.rellamar()">Re-llamar</button>' +
+    '<button class="btn-sm danger" onclick="APP.noPresento()">No se presentó</button></div></div>';
 
-  // ===== Clock =====
-  function updateClock() {
-    const now = new Date();
-    const h = String(now.getHours()).padStart(2, '0');
-    const m = String(now.getMinutes()).padStart(2, '0');
-    document.getElementById('clock').textContent = h + ':' + m;
-  }
-  setInterval(updateClock, 10000);
-  updateClock();
+  // Tabs
+  html += '<div class="tab-bar">' +
+    '<button class="tab-btn active" data-tab="triage" onclick="APP.switchTab(\'triage\')">Resumen Triage</button>' +
+    '<button class="tab-btn" data-tab="hc" onclick="APP.switchTab(\'hc\')">Historia Clínica</button>' +
+    '<button class="tab-btn" data-tab="egreso" onclick="APP.switchTab(\'egreso\')">Egreso</button></div>';
 
-  // ===== Login =====
-  document.getElementById('loginForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const btn = document.getElementById('loginBtn');
-    const err = document.getElementById('loginError');
-    err.textContent = '';
-    btn.disabled = true;
-    btn.textContent = 'Ingresando...';
-    try {
-      const data = await api('POST', '/api/auth/login', {
-        usuario: document.getElementById('loginUser').value.trim(),
-        password: document.getElementById('loginPass').value
-      });
-      token = data.token;
-      localStorage.setItem('ah_token', token);
-      await init();
-    } catch(ex) {
-      err.textContent = ex.message || 'Error de autenticacion';
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Iniciar sesion';
+  // TAB: Triage summary (read-only)
+  html += '<div class="tab-pane active" id="tabTriage">' +
+    '<div class="section-card"><div class="section-title">📊 Datos del Triage</div>' +
+    '<div id="triageSummary"><div style="text-align:center;padding:20px;color:var(--ink4);">Cargando datos de triage...</div></div></div></div>';
+
+  // TAB: HC
+  html += '<div class="tab-pane" id="tabHc">' +
+    '<div class="section-card"><div class="section-title">📋 Apertura de Historia Clínica de Urgencias</div>' +
+    '<div class="fields-grid">' +
+    '<div class="field-item"><label>Causa de atención (RIPS)</label>' +
+    '<select id="hcCausa"><option value="urgencia">Urgencia</option><option value="accidente_trabajo">Accidente de trabajo</option>' +
+    '<option value="accidente_transito">Accidente de tránsito</option><option value="evento_catastrofico">Evento catastrófico</option>' +
+    '<option value="otro">Otro</option></select></div>' +
+    '<div class="field-item"><label>Cod. diagnóstico ingreso (CIE-10)</label><input type="text" id="hcCie10" placeholder="Ej: R10.4"></div>' +
+    '<div class="field-item field-full"><label>Motivo de consulta *</label><textarea id="hcMotivo" placeholder="Motivo principal de consulta del paciente..." required></textarea></div>' +
+    '</div>' +
+    '<div style="margin-top:12px;"><button class="btn-action primary" id="btnAbrirHC" onclick="APP.abrirHC()">Abrir Historia Clínica</button></div>' +
+    '<div id="hcInfo" style="display:none;margin-top:16px;"></div></div>' +
+
+    '<div class="section-card" id="secEvolucion" style="display:none;">' +
+    '<div class="section-title">🩺 Evolución Médica</div>' +
+    '<div class="fields-grid">' +
+    '<div class="field-item field-full"><label>Enfermedad actual</label><textarea id="hcEnfActual" placeholder="Descripción cronológica de la enfermedad actual..."></textarea></div>' +
+    '<div class="field-item field-full"><label>Antecedentes relevantes</label><textarea id="hcAntecedentes" placeholder="Patológicos, quirúrgicos, farmacológicos, alérgicos..."></textarea></div>' +
+    '<div class="field-item field-full"><label>Examen físico</label><textarea id="hcExamenFisico" placeholder="Hallazgos del examen físico..."></textarea></div>' +
+    '<div class="field-item"><label>Diagnóstico principal (CIE-10)</label><input type="text" id="hcDxPrincipal" placeholder="Ej: K35.9"></div>' +
+    '<div class="field-item"><label>Diagnósticos relacionados</label><input type="text" id="hcDxRelacionados" placeholder="Ej: R10.4, R11"></div>' +
+    '<div class="field-item field-full"><label>Conducta / Plan de manejo</label><textarea id="hcConducta" placeholder="Conducta médica y plan de manejo..."></textarea></div>' +
+    '<div class="field-item field-full"><label>Tratamiento</label><textarea id="hcTratamiento" placeholder="Medicamentos, procedimientos, interconsultas..."></textarea></div>' +
+    '<div class="field-item field-full"><label>Observaciones</label><textarea id="hcObservaciones" placeholder="Observaciones adicionales..."></textarea></div>' +
+    '</div>' +
+    '<div style="margin-top:12px;"><button class="btn-action primary" onclick="APP.guardarEvolucion()">Guardar evolución</button></div></div>' +
+    '</div>';
+
+  // TAB: Egreso
+  html += '<div class="tab-pane" id="tabEgreso">' +
+    '<div class="section-card"><div class="section-title">🚪 Destino de Egreso</div>' +
+    '<div class="fields-grid">' +
+    '<div class="field-item"><label>Condición de egreso</label>' +
+    '<select id="egresoCondicion"><option value="">-- Seleccionar --</option>' +
+    '<option value="vivo">Vivo</option><option value="muerto">Muerto</option><option value="no_aplica">No aplica</option></select></div>' +
+    '<div class="field-item"><label>Destino del paciente</label>' +
+    '<select id="egresoDestino"><option value="">-- Seleccionar --</option>' +
+    '<option value="alta_voluntaria">Alta voluntaria</option><option value="alta_medica">Alta médica</option>' +
+    '<option value="remision">Remisión a otra institución</option><option value="hospitalizacion">Hospitalización</option>' +
+    '<option value="cirugia">Cirugía</option><option value="observacion">Observación</option>' +
+    '<option value="fallecido">Fallecido</option></select></div>' +
+    '<div class="field-item field-full"><label>Diagnóstico de egreso (CIE-10)</label><input type="text" id="egresoDx" placeholder="Ej: K35.9"></div>' +
+    '</div></div>' +
+    '<div class="submit-bar">' +
+    '<button class="btn-action success" id="btnAtendido" onclick="APP.completarAtencion()">✓ Completar atención</button>' +
+    '<div style="flex:1;"></div></div></div>';
+
+  ws.innerHTML = html;
+  ws.scrollTop = 0;
+
+  // Load triage data
+  loadTriageData(p.id);
+}
+
+async function loadTriageData(admisionId) {
+  const el = document.getElementById('triageSummary');
+  try {
+    const data = await api('GET', '/api/atencion/triage-clinico/' + admisionId);
+    triageData = data.triage;
+    renderTriageSummary(triageData);
+  } catch(e) {
+    // Fallback: show basic triage info from the admission
+    if (actual) {
+      el.innerHTML = '<div class="triage-summary">' +
+        '<div class="triage-stat"><div class="triage-stat-value">' + esc(actual.triage_nivel || '?') + '</div><div class="triage-stat-label">Nivel</div></div>' +
+        '</div>' +
+        (actual.triage_notas ? '<p style="margin-top:12px;color:var(--ink3);font-size:13px;">' + esc(actual.triage_notas) + '</p>' : '') +
+        '<p style="margin-top:8px;color:var(--ink4);font-size:12px;">Datos clínicos detallados no disponibles</p>';
+    } else {
+      el.innerHTML = '<p style="color:var(--ink4)">No hay datos de triage disponibles</p>';
     }
-  });
-
-  function logout() {
-    token = '';
-    user = null;
-    puesto = null;
-    localStorage.removeItem('ah_token');
-    if (sseSource) { sseSource.close(); sseSource = null; }
-    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-    showScreen('login');
   }
-  window.logout = logout;
+}
 
-  // ===== Init =====
-  async function init() {
-    try {
-      user = await api('GET', '/api/auth/me');
-      document.getElementById('userName').textContent = user.nombre || user.usuario || '';
-    } catch(e) {
-      showScreen('login');
-      return;
-    }
-    // Check if already has a puesto
-    try {
-      const mp = await api('GET', '/api/atencion/mi-puesto');
-      if (mp && mp.id) {
-        puesto = mp;
-        enterMain();
-        return;
-      }
-    } catch(e) {}
-    // Show puesto selection
-    await loadPuestos();
-  }
+function renderTriageSummary(t) {
+  const el = document.getElementById('triageSummary');
+  const nv = t.nivel_asignado || '?';
+  const color = TRIAGE[nv]?.color || 'var(--ink3)';
+  const glasgowLabel = t.glasgow_total <= 8 ? 'Severo' : t.glasgow_total <= 12 ? 'Moderado' : 'Normal';
 
-  // ===== Puestos =====
-  async function loadPuestos() {
-    showScreen('puesto');
-    try {
-      const data = await api('GET', '/api/atencion/puestos?tipo=consultorio&activo=1');
-      const puestos = data.puestos || data || [];
-      const grid = document.getElementById('puestoGrid');
-      grid.innerHTML = '';
-      if (puestos.length === 0) {
-        grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted)">No hay consultorios disponibles</p>';
-        return;
-      }
-      puestos.forEach(p => {
-        const btn = document.createElement('button');
-        btn.className = 'puesto-btn';
-        btn.innerHTML = '<span class="puesto-icon">&#127973;</span>' + (p.nombre || 'Consultorio ' + p.id);
-        btn.addEventListener('click', () => selectPuesto(p));
-        grid.appendChild(btn);
-      });
-    } catch(e) {
-      toast('Error cargando consultorios');
-    }
+  let html = '<div class="triage-summary">';
+  html += '<div class="triage-stat" style="border:2px solid ' + color + '"><div class="triage-stat-value" style="color:' + color + '">' + nv + '</div><div class="triage-stat-label">' + (TRIAGE[nv]?.label || '') + '</div></div>';
+  if (t.ta_sistolica) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.ta_sistolica + '/' + (t.ta_diastolica||'') + '</div><div class="triage-stat-label">T/A mmHg</div></div>';
+  if (t.fc) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.fc + '</div><div class="triage-stat-label">FC lpm</div></div>';
+  if (t.fr) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.fr + '</div><div class="triage-stat-label">FR rpm</div></div>';
+  if (t.temperatura) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.temperatura + '°</div><div class="triage-stat-label">Temp °C</div></div>';
+  if (t.spo2 != null) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.spo2 + '%</div><div class="triage-stat-label">SpO2</div></div>';
+  if (t.glasgow_total != null) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.glasgow_total + '/15</div><div class="triage-stat-label">Glasgow (' + glasgowLabel + ')</div></div>';
+  if (t.eva_dolor != null) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.eva_dolor + '/10</div><div class="triage-stat-label">EVA Dolor</div></div>';
+  if (t.glucometria) html += '<div class="triage-stat"><div class="triage-stat-value">' + t.glucometria + '</div><div class="triage-stat-label">Glucometría</div></div>';
+  html += '</div>';
+
+  // Discriminators
+  const discs = [];
+  if (t.disc_via_aerea) discs.push('Vía aérea comprometida');
+  if (t.disc_sangrado) discs.push('Sangrado activo');
+  if (t.disc_dolor_toracico) discs.push('Dolor torácico');
+  if (t.disc_alt_neurologica) discs.push('Alt. neurológica');
+  if (t.disc_gestante) discs.push('Gestante');
+  if (t.disc_menor_edad) discs.push('Menor de edad');
+  if (t.disc_trauma_mayor) discs.push('Trauma mayor');
+  if (t.disc_convulsiones) discs.push('Convulsiones');
+  if (t.disc_fiebre_alta) discs.push('Fiebre alta');
+  if (discs.length) {
+    html += '<div style="margin-top:12px;"><strong style="font-size:12px;color:var(--danger);">⚠ Discriminadores activos:</strong> ' +
+      '<span style="font-size:13px;">' + discs.join(', ') + '</span></div>';
   }
 
-  async function selectPuesto(p) {
-    try {
-      await api('POST', '/api/atencion/seleccionar-puesto', { puesto_id: p.id });
-      puesto = p;
-      enterMain();
-    } catch(e) {
-      toast('Error seleccionando puesto: ' + e.message);
-    }
-  }
+  if (t.motivo_consulta) html += '<div style="margin-top:12px;"><strong style="font-size:12px;color:var(--ink3);">Motivo:</strong> <span style="font-size:13px;">' + esc(t.motivo_consulta) + '</span></div>';
+  if (t.alergias) html += '<div style="margin-top:6px;"><strong style="font-size:12px;color:var(--danger);">Alergias:</strong> <span style="font-size:13px;">' + esc(t.alergias) + '</span></div>';
+  if (t.notas_enfermeria) html += '<div style="margin-top:6px;"><strong style="font-size:12px;color:var(--ink3);">Notas enfermería:</strong> <span style="font-size:13px;">' + esc(t.notas_enfermeria) + '</span></div>';
+  if (t.enfermera_nombre) html += '<div style="margin-top:8px;font-size:11px;color:var(--ink4);">Enfermera: ' + esc(t.enfermera_nombre) + '</div>';
 
-  // ===== Main =====
-  function enterMain() {
-    document.getElementById('puestoNombre').textContent = puesto.nombre || 'Consultorio ' + puesto.id;
-    showScreen('main');
-    fetchCola();
-    startSSE();
-    pollTimer = setInterval(fetchCola, 10000);
-  }
+  el.innerHTML = html;
+}
 
-  // ===== Cola =====
-  async function fetchCola() {
-    try {
-      const data = await api('GET', '/api/atencion/cola');
-      const prevCount = cola.length;
-      cola = data.cola || [];
-      actual = data.actual || null;
-      renderQueue();
-      renderPatient();
-      if (cola.length > prevCount && prevCount > 0) {
-        playNotif();
-      }
-    } catch(e) {}
-  }
+// TAB switching
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelector('.tab-btn[data-tab="' + tab + '"]').classList.add('active');
+  const paneMap = { triage: 'tabTriage', hc: 'tabHc', egreso: 'tabEgreso' };
+  document.getElementById(paneMap[tab]).classList.add('active');
+}
 
-  function renderQueue() {
-    const list = document.getElementById('queueList');
-    const count = document.getElementById('queueCount');
-    count.textContent = cola.length;
+// HC
+async function abrirHC() {
+  if (!actual) return;
+  const motivo = document.getElementById('hcMotivo').value.trim();
+  if (!motivo) { toast('El motivo de consulta es requerido', 'error'); document.getElementById('hcMotivo').focus(); return; }
 
-    if (cola.length === 0) {
-      list.innerHTML = '<div class="queue-empty"><span class="empty-icon">&#128203;</span>No hay pacientes en cola</div>';
-      return;
-    }
-
-    // Sort by triage priority
-    const order = { 'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5 };
-    const sorted = [...cola].sort((a, b) => {
-      const na = order[a.triage_nivel] || 9;
-      const nb = order[b.triage_nivel] || 9;
-      return na - nb;
+  const btn = document.getElementById('btnAbrirHC');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Abriendo...';
+  try {
+    const data = await api('POST', '/api/admisiones/abrir-hc', {
+      admision_id: actual.id,
+      motivo_consulta: motivo,
+      causa_atencion: document.getElementById('hcCausa').value,
+      cod_cie10_ingreso: document.getElementById('hcCie10').value,
     });
-
-    list.innerHTML = sorted.map(t => {
-      const nivel = t.triage_nivel || 'V';
-      const info = TRIAGE_MAP[nivel] || TRIAGE_MAP['V'];
-      return `<div class="q-card fade-in">
-        <div class="q-card-top">
-          <span class="q-turno">${esc(t.turno)}</span>
-          <span class="triage-badge triage-${esc(nivel)}">${esc(nivel)} &middot; ${esc(info.label)}</span>
-        </div>
-        <div class="q-card-name">${esc(t.paciente_nombre || 'Paciente')}</div>
-        <div class="q-card-eps">${esc(t.eps || '')}</div>
-      </div>`;
-    }).join('');
+    hcId = data.hc_id;
+    toast('Historia clínica abierta', 'success');
+    btn.textContent = '✓ HC Abierta';
+    document.getElementById('hcInfo').style.display = 'block';
+    document.getElementById('hcInfo').innerHTML = '<div style="padding:10px;background:var(--iv2);border-radius:8px;color:var(--success);font-weight:600;">HC #' + hcId + ' abierta correctamente</div>';
+    document.getElementById('secEvolucion').style.display = 'block';
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+    btn.disabled = false; btn.textContent = 'Abrir Historia Clínica';
   }
+}
 
-  function renderPatient() {
-    const panel = document.getElementById('panelRight');
+async function guardarEvolucion() {
+  if (!hcId) { toast('Debe abrir la HC primero', 'error'); return; }
+  try {
+    await api('PUT', '/api/admisiones/hc/' + hcId, {
+      enfermedad_actual: document.getElementById('hcEnfActual').value,
+      antecedentes: document.getElementById('hcAntecedentes').value,
+      examen_fisico: document.getElementById('hcExamenFisico').value,
+      diagnostico_ingreso: document.getElementById('hcDxPrincipal').value,
+      cod_cie10_ingreso: document.getElementById('hcCie10').value,
+      diagnosticos_relacionados: document.getElementById('hcDxRelacionados').value,
+      conducta: document.getElementById('hcConducta').value,
+      tratamiento: document.getElementById('hcTratamiento').value,
+      observaciones: document.getElementById('hcObservaciones').value,
+    });
+    toast('Evolución guardada', 'success');
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
 
-    if (!actual) {
-      panel.innerHTML = `<div class="empty-state fade-in">
-        <span class="empty-icon">&#129658;</span>
-        <p>No hay paciente en atencion.<br>Presione para llamar al siguiente.</p>
-        <button class="btn-siguiente" onclick="callNext()">Siguiente Paciente</button>
-      </div>`;
-      return;
-    }
+// ACTIONS
+async function callNext() {
+  const btn = document.getElementById('btnNext');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
+  try {
+    const data = await api('POST', '/api/atencion/siguiente', {});
+    actual = data.turno || data.actual || data;
+    renderWorkspace(); fetchCola();
+  } catch(e) { toast(e.message || 'No hay pacientes', 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Llamar siguiente paciente'; } }
+}
 
-    const t = actual;
-    const nivel = t.triage_nivel || 'V';
-    const info = TRIAGE_MAP[nivel] || TRIAGE_MAP['V'];
-    const llamados = t.llamado_count || 1;
-    const maxLlamados = 3;
+async function completarAtencion() {
+  if (!actual) return;
+  const condicion = document.getElementById('egresoCondicion').value;
+  const destino = document.getElementById('egresoDestino').value;
+  if (!condicion || !destino) { toast('Seleccione condición y destino de egreso', 'error'); return; }
 
-    panel.innerHTML = `<div class="patient-card fade-in">
-      <div class="pc-turno">${esc(t.turno)}</div>
-      <div class="pc-name">${esc(t.paciente_nombre || 'Paciente')}</div>
-      <div class="pc-detail">
-        <span><span class="label">Documento:</span> ${esc(t.documento || '-')}</span>
-        <span><span class="label">EPS:</span> ${esc(t.eps || '-')}</span>
-        <span><span class="label">Celular:</span> ${esc(t.celular || '-')}</span>
-      </div>
-      <div class="pc-triage">
-        <span class="triage-badge triage-${esc(nivel)}" style="font-size:13px;padding:5px 14px;">
-          Triage ${esc(nivel)} &middot; ${esc(info.label)}
-        </span>
-        <div style="flex:1">
-          ${t.triage_notas ? `<div class="pc-triage-notas">${esc(t.triage_notas)}</div>` : ''}
-        </div>
-      </div>
-      <div class="pc-llamado">
-        Llamado ${llamados} de ${maxLlamados}
-      </div>
-      <div class="pc-actions">
-        <button class="btn-atendido" onclick="marcarAtendido(${t.id})">
-          &#10003; Atendido
-        </button>
-        <button class="btn-rellamar" onclick="rellamar(${t.id})">
-          &#128266; Re-llamar
-        </button>
-        <button class="btn-nopresento" onclick="noPresento(${t.id})">
-          &#10005; No se presento
-        </button>
-      </div>
-    </div>`;
-  }
-
-  // ===== Actions =====
-  window.callNext = async function() {
-    const btn = document.querySelector('.btn-siguiente');
-    if (btn) { btn.disabled = true; btn.textContent = 'Llamando...'; }
-    try {
-      await api('POST', '/api/atencion/siguiente', {});
-      await fetchCola();
-    } catch(e) {
-      toast('Error: ' + e.message);
-    }
-    if (btn) { btn.disabled = false; btn.textContent = 'Siguiente Paciente'; }
-  };
-
-  window.marcarAtendido = async function(id) {
-    try {
-      await api('POST', '/api/atencion/accion', { id });
-      actual = null;
-      renderPatient();
-      await fetchCola();
-      toast('Paciente marcado como atendido');
-    } catch(e) {
-      toast('Error: ' + e.message);
-    }
-  };
-
-  window.rellamar = async function(id) {
-    try {
-      await api('POST', '/api/atencion/re-llamar', { id });
-      await fetchCola();
-      toast('Paciente re-llamado');
-    } catch(e) {
-      toast('Error: ' + e.message);
-    }
-  };
-
-  window.noPresento = async function(id) {
-    try {
-      await api('POST', '/api/atencion/devolver', { id });
-      actual = null;
-      renderPatient();
-      await fetchCola();
-      toast('Paciente devuelto a la cola');
-    } catch(e) {
-      toast('Error: ' + e.message);
-    }
-  };
-
-  // ===== SSE =====
-  function startSSE() {
-    if (sseSource) sseSource.close();
-    const dot = document.getElementById('sseDot');
-
-    try {
-      sseSource = new EventSource('/api/sse');
-
-      sseSource.onopen = function() {
-        dot.classList.remove('offline');
-        dot.title = 'Conectado';
-      };
-
-      sseSource.onerror = function() {
-        dot.classList.add('offline');
-        dot.title = 'Desconectado — reintentando...';
-        // EventSource auto-reconnects
-      };
-
-      sseSource.addEventListener('turno_admision', function() {
-        playNotif();
-        fetchCola();
+  const btn = document.getElementById('btnAtendido');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Completando...';
+  try {
+    // Save egreso data
+    if (actual.id) {
+      await api('POST', '/api/atencion/accion', {
+        id: actual.id,
+        condicion_egreso: condicion,
+        destino_egreso: destino,
+        diagnostico_egreso: document.getElementById('egresoDx').value,
       });
-
-      sseSource.addEventListener('llamar_turno', function(e) {
-        try {
-          const d = JSON.parse(e.data);
-          if (d.puesto_id === puesto.id) fetchCola();
-        } catch(_) { fetchCola(); }
-      });
-
-      sseSource.addEventListener('turno_atendido', function() {
-        fetchCola();
-      });
-
-      sseSource.addEventListener('turno_devuelto', function() {
-        fetchCola();
-      });
-
-      // Fallback: generic message
-      sseSource.onmessage = function() {
-        fetchCola();
-      };
-    } catch(e) {
-      dot.classList.add('offline');
     }
+    toast('Atención completada', 'success');
+    actual = null; triageData = null; hcId = null;
+    await fetchCola();
+    renderWorkspace();
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+    btn.disabled = false; btn.textContent = '✓ Completar atención';
   }
+}
 
-  // ===== Util =====
-  function esc(s) {
-    if (s == null) return '';
-    const d = document.createElement('div');
-    d.textContent = String(s);
-    return d.innerHTML;
-  }
+async function rellamar() {
+  if (!actual) return;
+  try { await api('POST', '/api/atencion/re-llamar', { id: actual.id }); toast('Paciente re-llamado', 'info'); }
+  catch(e) { toast('Error: ' + e.message, 'error'); }
+}
 
-  // ===== Boot =====
-  if (token) {
-    init();
-  } else {
-    showScreen('login');
-  }
+async function noPresento() {
+  if (!actual) return;
+  try {
+    await api('POST', '/api/atencion/devolver', { id: actual.id });
+    toast('Paciente devuelto a cola', 'info');
+    actual = null; renderWorkspace(); fetchCola();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+// LOGOUT
+document.getElementById('btnLogout').addEventListener('click', async function() {
+  try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }); } catch(e) {}
+  if (evtSource) evtSource.close();
+  if (pollTimer) clearInterval(pollTimer);
+  if (clockTimer) clearInterval(clockTimer);
+  user = null; puesto = null; actual = null; cola = [];
+  showScreen('loginScreen');
+});
+
+// SSE
+function connectSSE() {
+  if (evtSource) evtSource.close();
+  const dot = document.getElementById('statusDot');
+  try {
+    const es = new EventSource('/api/sse');
+    evtSource = es;
+    es.onopen = () => { dot.classList.remove('disconnected'); };
+    es.onerror = () => { dot.classList.add('disconnected'); };
+    es.addEventListener('turno_admision', () => { playNotif(); fetchCola(); });
+    es.addEventListener('turno_atendido', () => { fetchCola(); });
+    es.onmessage = function(e) {
+      try { const d = JSON.parse(e.data);
+        if (d.tipo === 'turno_admision') { playNotif(); fetchCola(); }
+        else if (d.tipo === 'turno_atendido' || d.tipo === 'turno_devuelto') fetchCola();
+      } catch(ex) {}
+    };
+  } catch(e) { dot.classList.add('disconnected'); }
+}
+
+function startPolling() { if (pollTimer) clearInterval(pollTimer); pollTimer = setInterval(fetchCola, 10000); }
+
+// PUBLIC
+window.APP = { callNext, completarAtencion, rellamar, noPresento, switchTab, abrirHC, guardarEvolucion };
+
+// INIT
+(async function() {
+  try { user = await api('GET', '/api/auth/me'); await checkPuesto(); }
+  catch(e) { showScreen('loginScreen'); }
+})();
+
 })();
 </script>
 </body>

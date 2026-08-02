@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arthemis Health · Triage</title>
+<title>Arthemis Health · Triage Clínico</title>
 <style>
 :root {
   --primary: #5147C4;
@@ -24,20 +24,20 @@
   --triage-iii: #D97706;
   --triage-iv: #16A34A;
   --triage-v: #2563EB;
+  --success: #16A34A;
+  --danger: #DC2626;
+  --warning: #D97706;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; height: 100%; overflow: hidden; font-family: var(--font); color: var(--ink); background: var(--bg); }
 button, input, textarea, select { font-family: var(--font); }
 input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
-/* ===== SCREENS ===== */
 .screen { display: none; width: 100%; height: 100%; }
 .screen.active { display: flex; }
 
-/* ===== LOGIN ===== */
-#loginScreen {
-  align-items: center; justify-content: center; background: var(--bg);
-}
+/* LOGIN */
+#loginScreen { align-items: center; justify-content: center; background: var(--bg); }
 .login-card {
   background: var(--white); border-radius: 20px; padding: 48px 40px; width: 100%; max-width: 420px;
   border: 1px solid var(--line); box-shadow: 0 8px 40px rgba(28,25,22,.08);
@@ -49,362 +49,324 @@ input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px s
   display: flex; align-items: center; justify-content: center;
   font-size: 22px; font-weight: 800; color: #fff;
 }
-.login-brand { font-size: 22px; font-weight: 700; color: var(--dark); }
-.login-subtitle { text-align: center; color: var(--ink3); font-size: 14px; margin-bottom: 28px; }
+.login-name { font-size: 22px; font-weight: 700; color: var(--dark); }
+.login-sub { text-align: center; color: var(--ink3); margin-bottom: 28px; font-size: 14px; }
 .form-group { margin-bottom: 18px; }
 .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--ink2); margin-bottom: 6px; }
-.form-group input {
-  width: 100%; padding: 12px 16px; border: 1px solid var(--line2); border-radius: 10px;
-  font-size: 15px; background: var(--bg); transition: border-color .2s;
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px;
+  font-size: 14px; background: var(--bg); transition: border-color .2s;
 }
-.form-group input:focus { border-color: var(--primary); }
 .btn-primary {
-  width: 100%; padding: 14px; border: none; border-radius: 12px;
-  background: var(--primary); color: #fff; font-size: 15px; font-weight: 600;
-  cursor: pointer; transition: background .2s, transform .1s;
+  width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+  color: #fff; background: var(--primary); cursor: pointer; transition: background .2s;
 }
 .btn-primary:hover { background: var(--accent); }
-.btn-primary:active { transform: scale(.98); }
-.btn-primary:disabled { opacity: .6; cursor: not-allowed; }
-.login-error {
-  background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B;
-  padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none;
-}
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+.login-error { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; text-align: center; }
 
-/* ===== PUESTO SELECTION ===== */
-#puestoScreen { align-items: center; justify-content: center; flex-direction: column; }
-.puesto-card {
-  background: var(--white); border-radius: 20px; padding: 48px 40px; width: 100%; max-width: 520px;
-  border: 1px solid var(--line); box-shadow: 0 8px 40px rgba(28,25,22,.08);
-}
-.puesto-title { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 8px; }
-.puesto-desc { text-align: center; color: var(--ink3); font-size: 14px; margin-bottom: 28px; }
-.puesto-list { display: flex; flex-direction: column; gap: 10px; }
+/* PUESTO */
+#puestoScreen { flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+.puesto-title { font-size: 20px; font-weight: 700; }
+.puesto-list { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; padding: 20px; }
 .puesto-btn {
-  padding: 16px 20px; border: 2px solid var(--line); border-radius: 14px;
-  background: var(--white); cursor: pointer; display: flex; align-items: center; gap: 14px;
-  transition: all .2s; font-size: 16px; font-weight: 600; color: var(--ink);
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 24px 32px; background: var(--white); border: 2px solid var(--line); border-radius: 16px;
+  cursor: pointer; transition: all .2s; font-size: 15px; font-weight: 600; color: var(--ink);
 }
-.puesto-btn:hover { border-color: var(--primary); background: rgba(81,71,196,.04); }
-.puesto-btn .puesto-icon {
-  width: 42px; height: 42px; border-radius: 12px; background: var(--iv2);
-  display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
-}
+.puesto-btn:hover { border-color: var(--primary); background: #F3F1FF; }
+.puesto-icon { font-size: 28px; }
 
-/* ===== HEADER ===== */
+/* HEADER */
 .header {
-  height: 64px; flex-shrink: 0; background: var(--dark); display: flex; align-items: center;
-  justify-content: space-between; padding: 0 24px;
-  box-shadow: 0 2px 12px rgba(0,0,0,.15);
+  display: flex; align-items: center; padding: 0 20px; height: 56px;
+  background: var(--white); border-bottom: 1px solid var(--line); gap: 16px; flex-shrink: 0;
 }
-.hdr-left { display: flex; align-items: center; gap: 12px; }
+.hdr-logo { display: flex; align-items: center; gap: 10px; }
 .hdr-mark {
-  width: 38px; height: 38px; border-radius: 10px;
+  width: 32px; height: 32px; border-radius: 8px;
   background: linear-gradient(145deg, var(--primary), var(--accent));
   display: flex; align-items: center; justify-content: center;
-  font-size: 17px; font-weight: 800; color: #fff; flex-shrink: 0;
+  font-size: 14px; font-weight: 800; color: #fff;
 }
-.hdr-brand { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: .3px; }
-.hdr-center { display: flex; align-items: center; gap: 10px; }
-.hdr-puesto { font-size: 15px; font-weight: 600; color: #fff; }
-.status-dot {
-  width: 10px; height: 10px; border-radius: 50%; background: #22C55E;
-  box-shadow: 0 0 6px rgba(34,197,94,.5); transition: background .3s;
+.hdr-title { font-size: 15px; font-weight: 700; color: var(--dark); }
+.hdr-badge {
+  background: var(--triage-i); color: #fff; padding: 3px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
 }
-.status-dot.disconnected { background: #EF4444; box-shadow: 0 0 6px rgba(239,68,68,.5); }
-.hdr-right { display: flex; align-items: center; gap: 16px; }
-.hdr-user { font-size: 13px; color: rgba(255,255,255,.7); font-weight: 500; }
-.hdr-clock { font-size: 13px; color: rgba(255,255,255,.5); font-variant-numeric: tabular-nums; }
+.hdr-spacer { flex: 1; }
+.hdr-meta { display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--ink3); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+.status-dot.disconnected { background: var(--danger); }
 .btn-logout {
-  padding: 7px 14px; border: 1px solid rgba(255,255,255,.15); border-radius: 8px;
-  background: transparent; color: rgba(255,255,255,.7); font-size: 12px; font-weight: 600;
-  cursor: pointer; transition: all .2s;
+  padding: 6px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--white);
+  font-size: 13px; color: var(--ink3); cursor: pointer; transition: all .2s;
 }
-.btn-logout:hover { background: rgba(255,255,255,.1); color: #fff; }
+.btn-logout:hover { border-color: var(--danger); color: var(--danger); }
 
-/* ===== MAIN LAYOUT ===== */
+/* MAIN LAYOUT */
 #mainScreen { flex-direction: column; }
-.main-content { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+.main-body { display: flex; flex: 1; overflow: hidden; }
 
-/* ===== LEFT PANEL - QUEUE ===== */
-.panel-queue {
-  width: 40%; border-right: 1px solid var(--line); background: var(--white);
-  display: flex; flex-direction: column; overflow: hidden;
+/* SIDEBAR QUEUE */
+.sidebar {
+  width: 280px; border-right: 1px solid var(--line); background: var(--white);
+  display: flex; flex-direction: column; flex-shrink: 0;
 }
-.queue-header {
-  padding: 18px 20px; border-bottom: 1px solid var(--line);
-  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+.sidebar-header {
+  padding: 16px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between;
 }
-.queue-title { font-size: 16px; font-weight: 700; color: var(--ink); }
+.sidebar-title { font-size: 14px; font-weight: 700; }
 .queue-count {
-  background: var(--primary); color: #fff; font-size: 12px; font-weight: 700;
-  padding: 4px 10px; border-radius: 20px; min-width: 28px; text-align: center;
+  background: var(--primary); color: #fff; padding: 2px 10px; border-radius: 10px;
+  font-size: 12px; font-weight: 700;
 }
-.queue-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
-.queue-list::-webkit-scrollbar { width: 6px; }
-.queue-list::-webkit-scrollbar-track { background: transparent; }
-.queue-list::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 3px; }
-.queue-empty {
-  flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column;
-  color: var(--ink4); gap: 8px;
-}
-.queue-empty-icon { font-size: 40px; opacity: .4; }
-.queue-empty-text { font-size: 14px; }
-
-/* ===== QUEUE CARD ===== */
+.queue-list { flex: 1; overflow-y: auto; padding: 8px; }
 .q-card {
-  padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px;
-  background: var(--white); display: flex; align-items: center; gap: 14px;
-  transition: all .2s; cursor: default;
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--line); margin-bottom: 6px; cursor: default; transition: background .15s;
 }
-.q-card:hover { border-color: var(--line2); box-shadow: 0 2px 8px rgba(28,25,22,.06); }
-.q-turno {
-  font-size: 20px; font-weight: 800; color: var(--primary); min-width: 48px;
-  letter-spacing: -.5px;
-}
+.q-card:hover { background: var(--iv2); }
+.q-turno { font-weight: 700; font-size: 15px; color: var(--primary); min-width: 44px; }
 .q-info { flex: 1; min-width: 0; }
-.q-name { font-size: 14px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.q-meta { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
-.q-badge {
-  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
-  padding: 3px 8px; border-radius: 6px; white-space: nowrap;
-}
-.q-badge.preferencial { background: #FEF2F2; color: #DC2626; }
-.q-badge.general { background: #FFFBEB; color: #B45309; }
-.q-badge.cita { background: #F0FDF4; color: #16A34A; }
-.q-time { font-size: 12px; color: var(--ink4); font-variant-numeric: tabular-nums; }
+.q-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.q-meta { display: flex; gap: 8px; margin-top: 3px; align-items: center; }
+.q-time { font-size: 11px; color: var(--ink4); }
+.q-badge { font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 600; }
+.q-badge.general { background: #E8E5FF; color: var(--primary); }
+.q-badge.preferencial { background: #FEF3C7; color: #92400E; }
+.queue-empty { padding: 32px; text-align: center; color: var(--ink4); }
+.queue-empty-icon { font-size: 32px; margin-bottom: 8px; }
 
-/* ===== RIGHT PANEL - PATIENT ===== */
-.panel-patient {
-  width: 60%; background: var(--bg); display: flex; flex-direction: column;
-  align-items: center; justify-content: center; overflow-y: auto; padding: 24px;
-}
+/* PATIENT WORKSPACE */
+.workspace { flex: 1; overflow-y: auto; padding: 20px; }
 
 /* Empty state */
-.empty-state { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 16px; }
 .btn-siguiente {
-  padding: 24px 56px; border: none; border-radius: 20px;
-  background: var(--primary); color: #fff; font-size: 20px; font-weight: 700;
-  cursor: pointer; transition: all .2s;
-  box-shadow: 0 6px 24px rgba(81,71,196,.3);
+  padding: 16px 48px; font-size: 18px; font-weight: 700; border: none; border-radius: 14px;
+  background: var(--primary); color: #fff; cursor: pointer; transition: all .2s;
 }
-.btn-siguiente:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(81,71,196,.4); }
-.btn-siguiente:active { transform: translateY(0); }
-.btn-siguiente:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
-.empty-hint { font-size: 14px; color: var(--ink4); }
+.btn-siguiente:hover { background: var(--accent); transform: translateY(-1px); }
+.btn-siguiente:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.empty-hint { color: var(--ink4); font-size: 13px; }
 
-/* Patient card */
-.patient-card {
-  background: var(--white); border-radius: 20px; border: 1px solid var(--line);
-  box-shadow: 0 8px 40px rgba(28,25,22,.08); width: 100%; max-width: 640px;
-  padding: 32px; animation: slideUp .3s ease;
+/* Patient header card */
+.patient-header {
+  display: flex; align-items: center; gap: 16px; padding: 16px 20px;
+  background: var(--white); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 16px;
 }
-@keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-.pat-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
-.pat-turno {
-  font-size: 32px; font-weight: 800; color: var(--primary); letter-spacing: -1px;
-}
+.pat-turno { font-size: 24px; font-weight: 800; color: var(--primary); }
 .pat-info { flex: 1; }
-.pat-name { font-size: 20px; font-weight: 700; color: var(--ink); }
-.pat-doc { font-size: 14px; color: var(--ink3); margin-top: 2px; }
-.pat-badge {
-  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
-  padding: 5px 12px; border-radius: 8px;
+.pat-name { font-size: 16px; font-weight: 700; }
+.pat-doc { font-size: 13px; color: var(--ink3); }
+.pat-actions-top { display: flex; gap: 8px; }
+.btn-sm {
+  padding: 6px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--white);
+  font-size: 12px; cursor: pointer; transition: all .15s; color: var(--ink3);
+}
+.btn-sm:hover { border-color: var(--primary); color: var(--primary); }
+.btn-sm.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+/* Triage form sections */
+.form-section {
+  background: var(--white); border: 1px solid var(--line); border-radius: 14px;
+  padding: 20px; margin-bottom: 16px;
+}
+.section-title {
+  font-size: 14px; font-weight: 700; color: var(--ink2); margin-bottom: 14px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--line); text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.fields-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.field-item label { display: block; font-size: 12px; font-weight: 600; color: var(--ink3); margin-bottom: 4px; }
+.field-item input, .field-item select, .field-item textarea {
+  width: 100%; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px;
+  font-size: 14px; background: var(--bg);
+}
+.field-item textarea { min-height: 60px; resize: vertical; }
+.field-unit { font-size: 11px; color: var(--ink4); margin-top: 2px; }
+.field-help { font-size: 11px; color: var(--ink4); font-style: italic; margin-top: 2px; }
+.field-full { grid-column: 1 / -1; }
+
+/* Glasgow computed */
+.glasgow-total {
+  display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--iv2);
+  border-radius: 10px; margin-top: 8px;
+}
+.glasgow-score { font-size: 28px; font-weight: 800; color: var(--primary); }
+.glasgow-label { font-size: 13px; color: var(--ink3); }
+
+/* EVA slider */
+.eva-container { display: flex; align-items: center; gap: 14px; }
+.eva-slider { flex: 1; -webkit-appearance: none; height: 8px; border-radius: 4px; background: linear-gradient(to right, var(--success), var(--warning), var(--danger)); }
+.eva-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--white); border: 2px solid var(--primary); cursor: pointer; }
+.eva-value { font-size: 24px; font-weight: 800; min-width: 40px; text-align: center; }
+
+/* Discriminators */
+.disc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.disc-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--iv2);
+  border-radius: 10px; cursor: pointer; transition: all .15s; border: 2px solid transparent;
+}
+.disc-item:hover { background: #FEF2F2; }
+.disc-item.active { background: #FEF2F2; border-color: var(--danger); }
+.disc-check { width: 20px; height: 20px; border: 2px solid var(--line2); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
+.disc-item.active .disc-check { background: var(--danger); border-color: var(--danger); color: #fff; }
+.disc-label { font-size: 13px; font-weight: 500; }
+.disc-help { font-size: 11px; color: var(--ink4); }
+
+/* Triage level selector */
+.nivel-section { margin-top: 0; }
+.nivel-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.nivel-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 8px;
+  border: 2px solid var(--line); border-radius: 14px; background: var(--white);
+  cursor: pointer; transition: all .2s; text-align: center;
+}
+.nivel-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+.nivel-btn.selected { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.15); }
+.nivel-btn[data-nivel="I"] { --c: var(--triage-i); }
+.nivel-btn[data-nivel="II"] { --c: var(--triage-ii); }
+.nivel-btn[data-nivel="III"] { --c: var(--triage-iii); }
+.nivel-btn[data-nivel="IV"] { --c: var(--triage-iv); }
+.nivel-btn[data-nivel="V"] { --c: var(--triage-v); }
+.nivel-btn.selected { border-color: var(--c); background: color-mix(in srgb, var(--c) 8%, white); }
+.nivel-roman { font-size: 28px; font-weight: 800; color: var(--c); }
+.nivel-name { font-size: 11px; font-weight: 700; color: var(--c); text-transform: uppercase; letter-spacing: .3px; }
+.nivel-time { font-size: 10px; color: var(--ink4); }
+
+/* Suggest badge */
+.nivel-suggest {
+  display: inline-block; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+  margin-bottom: 12px;
 }
 
-/* Triage levels */
-.triage-section { margin-bottom: 24px; }
-.triage-label { font-size: 14px; font-weight: 700; color: var(--ink2); margin-bottom: 12px; }
-.triage-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-.triage-btn {
-  padding: 16px 8px; border: 2px solid transparent; border-radius: 14px;
-  cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;
-  transition: all .2s; background: transparent;
+/* Submit bar */
+.submit-bar {
+  display: flex; gap: 12px; padding: 16px 20px; background: var(--white);
+  border: 1px solid var(--line); border-radius: 14px; align-items: center;
 }
-.triage-btn .t-level {
-  width: 44px; height: 44px; border-radius: 12px; display: flex;
-  align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff;
-  transition: transform .2s;
-}
-.triage-btn .t-name { font-size: 11px; font-weight: 600; text-align: center; line-height: 1.3; }
-.triage-btn:hover .t-level { transform: scale(1.08); }
-.triage-btn.selected { border-color: currentColor; background: rgba(0,0,0,.03); }
-
-.triage-btn[data-nivel="1"] { color: var(--triage-i); }
-.triage-btn[data-nivel="1"] .t-level { background: var(--triage-i); }
-.triage-btn[data-nivel="2"] { color: var(--triage-ii); }
-.triage-btn[data-nivel="2"] .t-level { background: var(--triage-ii); }
-.triage-btn[data-nivel="3"] { color: var(--triage-iii); }
-.triage-btn[data-nivel="3"] .t-level { background: var(--triage-iii); }
-.triage-btn[data-nivel="4"] { color: var(--triage-iv); }
-.triage-btn[data-nivel="4"] .t-level { background: var(--triage-iv); }
-.triage-btn[data-nivel="5"] { color: var(--triage-v); }
-.triage-btn[data-nivel="5"] .t-level { background: var(--triage-v); }
-
-.notas-group { margin-bottom: 24px; }
-.notas-group label { display: block; font-size: 14px; font-weight: 700; color: var(--ink2); margin-bottom: 8px; }
-.notas-group textarea {
-  width: 100%; height: 80px; padding: 12px 16px; border: 1px solid var(--line2);
-  border-radius: 12px; font-size: 14px; background: var(--bg); resize: vertical;
-}
-
-.pat-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .btn-asignar {
-  flex: 1; min-width: 180px; padding: 14px 20px; border: none; border-radius: 12px;
-  background: var(--primary); color: #fff; font-size: 15px; font-weight: 600;
-  cursor: pointer; transition: all .2s;
+  padding: 14px 32px; border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
+  color: #fff; background: var(--primary); cursor: pointer; transition: all .2s;
 }
 .btn-asignar:hover { background: var(--accent); }
-.btn-asignar:disabled { opacity: .5; cursor: not-allowed; }
-.btn-rellamar {
-  padding: 14px 20px; border: 2px solid var(--line2); border-radius: 12px;
-  background: var(--white); color: var(--ink2); font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: all .2s;
-}
-.btn-rellamar:hover { border-color: var(--primary); color: var(--primary); }
-.btn-nopresento {
-  padding: 14px 20px; border: 2px solid #FECACA; border-radius: 12px;
-  background: #FEF2F2; color: #DC2626; font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: all .2s;
-}
-.btn-nopresento:hover { background: #FEE2E2; border-color: #FCA5A5; }
+.btn-asignar:disabled { opacity: .4; cursor: not-allowed; }
+.hora-triage { font-size: 12px; color: var(--ink4); margin-left: auto; }
 
-/* ===== TOAST ===== */
+/* Toast */
 .toast {
-  position: fixed; bottom: 24px; right: 24px; padding: 14px 22px;
-  border-radius: 12px; color: #fff; font-size: 14px; font-weight: 600;
-  transform: translateY(100px); opacity: 0; transition: all .3s; z-index: 1000;
-  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px);
+  padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 500;
+  color: #fff; opacity: 0; transition: all .3s; z-index: 9999; pointer-events: none;
 }
-.toast.show { transform: translateY(0); opacity: 1; }
-.toast.success { background: #16A34A; }
-.toast.error { background: #DC2626; }
 .toast.info { background: var(--primary); }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* ===== LOADING SPINNER ===== */
+/* Spinner */
 .spinner {
-  width: 20px; height: 20px; border: 2px solid rgba(255,255,255,.3);
-  border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; display: inline-block;
+  display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 900px) {
-  .main-content { flex-direction: column; }
-  .panel-queue { width: 100%; height: 40%; border-right: none; border-bottom: 1px solid var(--line); }
-  .panel-patient { width: 100%; height: 60%; }
-  .triage-grid { grid-template-columns: repeat(3, 1fr); }
-}
-@media (max-width: 600px) {
-  .header { padding: 0 14px; }
-  .hdr-brand { display: none; }
-  .patient-card { padding: 20px; }
-  .triage-grid { grid-template-columns: repeat(2, 1fr); }
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { width: 100%; max-height: 200px; border-right: none; border-bottom: 1px solid var(--line); }
+  .main-body { flex-direction: column; }
+  .nivel-grid { grid-template-columns: repeat(3, 1fr); }
+  .fields-grid { grid-template-columns: 1fr 1fr; }
 }
 </style>
 </head>
 <body>
 
-<!-- ===== LOGIN SCREEN ===== -->
-<div id="loginScreen" class="screen active">
+<!-- LOGIN -->
+<div class="screen active" id="loginScreen">
   <div class="login-card">
     <div class="login-logo">
       <div class="login-mark">A</div>
-      <div class="login-brand">Arthemis Health</div>
+      <div class="login-name">Arthemis Health</div>
     </div>
-    <div class="login-subtitle">Acceso al sistema de Triage</div>
-    <div id="loginError" class="login-error"></div>
+    <div class="login-sub">Triage Clínico · Enfermería</div>
     <form id="loginForm">
       <div class="form-group">
         <label for="usuario">Usuario</label>
-        <input type="text" id="usuario" name="usuario" autocomplete="username" required>
+        <input type="text" id="usuario" required autocomplete="username">
       </div>
       <div class="form-group">
         <label for="password">Contraseña</label>
-        <input type="password" id="password" name="password" autocomplete="current-password" required>
+        <input type="password" id="password" required autocomplete="current-password">
       </div>
       <button type="submit" class="btn-primary" id="loginBtn">Iniciar sesión</button>
+      <div class="login-error" id="loginError"></div>
     </form>
   </div>
 </div>
 
-<!-- ===== PUESTO SELECTION SCREEN ===== -->
-<div id="puestoScreen" class="screen">
-  <div class="puesto-card">
-    <div class="puesto-title">Seleccionar puesto</div>
-    <div class="puesto-desc">Escoja el puesto de triage donde va a trabajar</div>
-    <div id="puestoList" class="puesto-list"></div>
-  </div>
+<!-- PUESTO SELECTION -->
+<div class="screen" id="puestoScreen">
+  <div class="puesto-title">Seleccionar puesto de Triage</div>
+  <div class="puesto-list" id="puestoList"></div>
 </div>
 
-<!-- ===== MAIN SCREEN ===== -->
-<div id="mainScreen" class="screen">
+<!-- MAIN -->
+<div class="screen" id="mainScreen">
   <div class="header">
-    <div class="hdr-left">
+    <div class="hdr-logo">
       <div class="hdr-mark">A</div>
-      <div class="hdr-brand">Arthemis Health</div>
+      <div class="hdr-title">Triage Clínico</div>
     </div>
-    <div class="hdr-center">
+    <div class="hdr-badge">Enfermería</div>
+    <div class="hdr-spacer"></div>
+    <div class="hdr-meta">
+      <span id="hdrPuesto"></span>
+      <span>·</span>
+      <span id="hdrUser"></span>
+      <span>·</span>
+      <span id="hdrClock">--:--:--</span>
       <div class="status-dot" id="statusDot" title="Conectado"></div>
-      <div class="hdr-puesto" id="hdrPuesto">Triage</div>
     </div>
-    <div class="hdr-right">
-      <div class="hdr-user" id="hdrUser"></div>
-      <div class="hdr-clock" id="hdrClock"></div>
-      <button class="btn-logout" id="btnLogout">Cerrar sesión</button>
-    </div>
+    <button class="btn-logout" id="btnLogout">Salir</button>
   </div>
-  <div class="main-content">
-    <!-- LEFT: Queue -->
-    <div class="panel-queue">
-      <div class="queue-header">
-        <div class="queue-title">Cola de espera</div>
+  <div class="main-body">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">Cola de espera</div>
         <div class="queue-count" id="queueCount">0</div>
       </div>
       <div class="queue-list" id="queueList">
-        <div class="queue-empty">
-          <div class="queue-empty-icon">📋</div>
-          <div class="queue-empty-text">No hay pacientes en espera</div>
-        </div>
+        <div class="queue-empty"><div class="queue-empty-icon">📋</div><div>No hay pacientes</div></div>
       </div>
     </div>
-    <!-- RIGHT: Patient -->
-    <div class="panel-patient" id="panelPatient">
-      <!-- Empty state shown by default -->
-    </div>
+    <div class="workspace" id="workspace"></div>
   </div>
 </div>
 
-<!-- ===== TOAST ===== -->
 <div class="toast" id="toast"></div>
 
 <script>
 (function() {
 'use strict';
 
-// ===== STATE =====
 const state = {
-  user: null,
-  puesto: null,
-  cola: [],
-  actual: null,
-  selectedNivel: null,
-  sseConnected: false,
-  eventSource: null,
-  pollInterval: null,
-  clockInterval: null
+  user: null, puesto: null, actual: null, cola: [],
+  selectedNivel: null, formConfig: [], horaInicioTriage: null,
+  eventSource: null, pollInterval: null, clockInterval: null, sseConnected: false
 };
 
 // ===== HELPERS =====
 async function api(path, opts = {}) {
   const res = await fetch(path, {
     headers: { 'Content-Type': 'application/json', ...opts.headers },
-    credentials: 'same-origin',
-    ...opts
+    credentials: 'same-origin', ...opts
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.error || body.mensaje || `Error ${res.status}`);
+    throw new Error(body.error || body.mensaje || 'Error ' + res.status);
   }
   return res.json();
 }
@@ -425,36 +387,23 @@ function toast(msg, type = 'info') {
 function minutesAgo(dateStr) {
   if (!dateStr) return '—';
   const diff = Date.now() - new Date(dateStr).getTime();
-  const m = Math.max(0, Math.floor(diff / 60000));
-  return m + 'm';
+  return Math.max(0, Math.floor(diff / 60000)) + 'm';
 }
 
-function badgeClass(tipo) {
-  if (!tipo) return 'general';
-  const t = tipo.toLowerCase();
-  if (t === 'preferencial') return 'preferencial';
-  if (t === 'cita') return 'cita';
-  return 'general';
+function escHtml(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
 }
 
-function badgeLabel(tipo) {
-  if (!tipo) return 'General';
-  const t = tipo.toLowerCase();
-  if (t === 'preferencial') return 'Preferencial';
-  if (t === 'cita') return 'Cita';
-  return 'General';
-}
-
-// ===== SOUND =====
 function playBeep() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'sine';
-    osc.frequency.value = 880;
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine'; osc.frequency.value = 880;
     gain.gain.value = 0.15;
     osc.start();
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
@@ -462,14 +411,13 @@ function playBeep() {
   } catch(e) {}
 }
 
-// ===== CLOCK =====
 function startClock() {
   function tick() {
     const now = new Date();
-    const h = String(now.getHours()).padStart(2, '0');
-    const m = String(now.getMinutes()).padStart(2, '0');
-    const s = String(now.getSeconds()).padStart(2, '0');
-    document.getElementById('hdrClock').textContent = h + ':' + m + ':' + s;
+    document.getElementById('hdrClock').textContent =
+      String(now.getHours()).padStart(2,'0') + ':' +
+      String(now.getMinutes()).padStart(2,'0') + ':' +
+      String(now.getSeconds()).padStart(2,'0');
   }
   tick();
   state.clockInterval = setInterval(tick, 1000);
@@ -477,11 +425,8 @@ function startClock() {
 
 // ===== AUTH =====
 async function checkAuth() {
-  try {
-    const data = await api('/api/auth/me');
-    state.user = data;
-    return true;
-  } catch(e) { return false; }
+  try { state.user = await api('/api/auth/me'); return true; }
+  catch(e) { return false; }
 }
 
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
@@ -504,21 +449,14 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   } catch(err) {
     errEl.textContent = err.message || 'Credenciales incorrectas';
     errEl.style.display = 'block';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Iniciar sesión';
-  }
+  } finally { btn.disabled = false; btn.textContent = 'Iniciar sesión'; }
 });
 
 // ===== PUESTO =====
 async function checkPuesto() {
   try {
     const data = await api('/api/atencion/mi-puesto');
-    if (data && data.puesto_id) {
-      state.puesto = data;
-      enterMain();
-      return;
-    }
+    if (data && data.puesto_id) { state.puesto = data; enterMain(); return; }
   } catch(e) {}
   await loadPuestos();
 }
@@ -527,163 +465,313 @@ async function loadPuestos() {
   showScreen('puestoScreen');
   try {
     const data = await api('/api/atencion/puestos?tipo=triage&activo=1');
-    const list = data.puestos || data || [];
-    const container = document.getElementById('puestoList');
-    container.innerHTML = '';
-    if (list.length === 0) {
-      container.innerHTML = '<div style="text-align:center;color:var(--ink4);padding:20px;">No hay puestos de triage disponibles</div>';
-      return;
-    }
+    const list = data.puestos || [];
+    const c = document.getElementById('puestoList');
+    c.innerHTML = '';
+    if (!list.length) { c.innerHTML = '<div style="color:var(--ink4);padding:20px;">No hay puestos de triage disponibles</div>'; return; }
     list.forEach(p => {
       const btn = document.createElement('button');
       btn.className = 'puesto-btn';
-      btn.innerHTML = '<div class="puesto-icon">🏥</div><span>' + escHtml(p.nombre || p.name || ('Triage ' + p.id)) + '</span>';
+      btn.innerHTML = '<div class="puesto-icon">🏥</div><span>' + escHtml(p.nombre) + '</span>';
       btn.addEventListener('click', () => selectPuesto(p));
-      container.appendChild(btn);
+      c.appendChild(btn);
     });
-  } catch(err) {
-    toast('Error cargando puestos: ' + err.message, 'error');
-  }
+  } catch(err) { toast('Error cargando puestos: ' + err.message, 'error'); }
 }
 
 async function selectPuesto(p) {
   try {
     const data = await api('/api/atencion/seleccionar-puesto', {
-      method: 'POST',
-      body: JSON.stringify({ puesto_id: p.id })
+      method: 'POST', body: JSON.stringify({ puesto_id: p.id })
     });
     state.puesto = data.puesto || data || p;
     enterMain();
-  } catch(err) {
-    toast('Error seleccionando puesto: ' + err.message, 'error');
-  }
+  } catch(err) { toast('Error: ' + err.message, 'error'); }
 }
 
-// ===== MAIN VIEW =====
-function enterMain() {
+// ===== MAIN =====
+async function enterMain() {
   showScreen('mainScreen');
-  const puestoName = state.puesto.nombre || state.puesto.name || 'Triage';
-  document.getElementById('hdrPuesto').textContent = puestoName;
-  const userName = state.user ? (state.user.nombre || state.user.name || state.user.usuario || '') : '';
-  document.getElementById('hdrUser').textContent = userName;
+  document.getElementById('hdrPuesto').textContent = state.puesto.nombre || 'Triage';
+  document.getElementById('hdrUser').textContent = state.user ? (state.user.nombre || state.user.usuario || '') : '';
   startClock();
+  // Load triage form config
+  try { const cfg = await api('/api/atencion/triage-config'); state.formConfig = cfg.campos || []; }
+  catch(e) { console.warn('No triage config:', e); }
   refreshCola();
   startPolling();
   connectSSE();
-  renderPatientPanel();
+  renderWorkspace();
 }
 
 // ===== QUEUE =====
 async function refreshCola() {
   try {
     const data = await api('/api/atencion/cola');
-    const prevCount = state.cola.length;
+    const prev = state.cola.length;
     state.cola = data.cola || [];
-    if (data.actual !== undefined) {
-      state.actual = data.actual;
-    }
-    if (state.cola.length > prevCount && prevCount > 0) {
-      playBeep();
-    }
+    if (data.actual !== undefined) state.actual = data.actual;
+    if (state.cola.length > prev && prev > 0) playBeep();
     renderQueue();
-    renderPatientPanel();
-  } catch(err) {
-    console.error('Error refreshing cola:', err);
-  }
+  } catch(err) { console.error('Cola error:', err); }
 }
 
 function renderQueue() {
-  const container = document.getElementById('queueList');
-  const countEl = document.getElementById('queueCount');
-  countEl.textContent = state.cola.length;
-
-  if (state.cola.length === 0) {
-    container.innerHTML = '<div class="queue-empty"><div class="queue-empty-icon">📋</div><div class="queue-empty-text">No hay pacientes en espera</div></div>';
+  const c = document.getElementById('queueList');
+  document.getElementById('queueCount').textContent = state.cola.length;
+  if (!state.cola.length) {
+    c.innerHTML = '<div class="queue-empty"><div class="queue-empty-icon">📋</div><div>No hay pacientes en espera</div></div>';
     return;
   }
-
-  container.innerHTML = '';
+  c.innerHTML = '';
   state.cola.forEach(t => {
     const card = document.createElement('div');
     card.className = 'q-card';
     card.innerHTML =
-      '<div class="q-turno">' + escHtml(t.turno || t.codigo || '—') + '</div>' +
-      '<div class="q-info">' +
-        '<div class="q-name">' + escHtml(t.paciente_nombre || t.nombre || 'Sin nombre') + '</div>' +
-        '<div class="q-meta">' +
-          '<span class="q-badge ' + badgeClass(t.turno_tipo) + '">' + badgeLabel(t.turno_tipo) + '</span>' +
-          '<span class="q-time">' + minutesAgo(t.creado_en) + '</span>' +
-        '</div>' +
-      '</div>';
-    container.appendChild(card);
+      '<div class="q-turno">' + escHtml(t.turno || '—') + '</div>' +
+      '<div class="q-info"><div class="q-name">' + escHtml(t.paciente_nombre || t.nombre || 'Sin nombre') + '</div>' +
+      '<div class="q-meta"><span class="q-badge general">' + escHtml(t.turno_tipo || 'General') + '</span>' +
+      '<span class="q-time">' + minutesAgo(t.creado_en) + '</span></div></div>';
+    c.appendChild(card);
   });
 }
 
-// ===== PATIENT PANEL =====
-function renderPatientPanel() {
-  const panel = document.getElementById('panelPatient');
+// ===== WORKSPACE =====
+function renderWorkspace() {
+  const ws = document.getElementById('workspace');
   state.selectedNivel = null;
 
   if (!state.actual) {
-    panel.innerHTML =
+    ws.innerHTML =
       '<div class="empty-state">' +
-        '<button class="btn-siguiente" id="btnSiguiente" onclick="APP.siguiente()">Siguiente</button>' +
-        '<div class="empty-hint">Presione para llamar al siguiente paciente</div>' +
+        '<button class="btn-siguiente" id="btnSiguiente" onclick="APP.siguiente()"' +
+        (state.cola.length === 0 ? ' disabled' : '') + '>Llamar siguiente</button>' +
+        '<div class="empty-hint">Presione para llamar al siguiente paciente de la cola</div>' +
       '</div>';
-    const btn = document.getElementById('btnSiguiente');
-    if (state.cola.length === 0) {
-      btn.disabled = true;
-    }
     return;
   }
 
+  state.horaInicioTriage = new Date().toISOString();
   const p = state.actual;
-  panel.innerHTML =
-    '<div class="patient-card">' +
-      '<div class="pat-header">' +
-        '<div class="pat-turno">' + escHtml(p.turno || p.codigo || '—') + '</div>' +
-        '<div class="pat-info">' +
-          '<div class="pat-name">' + escHtml(p.paciente_nombre || p.nombre || 'Sin nombre') + '</div>' +
-          '<div class="pat-doc">' + escHtml(p.documento || p.cedula || '—') + '</div>' +
-        '</div>' +
-        '<span class="pat-badge ' + badgeClass(p.turno_tipo) + '">' + badgeLabel(p.turno_tipo) + '</span>' +
-      '</div>' +
-      '<div class="triage-section">' +
-        '<div class="triage-label">Nivel de Triage</div>' +
-        '<div class="triage-grid">' +
-          triageButton(1, 'I', 'Resucitación') +
-          triageButton(2, 'II', 'Emergencia') +
-          triageButton(3, 'III', 'Urgencia') +
-          triageButton(4, 'IV', 'Prioritaria') +
-          triageButton(5, 'V', 'No urgente') +
-        '</div>' +
-      '</div>' +
-      '<div class="notas-group">' +
-        '<label for="notasTriage">Notas</label>' +
-        '<textarea id="notasTriage" placeholder="Observaciones del triage..."></textarea>' +
-      '</div>' +
-      '<div class="pat-actions">' +
-        '<button class="btn-asignar" id="btnAsignar" onclick="APP.asignarTriage()" disabled>Asignar Triage</button>' +
-        '<button class="btn-rellamar" onclick="APP.rellamar()">Re-llamar</button>' +
-        '<button class="btn-nopresento" onclick="APP.noPresento()">No se presentó</button>' +
-      '</div>' +
-    '</div>';
+  let html = '';
 
-  panel.querySelectorAll('.triage-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      panel.querySelectorAll('.triage-btn').forEach(b => b.classList.remove('selected'));
-      this.classList.add('selected');
-      state.selectedNivel = parseInt(this.dataset.nivel);
-      document.getElementById('btnAsignar').disabled = false;
+  // Patient header
+  html += '<div class="patient-header">' +
+    '<div class="pat-turno">' + escHtml(p.turno || '—') + '</div>' +
+    '<div class="pat-info"><div class="pat-name">' + escHtml(p.paciente_nombre || p.nombre || 'Sin nombre') + '</div>' +
+    '<div class="pat-doc">' + escHtml((p.doc_type_temp || 'CC') + ' ' + (p.doc_num_temp || p.documento || '')) + '</div></div>' +
+    '<div class="pat-actions-top">' +
+      '<button class="btn-sm" onclick="APP.rellamar()">Re-llamar</button>' +
+      '<button class="btn-sm danger" onclick="APP.noPresento()">No se presentó</button>' +
+    '</div></div>';
+
+  // Group fields by grupo
+  const groups = {};
+  const visibleFields = state.formConfig.filter(f => f.visible);
+  visibleFields.forEach(f => {
+    if (!groups[f.grupo]) groups[f.grupo] = [];
+    groups[f.grupo].push(f);
+  });
+
+  const groupTitles = {
+    'signos_vitales': '🫀 Signos Vitales',
+    'escalas': '📊 Escalas Clínicas',
+    'discriminadores': '⚠️ Discriminadores de Alerta',
+    'clinico': '📝 Evaluación Clínica'
+  };
+
+  // Signos vitales
+  if (groups['signos_vitales']) {
+    html += '<div class="form-section"><div class="section-title">' + (groupTitles['signos_vitales'] || 'Signos Vitales') + '</div>';
+    html += '<div class="fields-grid">';
+    groups['signos_vitales'].forEach(f => {
+      html += renderField(f);
     });
+    html += '</div></div>';
+  }
+
+  // Escalas (Glasgow + EVA)
+  if (groups['escalas']) {
+    html += '<div class="form-section"><div class="section-title">' + (groupTitles['escalas'] || 'Escalas') + '</div>';
+    const glasgowFields = groups['escalas'].filter(f => f.campo.startsWith('glasgow_'));
+    const evaField = groups['escalas'].find(f => f.campo === 'eva_dolor');
+    const dolorLoc = groups['escalas'].find(f => f.campo === 'dolor_localizacion');
+
+    if (glasgowFields.length) {
+      html += '<div class="fields-grid">';
+      glasgowFields.forEach(f => { html += renderField(f); });
+      html += '</div>';
+      html += '<div class="glasgow-total"><div class="glasgow-score" id="glasgowTotal">15</div>' +
+        '<div><div class="glasgow-label">Glasgow Total</div><div class="field-help" id="glasgowInterp">Normal</div></div></div>';
+    }
+
+    if (evaField) {
+      html += '<div style="margin-top:14px"><label style="font-size:12px;font-weight:600;color:var(--ink3);display:block;margin-bottom:6px;">' +
+        escHtml(evaField.etiqueta) + '</label>';
+      html += '<div class="eva-container">' +
+        '<span style="font-size:12px;color:var(--success);">0</span>' +
+        '<input type="range" class="eva-slider" id="f_eva_dolor" min="0" max="10" value="0" oninput="APP.updateEva(this.value)">' +
+        '<span style="font-size:12px;color:var(--danger);">10</span>' +
+        '<div class="eva-value" id="evaValue">0</div></div></div>';
+    }
+    if (dolorLoc) {
+      html += '<div style="margin-top:10px">' + renderField(dolorLoc) + '</div>';
+    }
+    html += '</div>';
+  }
+
+  // Discriminadores
+  if (groups['discriminadores']) {
+    html += '<div class="form-section"><div class="section-title">' + (groupTitles['discriminadores'] || 'Discriminadores') + '</div>';
+    html += '<div class="disc-grid">';
+    groups['discriminadores'].forEach(f => {
+      html += '<div class="disc-item" id="disc_' + f.campo + '" onclick="APP.toggleDisc(\'' + f.campo + '\')">' +
+        '<div class="disc-check" id="check_' + f.campo + '"></div>' +
+        '<div><div class="disc-label">' + escHtml(f.etiqueta) + '</div>' +
+        (f.ayuda ? '<div class="disc-help">' + escHtml(f.ayuda) + '</div>' : '') +
+        '</div></div>';
+    });
+    html += '</div></div>';
+  }
+
+  // Clinical fields
+  if (groups['clinico']) {
+    html += '<div class="form-section"><div class="section-title">' + (groupTitles['clinico'] || 'Evaluación') + '</div>';
+    html += '<div class="fields-grid">';
+    groups['clinico'].forEach(f => {
+      html += '<div class="field-full">' + renderField(f) + '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  // Triage Level
+  html += '<div class="form-section nivel-section"><div class="section-title">🎯 Clasificación de Triage (Resolución 5596/2015)</div>';
+  html += '<div id="nivelSuggest"></div>';
+  html += '<div class="nivel-grid">';
+  const niveles = [
+    { n: 'I', name: 'Resucitación', time: 'Inmediato' },
+    { n: 'II', name: 'Emergencia', time: '≤ 30 min' },
+    { n: 'III', name: 'Urgencia', time: 'Según institución' },
+    { n: 'IV', name: 'Prioritaria', time: 'Según institución' },
+    { n: 'V', name: 'No urgente', time: 'Según institución' },
+  ];
+  niveles.forEach(lv => {
+    html += '<button type="button" class="nivel-btn" data-nivel="' + lv.n + '" onclick="APP.selectNivel(\'' + lv.n + '\')">' +
+      '<div class="nivel-roman">' + lv.n + '</div>' +
+      '<div class="nivel-name">' + lv.name + '</div>' +
+      '<div class="nivel-time">' + lv.time + '</div>' +
+    '</button>';
+  });
+  html += '</div></div>';
+
+  // Submit
+  html += '<div class="submit-bar">' +
+    '<button class="btn-asignar" id="btnAsignar" onclick="APP.asignarTriage()" disabled>Completar Triage</button>' +
+    '<div class="hora-triage">Inicio: ' + new Date().toLocaleTimeString('es-CO') + '</div>' +
+  '</div>';
+
+  ws.innerHTML = html;
+  ws.scrollTop = 0;
+
+  // Attach Glasgow listeners
+  ['glasgow_ocular','glasgow_verbal','glasgow_motor'].forEach(id => {
+    const el = document.getElementById('f_' + id);
+    if (el) el.addEventListener('change', updateGlasgow);
   });
 }
 
-function triageButton(nivel, roman, label) {
-  return '<button type="button" class="triage-btn" data-nivel="' + nivel + '">' +
-    '<div class="t-level">' + roman + '</div>' +
-    '<div class="t-name">' + label + '</div>' +
-  '</button>';
+function renderField(f) {
+  const id = 'f_' + f.campo;
+  const req = f.requerido ? ' required' : '';
+  let input = '';
+
+  if (f.tipo === 'select') {
+    let opts = [];
+    try { opts = typeof f.opciones === 'string' ? JSON.parse(f.opciones) : (f.opciones || []); } catch(e) {}
+    input = '<select id="' + id + '"' + req + '>';
+    opts.forEach(o => {
+      const val = o.v !== undefined ? o.v : o.value;
+      const lab = o.l || o.label || val;
+      input += '<option value="' + val + '">' + escHtml(String(lab)) + '</option>';
+    });
+    input += '</select>';
+  } else if (f.tipo === 'textarea') {
+    input = '<textarea id="' + id + '" placeholder="' + escHtml(f.ayuda || '') + '"' + req + '></textarea>';
+  } else if (f.tipo === 'number') {
+    const min = f.rango_min != null ? ' min="' + f.rango_min + '"' : '';
+    const max = f.rango_max != null ? ' max="' + f.rango_max + '"' : '';
+    input = '<input type="number" id="' + id + '"' + min + max + req +
+      ' placeholder="' + escHtml(f.ayuda || '') + '">';
+  } else {
+    input = '<input type="text" id="' + id + '" placeholder="' + escHtml(f.ayuda || '') + '"' + req + '>';
+  }
+
+  let unit = f.unidad ? '<div class="field-unit">' + escHtml(f.unidad) + '</div>' : '';
+  return '<div class="field-item"><label>' + escHtml(f.etiqueta) + (f.requerido ? ' *' : '') + '</label>' + input + unit + '</div>';
+}
+
+// ===== FORM INTERACTIONS =====
+function updateGlasgow() {
+  const o = parseInt(document.getElementById('f_glasgow_ocular')?.value || 4);
+  const v = parseInt(document.getElementById('f_glasgow_verbal')?.value || 5);
+  const m = parseInt(document.getElementById('f_glasgow_motor')?.value || 6);
+  const total = o + v + m;
+  const el = document.getElementById('glasgowTotal');
+  const interp = document.getElementById('glasgowInterp');
+  if (el) el.textContent = total;
+  if (interp) {
+    if (total <= 8) interp.textContent = 'Severo — Requiere manejo inmediato';
+    else if (total <= 12) interp.textContent = 'Moderado';
+    else interp.textContent = 'Normal (leve)';
+  }
+  suggestNivel();
+}
+
+function updateEva(val) {
+  const el = document.getElementById('evaValue');
+  if (el) el.textContent = val;
+  suggestNivel();
+}
+
+function toggleDisc(campo) {
+  const item = document.getElementById('disc_' + campo);
+  if (!item) return;
+  item.classList.toggle('active');
+  const check = document.getElementById('check_' + campo);
+  if (check) check.innerHTML = item.classList.contains('active') ? '✓' : '';
+  suggestNivel();
+}
+
+function suggestNivel() {
+  // Auto-suggest triage level based on clinical data
+  const glasgow = parseInt(document.getElementById('glasgowTotal')?.textContent || 15);
+  const eva = parseInt(document.getElementById('f_eva_dolor')?.value || 0);
+  const spo2 = parseInt(document.getElementById('f_spo2')?.value || 100);
+
+  const activeDiscs = document.querySelectorAll('.disc-item.active');
+  const criticalDiscs = ['disc_via_aerea', 'disc_alt_neurologica', 'disc_convulsiones', 'disc_trauma_mayor'];
+  const hasCritical = Array.from(activeDiscs).some(d => criticalDiscs.some(c => d.id === 'disc_' + c));
+
+  let suggested = 'III'; // default
+  if (glasgow <= 8 || hasCritical || spo2 < 85) suggested = 'I';
+  else if (glasgow <= 12 || eva >= 8 || spo2 < 90 || activeDiscs.length >= 3) suggested = 'II';
+  else if (eva >= 5 || activeDiscs.length >= 1 || spo2 < 94) suggested = 'III';
+  else if (eva >= 2) suggested = 'IV';
+  else suggested = 'V';
+
+  const colors = { I: 'var(--triage-i)', II: 'var(--triage-ii)', III: 'var(--triage-iii)', IV: 'var(--triage-iv)', V: 'var(--triage-v)' };
+  const el = document.getElementById('nivelSuggest');
+  if (el) {
+    el.innerHTML = '<div class="nivel-suggest" style="background:' + colors[suggested] + ';color:#fff;">Sugerido: Nivel ' + suggested + '</div>';
+  }
+}
+
+function selectNivel(nivel) {
+  state.selectedNivel = nivel;
+  document.querySelectorAll('.nivel-btn').forEach(b => b.classList.remove('selected'));
+  const btn = document.querySelector('.nivel-btn[data-nivel="' + nivel + '"]');
+  if (btn) btn.classList.add('selected');
+  document.getElementById('btnAsignar').disabled = false;
 }
 
 // ===== ACTIONS =====
@@ -693,135 +781,130 @@ async function siguiente() {
   try {
     const data = await api('/api/atencion/siguiente', { method: 'POST' });
     state.actual = data.turno || data.actual || data;
-    renderPatientPanel();
+    renderWorkspace();
     refreshCola();
   } catch(err) {
     toast(err.message || 'No hay pacientes en cola', 'error');
-    if (btn) { btn.disabled = false; btn.textContent = 'Siguiente'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Llamar siguiente'; }
   }
+}
+
+function gatherFormData() {
+  const data = { id: state.actual.id, nivel: state.selectedNivel };
+
+  // Gather all visible fields
+  state.formConfig.filter(f => f.visible).forEach(f => {
+    if (f.tipo === 'checkbox' || f.grupo === 'discriminadores') {
+      const item = document.getElementById('disc_' + f.campo);
+      data[f.campo] = item && item.classList.contains('active') ? 1 : 0;
+    } else if (f.campo === 'eva_dolor') {
+      data[f.campo] = parseInt(document.getElementById('f_eva_dolor')?.value || 0);
+    } else {
+      const el = document.getElementById('f_' + f.campo);
+      if (el) {
+        if (f.tipo === 'number') data[f.campo] = el.value ? parseFloat(el.value) : null;
+        else data[f.campo] = el.value || '';
+      }
+    }
+  });
+
+  // Glasgow total
+  const g_o = parseInt(document.getElementById('f_glasgow_ocular')?.value || 4);
+  const g_v = parseInt(document.getElementById('f_glasgow_verbal')?.value || 5);
+  const g_m = parseInt(document.getElementById('f_glasgow_motor')?.value || 6);
+  data.glasgow_ocular = g_o;
+  data.glasgow_verbal = g_v;
+  data.glasgow_motor = g_m;
+  data.glasgow_total = g_o + g_v + g_m;
+
+  data.hora_inicio_triage = state.horaInicioTriage;
+  return data;
 }
 
 async function asignarTriage() {
   if (!state.actual || !state.selectedNivel) return;
+
+  // Validate required fields
+  const required = state.formConfig.filter(f => f.visible && f.requerido && f.tipo !== 'checkbox');
+  for (const f of required) {
+    const el = document.getElementById('f_' + f.campo);
+    if (el && !el.value) {
+      toast('Campo requerido: ' + f.etiqueta, 'error');
+      el.focus();
+      return;
+    }
+  }
+
   const btn = document.getElementById('btnAsignar');
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Asignando...';
+  btn.innerHTML = '<span class="spinner"></span> Guardando...';
   try {
-    await api('/api/atencion/accion', {
-      method: 'POST',
-      body: JSON.stringify({
-        id: state.actual.id,
-        nivel: state.selectedNivel,
-        notas: document.getElementById('notasTriage').value || ''
-      })
+    const formData = gatherFormData();
+    const result = await api('/api/atencion/accion', {
+      method: 'POST', body: JSON.stringify(formData)
     });
-    toast('Triage nivel ' + state.selectedNivel + ' asignado', 'success');
+    toast('Triage nivel ' + state.selectedNivel + ' asignado correctamente', 'success');
     state.actual = null;
     state.selectedNivel = null;
     await refreshCola();
-    // Auto-call next if there are patients waiting
-    if (state.cola.length > 0) {
-      await siguiente();
-    } else {
-      renderPatientPanel();
-    }
+    if (state.cola.length > 0) await siguiente();
+    else renderWorkspace();
   } catch(err) {
-    toast('Error asignando triage: ' + err.message, 'error');
+    toast('Error: ' + err.message, 'error');
     btn.disabled = false;
-    btn.textContent = 'Asignar Triage';
+    btn.textContent = 'Completar Triage';
   }
 }
 
 async function rellamar() {
   if (!state.actual) return;
   try {
-    await api('/api/atencion/re-llamar', {
-      method: 'POST',
-      body: JSON.stringify({ id: state.actual.id })
-    });
+    await api('/api/atencion/re-llamar', { method: 'POST', body: JSON.stringify({ id: state.actual.id }) });
     toast('Paciente re-llamado', 'info');
-  } catch(err) {
-    toast('Error: ' + err.message, 'error');
-  }
+  } catch(err) { toast('Error: ' + err.message, 'error'); }
 }
 
 async function noPresento() {
   if (!state.actual) return;
   try {
-    await api('/api/atencion/devolver', {
-      method: 'POST',
-      body: JSON.stringify({ id: state.actual.id })
-    });
+    await api('/api/atencion/devolver', { method: 'POST', body: JSON.stringify({ id: state.actual.id }) });
     toast('Paciente devuelto a cola', 'info');
     state.actual = null;
     await refreshCola();
-  } catch(err) {
-    toast('Error: ' + err.message, 'error');
-  }
+    renderWorkspace();
+  } catch(err) { toast('Error: ' + err.message, 'error'); }
 }
 
 // ===== LOGOUT =====
 document.getElementById('btnLogout').addEventListener('click', async function() {
   try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }); } catch(e) {}
   cleanup();
-  state.user = null;
-  state.puesto = null;
-  state.actual = null;
-  state.cola = [];
+  state.user = null; state.puesto = null; state.actual = null; state.cola = [];
   showScreen('loginScreen');
 });
 
 // ===== SSE =====
 function connectSSE() {
-  if (state.eventSource) { state.eventSource.close(); }
+  if (state.eventSource) state.eventSource.close();
   const dot = document.getElementById('statusDot');
   try {
     const es = new EventSource('/api/sse');
     state.eventSource = es;
-    es.onopen = function() {
-      state.sseConnected = true;
-      dot.classList.remove('disconnected');
-      dot.title = 'Conectado';
-    };
-    es.onerror = function() {
-      state.sseConnected = false;
-      dot.classList.add('disconnected');
-      dot.title = 'Desconectado - reconectando...';
-    };
-    es.addEventListener('nuevo_turno', function() { playBeep(); refreshCola(); });
-    es.addEventListener('llamar_turno', function(e) {
-      try {
-        const d = JSON.parse(e.data);
-        if (d.puesto_id === (state.puesto && state.puesto.id)) {
-          state.actual = d.turno || d;
-          renderPatientPanel();
-        }
-      } catch(ex) {}
-      refreshCola();
-    });
-    es.addEventListener('triage_asignado', function() { refreshCola(); });
-    es.addEventListener('turno_devuelto', function() { refreshCola(); });
-    // Also handle generic message events
+    es.onopen = () => { state.sseConnected = true; dot.classList.remove('disconnected'); dot.title = 'Conectado'; };
+    es.onerror = () => { state.sseConnected = false; dot.classList.add('disconnected'); dot.title = 'Reconectando...'; };
+    es.addEventListener('nuevo_turno', () => { playBeep(); refreshCola(); });
+    es.addEventListener('triage_asignado', () => { refreshCola(); });
+    es.addEventListener('turno_devuelto', () => { refreshCola(); });
     es.onmessage = function(e) {
       try {
         const d = JSON.parse(e.data);
         if (d.tipo === 'nuevo_turno') { playBeep(); refreshCola(); }
-        else if (d.tipo === 'llamar_turno') {
-          if (d.puesto_id === (state.puesto && state.puesto.id)) {
-            state.actual = d.turno || d;
-            renderPatientPanel();
-          }
-          refreshCola();
-        }
-        else if (d.tipo === 'triage_asignado' || d.tipo === 'turno_devuelto') { refreshCola(); }
+        else if (d.tipo === 'triage_asignado' || d.tipo === 'turno_devuelto') refreshCola();
       } catch(ex) {}
     };
-  } catch(e) {
-    dot.classList.add('disconnected');
-  }
+  } catch(e) { dot.classList.add('disconnected'); }
 }
 
-// ===== POLLING =====
 function startPolling() {
   if (state.pollInterval) clearInterval(state.pollInterval);
   state.pollInterval = setInterval(refreshCola, 10000);
@@ -833,24 +916,14 @@ function cleanup() {
   if (state.clockInterval) { clearInterval(state.clockInterval); state.clockInterval = null; }
 }
 
-function escHtml(s) {
-  if (!s) return '';
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
-}
-
 // ===== PUBLIC API =====
-window.APP = { siguiente, asignarTriage, rellamar, noPresento };
+window.APP = { siguiente, asignarTriage, rellamar, noPresento, selectNivel, toggleDisc, updateEva, updateGlasgow };
 
 // ===== INIT =====
-(async function init() {
+(async function() {
   const loggedIn = await checkAuth();
-  if (loggedIn) {
-    await checkPuesto();
-  } else {
-    showScreen('loginScreen');
-  }
+  if (loggedIn) await checkPuesto();
+  else showScreen('loginScreen');
 })();
 
 })();

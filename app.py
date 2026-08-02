@@ -101,7 +101,9 @@ CREATE TABLE IF NOT EXISTS kiosco_servicios(id {S},codigo TEXT UNIQUE,nombre TEX
 CREATE TABLE IF NOT EXISTS puestos_atencion(id {S},codigo TEXT UNIQUE NOT NULL,nombre TEXT NOT NULL,tipo TEXT NOT NULL,activo INTEGER DEFAULT 1,modo TEXT DEFAULT 'urgencias',creado_en {T} {D});
 CREATE TABLE IF NOT EXISTS admision_timeline(id {S},admision_id INTEGER NOT NULL,evento TEXT NOT NULL,detalle TEXT,usuario TEXT,puesto TEXT,ts {T} {D});
 CREATE TABLE IF NOT EXISTS historia_clinica_urgencias(id {S},admision_id INTEGER UNIQUE NOT NULL,paciente_id INTEGER NOT NULL,motivo_consulta TEXT,enfermedad_actual TEXT,antecedentes TEXT,examen_fisico TEXT,signos_vitales TEXT,diagnostico_ingreso TEXT,cod_cie10_ingreso TEXT,diagnostico_egreso TEXT,cod_cie10_egreso TEXT,diagnosticos_relacionados TEXT,conducta TEXT,tratamiento TEXT,observaciones TEXT,condicion_salida TEXT,destino_salida TEXT,medico_id INTEGER,medico_nombre TEXT,creado_por TEXT,creado_en {T} {D},actualizado_en {T} {D});
-CREATE TABLE IF NOT EXISTS pagador_validacion(id {S},admision_id INTEGER NOT NULL,tipo_pagador TEXT NOT NULL,entidad_nombre TEXT,entidad_codigo TEXT,regimen TEXT,estado_afiliacion TEXT,fecha_afiliacion TEXT,nivel_sisben TEXT,grupo_ingreso TEXT,numero_poliza TEXT,numero_autorizacion TEXT,placa_vehiculo TEXT,fecha_accidente TEXT,empresa_nombre TEXT,nit_empresa TEXT,copago_aplica INTEGER DEFAULT 0,copago_valor REAL DEFAULT 0,copago_excento INTEGER DEFAULT 0,copago_motivo_exencion TEXT,validado INTEGER DEFAULT 0,validado_por TEXT,validado_en {T},datos_json TEXT DEFAULT '{{}}',creado_en {T} {D})
+CREATE TABLE IF NOT EXISTS pagador_validacion(id {S},admision_id INTEGER NOT NULL,tipo_pagador TEXT NOT NULL,entidad_nombre TEXT,entidad_codigo TEXT,regimen TEXT,estado_afiliacion TEXT,fecha_afiliacion TEXT,nivel_sisben TEXT,grupo_ingreso TEXT,numero_poliza TEXT,numero_autorizacion TEXT,placa_vehiculo TEXT,fecha_accidente TEXT,empresa_nombre TEXT,nit_empresa TEXT,copago_aplica INTEGER DEFAULT 0,copago_valor REAL DEFAULT 0,copago_excento INTEGER DEFAULT 0,copago_motivo_exencion TEXT,validado INTEGER DEFAULT 0,validado_por TEXT,validado_en {T},datos_json TEXT DEFAULT '{{}}',creado_en {T} {D});
+CREATE TABLE IF NOT EXISTS triage_clinico(id {S},admision_id INTEGER UNIQUE NOT NULL,motivo_consulta TEXT,ta_sistolica INTEGER,ta_diastolica INTEGER,fc INTEGER,fr INTEGER,temperatura REAL,spo2 INTEGER,glucometria INTEGER,glasgow_ocular INTEGER DEFAULT 4,glasgow_verbal INTEGER DEFAULT 5,glasgow_motor INTEGER DEFAULT 6,glasgow_total INTEGER DEFAULT 15,eva_dolor INTEGER DEFAULT 0,dolor_localizacion TEXT,disc_via_aerea INTEGER DEFAULT 0,disc_sangrado INTEGER DEFAULT 0,disc_dolor_toracico INTEGER DEFAULT 0,disc_alt_neurologica INTEGER DEFAULT 0,disc_gestante INTEGER DEFAULT 0,disc_menor_edad INTEGER DEFAULT 0,disc_trauma_mayor INTEGER DEFAULT 0,disc_convulsiones INTEGER DEFAULT 0,disc_fiebre_alta INTEGER DEFAULT 0,disc_otros TEXT,alergias TEXT,nivel_asignado TEXT NOT NULL,nivel_sugerido TEXT,color_triage TEXT,notas_enfermeria TEXT,enfermera_id INTEGER,enfermera_nombre TEXT,hora_inicio_triage {T},hora_fin_triage {T},creado_en {T} {D});
+CREATE TABLE IF NOT EXISTS triage_form_config(id {S},campo TEXT UNIQUE NOT NULL,etiqueta TEXT NOT NULL,grupo TEXT NOT NULL,tipo TEXT DEFAULT 'text',requerido INTEGER DEFAULT 0,visible INTEGER DEFAULT 1,orden INTEGER DEFAULT 0,opciones TEXT DEFAULT '[]',rango_min REAL,rango_max REAL,unidad TEXT,ayuda TEXT,modificado_por TEXT,modificado_en {T} {D})
 """
     for s in tables.strip().split(';'):
         s = s.strip()
@@ -140,6 +142,16 @@ CREATE TABLE IF NOT EXISTS pagador_validacion(id {S},admision_id INTEGER NOT NUL
         "ALTER TABLE admisiones ADD COLUMN causa_atencion TEXT DEFAULT 'urgencia'",
         "ALTER TABLE admisiones ADD COLUMN cod_diagnostico_ingreso TEXT",
         "ALTER TABLE admisiones ADD COLUMN rips_json TEXT DEFAULT '{}'",
+        # RIPS fields for admisiones
+        "ALTER TABLE admisiones ADD COLUMN rips_via_ingreso TEXT DEFAULT '2'",
+        "ALTER TABLE admisiones ADD COLUMN rips_causa_externa TEXT DEFAULT '13'",
+        "ALTER TABLE admisiones ADD COLUMN rips_modalidad TEXT DEFAULT '3'",
+        "ALTER TABLE admisiones ADD COLUMN rips_grupo_servicios TEXT DEFAULT '01'",
+        "ALTER TABLE admisiones ADD COLUMN rips_finalidad TEXT DEFAULT '4'",
+        # Doctor/consultorio fields
+        "ALTER TABLE admisiones ADD COLUMN medico_nombre_atencion TEXT",
+        "ALTER TABLE admisiones ADD COLUMN condicion_egreso TEXT",
+        "ALTER TABLE admisiones ADD COLUMN destino_egreso TEXT",
     ]:
         try:
             cur.execute(mig)
@@ -223,6 +235,46 @@ CREATE TABLE IF NOT EXISTS pagador_validacion(id {S},admision_id INTEGER NOT NUL
             ('Lentes de contacto', 'Adaptación personalizada con los mejores materiales', 'none', '', 1, 1),
         ]:
             cur.execute(core.adapt("INSERT INTO kiosco_anuncios(titulo,descripcion,media_type,media_url,activo,orden)VALUES(?,?,?,?,?,?)", db), a)
+
+    # Triage form config seed (superadmin-configurable)
+    cur.execute("SELECT COUNT(*) FROM triage_form_config")
+    if cur.fetchone()[0] == 0:
+        triage_fields = [
+            # ── Signos Vitales ──
+            ('ta_sistolica','T/A Sistólica','signos_vitales','number',1,1,1,'[]',60,300,'mmHg','Presión arterial sistólica'),
+            ('ta_diastolica','T/A Diastólica','signos_vitales','number',1,1,2,'[]',30,200,'mmHg','Presión arterial diastólica'),
+            ('fc','Frecuencia Cardíaca','signos_vitales','number',1,1,3,'[]',20,250,'lpm','Latidos por minuto'),
+            ('fr','Frecuencia Respiratoria','signos_vitales','number',1,1,4,'[]',4,60,'rpm','Respiraciones por minuto'),
+            ('temperatura','Temperatura','signos_vitales','number',1,1,5,'[]',30.0,45.0,'°C','Temperatura corporal'),
+            ('spo2','SpO2','signos_vitales','number',1,1,6,'[]',0,100,'%','Saturación de oxígeno'),
+            ('glucometria','Glucometría','signos_vitales','number',0,1,7,'[]',0,600,'mg/dL','Glucosa capilar'),
+            # ── Escalas ──
+            ('glasgow_ocular','Glasgow Ocular','escalas','select',1,1,10,'[{"v":4,"l":"4 - Espontánea"},{"v":3,"l":"3 - Al estímulo verbal"},{"v":2,"l":"2 - Al dolor"},{"v":1,"l":"1 - Ninguna"}]',1,4,'','Respuesta ocular'),
+            ('glasgow_verbal','Glasgow Verbal','escalas','select',1,1,11,'[{"v":5,"l":"5 - Orientada"},{"v":4,"l":"4 - Confusa"},{"v":3,"l":"3 - Inapropiada"},{"v":2,"l":"2 - Incomprensible"},{"v":1,"l":"1 - Ninguna"}]',1,5,'','Respuesta verbal'),
+            ('glasgow_motor','Glasgow Motor','escalas','select',1,1,12,'[{"v":6,"l":"6 - Obedece órdenes"},{"v":5,"l":"5 - Localiza dolor"},{"v":4,"l":"4 - Retira"},{"v":3,"l":"3 - Flexión anormal"},{"v":2,"l":"2 - Extensión"},{"v":1,"l":"1 - Ninguna"}]',1,6,'','Respuesta motora'),
+            ('eva_dolor','EVA Dolor (0-10)','escalas','range',1,1,13,'[]',0,10,'','Escala Visual Análoga del dolor'),
+            ('dolor_localizacion','Localización del dolor','escalas','text',0,1,14,'[]',None,None,'','Dónde refiere el dolor'),
+            # ── Discriminadores (checkboxes) ──
+            ('disc_via_aerea','Compromiso vía aérea','discriminadores','checkbox',0,1,20,'[]',None,None,'','Obstrucción o dificultad respiratoria severa'),
+            ('disc_sangrado','Sangrado activo no controlado','discriminadores','checkbox',0,1,21,'[]',None,None,'','Hemorragia activa'),
+            ('disc_dolor_toracico','Dolor torácico','discriminadores','checkbox',0,1,22,'[]',None,None,'','Dolor opresivo/irradiado'),
+            ('disc_alt_neurologica','Alteración neurológica','discriminadores','checkbox',0,1,23,'[]',None,None,'','Alteración conciencia, focalización'),
+            ('disc_gestante','Gestante','discriminadores','checkbox',0,1,24,'[]',None,None,'','Embarazo activo'),
+            ('disc_menor_edad','Menor de edad','discriminadores','checkbox',0,1,25,'[]',None,None,'','Paciente pediátrico'),
+            ('disc_trauma_mayor','Trauma mayor','discriminadores','checkbox',0,1,26,'[]',None,None,'','Politraumatismo, caída de altura'),
+            ('disc_convulsiones','Convulsiones','discriminadores','checkbox',0,1,27,'[]',None,None,'','Crisis convulsiva activa o reciente'),
+            ('disc_fiebre_alta','Fiebre alta (≥39°C)','discriminadores','checkbox',0,1,28,'[]',None,None,'','Fiebre alta persistente'),
+            # ── Campos clínicos ──
+            ('motivo_consulta','Motivo de consulta','clinico','textarea',1,1,30,'[]',None,None,'','Razón principal de la consulta'),
+            ('alergias','Alergias conocidas','clinico','text',0,1,31,'[]',None,None,'','Medicamentos, alimentos, otros'),
+            ('disc_otros','Otros discriminadores','clinico','textarea',0,1,32,'[]',None,None,'','Observaciones adicionales relevantes'),
+            ('notas_enfermeria','Notas de enfermería','clinico','textarea',0,1,33,'[]',None,None,'','Observaciones del profesional de triage'),
+        ]
+        for f in triage_fields:
+            cur.execute(core.adapt(
+                "INSERT INTO triage_form_config(campo,etiqueta,grupo,tipo,requerido,visible,orden,opciones,rango_min,rango_max,unidad,ayuda)"
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", db), f)
+        conn.commit()
 
     # Copago params (Circular 048 de 2025)
     try:

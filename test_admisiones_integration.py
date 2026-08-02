@@ -68,13 +68,21 @@ step(5, "Llamar siguiente (triaje)")
 d = check(S.post(f"{BASE}/api/atencion/siguiente"), "siguiente")
 assert d and d.get("success") is not False, f"Siguiente failed: {d}"
 
-# ── 6. Complete triage → level III ──
-step(6, "Completar triaje nivel III")
+# ── 6. Complete triage → level III (full clinical data) ──
+step(6, "Completar triaje clínico nivel III")
 d = check(S.post(f"{BASE}/api/atencion/accion", json={
     "id": turno_id,
     "nivel": "III",
-    "notas": "Dolor abdominal, signos vitales estables"
-}), "triaje")
+    "motivo_consulta": "Dolor abdominal agudo de 6 horas de evolución",
+    "ta_sistolica": 120, "ta_diastolica": 80,
+    "fc": 88, "fr": 18, "temperatura": 37.2, "spo2": 97,
+    "glucometria": 95,
+    "glasgow_ocular": 4, "glasgow_verbal": 5, "glasgow_motor": 6,
+    "eva_dolor": 6, "dolor_localizacion": "Cuadrante inferior derecho",
+    "disc_fiebre_alta": 0, "disc_dolor_toracico": 0,
+    "alergias": "Ninguna conocida",
+    "notas_enfermeria": "Dolor abdominal, signos vitales estables, abdomen blando depresible"
+}), "triaje clínico")
 assert ok(d), f"Triaje failed: {d}"
 
 # ── 7. Switch to admisiones puesto ──

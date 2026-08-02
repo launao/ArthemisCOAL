@@ -637,14 +637,78 @@ def atencion_accion():
 
     try:
         if puesto_tipo == 'triage':
-            # Assign triage level
+            # ── Full clinical triage (Resolución 5596/2015) ──
             nivel = d.get('nivel', '').strip().upper()
             if nivel not in ('I', 'II', 'III', 'IV', 'V'):
                 return jsonify({'error': 'Nivel de triage inválido (I-V)'}), 400
 
-            notas = d.get('notas', '')
+            NIVEL_COLOR = {'I': 'red', 'II': 'orange', 'III': 'yellow', 'IV': 'green', 'V': 'blue'}
             enfermera = session.get('usuario', 'Enfermería')
+            enfermera_id = session.get('user_id')
 
+            # Vital signs
+            ta_s = d.get('ta_sistolica') or None
+            ta_d = d.get('ta_diastolica') or None
+            fc = d.get('fc') or None
+            fr = d.get('fr') or None
+            temp = d.get('temperatura') or None
+            spo2 = d.get('spo2') or None
+            gluco = d.get('glucometria') or None
+
+            # Glasgow
+            g_o = int(d.get('glasgow_ocular', 4))
+            g_v = int(d.get('glasgow_verbal', 5))
+            g_m = int(d.get('glasgow_motor', 6))
+            g_total = g_o + g_v + g_m
+
+            # EVA & pain
+            eva = int(d.get('eva_dolor', 0))
+            dolor_loc = d.get('dolor_localizacion', '')
+
+            # Discriminators
+            disc_fields = {
+                'disc_via_aerea': int(d.get('disc_via_aerea', 0)),
+                'disc_sangrado': int(d.get('disc_sangrado', 0)),
+                'disc_dolor_toracico': int(d.get('disc_dolor_toracico', 0)),
+                'disc_alt_neurologica': int(d.get('disc_alt_neurologica', 0)),
+                'disc_gestante': int(d.get('disc_gestante', 0)),
+                'disc_menor_edad': int(d.get('disc_menor_edad', 0)),
+                'disc_trauma_mayor': int(d.get('disc_trauma_mayor', 0)),
+                'disc_convulsiones': int(d.get('disc_convulsiones', 0)),
+                'disc_fiebre_alta': int(d.get('disc_fiebre_alta', 0)),
+            }
+
+            motivo = d.get('motivo_consulta', '')
+            alergias = d.get('alergias', '')
+            disc_otros = d.get('disc_otros', '')
+            notas = d.get('notas_enfermeria', '') or d.get('notas', '')
+            hora_inicio = d.get('hora_inicio_triage')
+
+            # Insert into triage_clinico (UPSERT: delete old if exists)
+            cur.execute(core.adapt("DELETE FROM triage_clinico WHERE admision_id=?", db), (turno_id,))
+            cur.execute(core.adapt(
+                "INSERT INTO triage_clinico("
+                "admision_id,motivo_consulta,ta_sistolica,ta_diastolica,fc,fr,temperatura,spo2,glucometria,"
+                "glasgow_ocular,glasgow_verbal,glasgow_motor,glasgow_total,"
+                "eva_dolor,dolor_localizacion,"
+                "disc_via_aerea,disc_sangrado,disc_dolor_toracico,disc_alt_neurologica,"
+                "disc_gestante,disc_menor_edad,disc_trauma_mayor,disc_convulsiones,disc_fiebre_alta,"
+                "disc_otros,alergias,nivel_asignado,color_triage,notas_enfermeria,"
+                f"enfermera_id,enfermera_nombre,hora_inicio_triage,hora_fin_triage"
+                f")VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,"
+                f"{core.NOW(db)})", db),
+                (turno_id, motivo, ta_s, ta_d, fc, fr, temp, spo2, gluco,
+                 g_o, g_v, g_m, g_total,
+                 eva, dolor_loc,
+                 disc_fields['disc_via_aerea'], disc_fields['disc_sangrado'],
+                 disc_fields['disc_dolor_toracico'], disc_fields['disc_alt_neurologica'],
+                 disc_fields['disc_gestante'], disc_fields['disc_menor_edad'],
+                 disc_fields['disc_trauma_mayor'], disc_fields['disc_convulsiones'],
+                 disc_fields['disc_fiebre_alta'],
+                 disc_otros, alergias, nivel, NIVEL_COLOR[nivel], notas,
+                 enfermera_id, enfermera, hora_inicio))
+
+            # Update admisiones summary
             cur.execute(core.adapt(
                 f"UPDATE admisiones SET estado='triaje', triage_nivel=?, triage_notas=?, "
                 f"triage_ts={core.NOW(db)}, triage_enfermera=?, puesto_id=NULL WHERE id=?", db),
@@ -652,8 +716,21 @@ def atencion_accion():
             conn.commit()
 
             core.audit(cur, db, 'admisiones', turno_id, 'asignar_triage',
-                       f"Triage {nivel} por {enfermera} en {puesto_nombre}")
+                       f"Triage {nivel} ({NIVEL_COLOR[nivel]}) por {enfermera} en {puesto_nombre}")
             conn.commit()
+
+            # Timeline event
+            try:
+                cur.execute(core.adapt(
+                    "INSERT INTO admision_timeline(admision_id,evento,detalle,usuario,puesto)"
+                    "VALUES(?,?,?,?,?)", db),
+                    (turno_id, 'triage_completado',
+                     json.dumps({'nivel': nivel, 'color': NIVEL_COLOR[nivel],
+                                 'glasgow': g_total, 'eva': eva}, ensure_ascii=False),
+                     enfermera, puesto_nombre))
+                conn.commit()
+            except Exception:
+                conn.rollback()
 
             # Get updated info for SSE
             a = core.row(cur, core.adapt(
@@ -673,10 +750,11 @@ def atencion_accion():
                 'turno': turno,
                 'nombre': nombre,
                 'triage_nivel': nivel,
+                'color': NIVEL_COLOR[nivel],
                 'id': turno_id,
             })
 
-            return jsonify({'success': True, 'triage_nivel': nivel, 'turno': turno})
+            return jsonify({'success': True, 'triage_nivel': nivel, 'color': NIVEL_COLOR[nivel], 'turno': turno})
 
         elif puesto_tipo == 'admisiones':
             # Move to admision
@@ -693,15 +771,54 @@ def atencion_accion():
             return jsonify({'success': True})
 
         elif puesto_tipo == 'consultorio':
-            # Mark as attended
+            # Save egreso data if provided
+            condicion_egreso = d.get('condicion_egreso', '')
+            destino_egreso = d.get('destino_egreso', '')
+            diagnostico_egreso = d.get('diagnostico_egreso', '')
+            medico = session.get('usuario', '?')
+
+            updates = [f"estado='atendido'", f"fecha_salida={core.NOW(db)}", "puesto_id=NULL",
+                       f"medico_nombre_atencion=?"]
+            params = [medico]
+            if condicion_egreso:
+                updates.append("condicion_egreso=?")
+                params.append(condicion_egreso)
+            if destino_egreso:
+                updates.append("destino_egreso=?")
+                params.append(destino_egreso)
+
+            params.append(turno_id)
             cur.execute(core.adapt(
-                f"UPDATE admisiones SET estado='atendido', "
-                f"fecha_salida={core.NOW(db)}, puesto_id=NULL WHERE id=?", db),
-                (turno_id,))
+                f"UPDATE admisiones SET {','.join(updates)} WHERE id=?", db), params)
+
+            # Update HC with egreso diagnosis if provided
+            if diagnostico_egreso:
+                try:
+                    cur.execute(core.adapt(
+                        "UPDATE historia_clinica_urgencias SET diagnostico_egreso=?, "
+                        "cod_cie10_egreso=? WHERE admision_id=?", db),
+                        (diagnostico_egreso, diagnostico_egreso, turno_id))
+                except Exception:
+                    pass
+
             conn.commit()
             core.audit(cur, db, 'admisiones', turno_id, 'atender',
-                       f"Atendido por {session.get('usuario', '?')} en {puesto_nombre}")
+                       f"Atendido por {medico} en {puesto_nombre}. "
+                       f"Egreso: {condicion_egreso}/{destino_egreso}")
             conn.commit()
+
+            # Timeline
+            try:
+                cur.execute(core.adapt(
+                    "INSERT INTO admision_timeline(admision_id,evento,detalle,usuario,puesto)"
+                    "VALUES(?,?,?,?,?)", db),
+                    (turno_id, 'atencion_completada',
+                     json.dumps({'condicion': condicion_egreso, 'destino': destino_egreso,
+                                 'diagnostico': diagnostico_egreso}, ensure_ascii=False),
+                     medico, puesto_nombre))
+                conn.commit()
+            except Exception:
+                conn.rollback()
 
             core.sse_broadcast({'tipo': 'turno_atendido', 'id': turno_id})
             return jsonify({'success': True})
@@ -712,3 +829,98 @@ def atencion_accion():
     finally:
         cur.close()
         core._return_db(conn, db)
+
+
+# ── GET /api/atencion/triage-config ─────────────────────────────────────────
+
+@atencion_bp.route('/api/atencion/triage-config')
+def triage_config_list():
+    """Get triage form field configuration (superadmin-editable)."""
+    if not _is_authenticated():
+        return jsonify({'error': 'No autenticado'}), 401
+    core = _get_deps()
+    conn, db = core.get_db()
+    cur = conn.cursor()
+    campos = core.rows(cur, core.adapt(
+        "SELECT * FROM triage_form_config ORDER BY orden", db))
+    cur.close()
+    core._return_db(conn, db)
+    return jsonify({'campos': campos})
+
+
+# ── PUT /api/atencion/triage-config/<campo> ─────────────────────────────────
+
+@atencion_bp.route('/api/atencion/triage-config/<campo>', methods=['PUT'])
+def triage_config_update(campo):
+    """Update a triage form field configuration (superadmin only)."""
+    if not _is_admin():
+        return jsonify({'error': 'No autorizado'}), 403
+    core = _get_deps()
+    d = request.json or {}
+    conn, db = core.get_db()
+    cur = conn.cursor()
+
+    existing = core.row(cur, core.adapt(
+        "SELECT * FROM triage_form_config WHERE campo=?", db), (campo,))
+    if not existing:
+        cur.close()
+        core._return_db(conn, db)
+        return jsonify({'error': 'Campo no encontrado'}), 404
+
+    updates = []
+    params = []
+    for col in ('etiqueta', 'grupo', 'tipo', 'ayuda', 'unidad'):
+        if col in d:
+            updates.append(f"{col}=?")
+            params.append(d[col])
+    for col in ('requerido', 'visible', 'orden'):
+        if col in d:
+            updates.append(f"{col}=?")
+            params.append(int(d[col]))
+    for col in ('rango_min', 'rango_max'):
+        if col in d:
+            updates.append(f"{col}=?")
+            params.append(float(d[col]) if d[col] is not None else None)
+    if 'opciones' in d:
+        updates.append("opciones=?")
+        params.append(json.dumps(d['opciones'], ensure_ascii=False) if isinstance(d['opciones'], list) else d['opciones'])
+
+    if not updates:
+        cur.close()
+        core._return_db(conn, db)
+        return jsonify({'error': 'No hay cambios'}), 400
+
+    updates.append(f"modificado_en={core.NOW(db)}")
+    updates.append("modificado_por=?")
+    params.append(session.get('usuario', '?'))
+    params.append(campo)
+
+    cur.execute(core.adapt(
+        f"UPDATE triage_form_config SET {','.join(updates)} WHERE campo=?", db), params)
+    conn.commit()
+
+    core.audit(cur, db, 'triage_form_config', campo, 'actualizar_campo',
+               f"Campo {campo} actualizado por {session.get('usuario', '?')}")
+    conn.commit()
+    cur.close()
+    core._return_db(conn, db)
+    return jsonify({'ok': True, 'campo': campo})
+
+
+# ── GET /api/atencion/triage-clinico/<admision_id> ──────────────────────────
+
+@atencion_bp.route('/api/atencion/triage-clinico/<int:admision_id>')
+def triage_clinico_get(admision_id):
+    """Get full clinical triage record for an admission."""
+    if not _is_authenticated():
+        return jsonify({'error': 'No autenticado'}), 401
+    core = _get_deps()
+    conn, db = core.get_db()
+    cur = conn.cursor()
+    tc = core.row(cur, core.adapt(
+        "SELECT * FROM triage_clinico WHERE admision_id=?", db), (admision_id,))
+    cur.close()
+    core._return_db(conn, db)
+    if not tc:
+        return jsonify({'error': 'No hay triage clínico para esta admisión'}), 404
+    return jsonify({'triage': tc})
