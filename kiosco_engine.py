@@ -54,10 +54,20 @@ def kiosco_anuncio():
         elif d.get('tipo_atencion') == 'cita_programada':
             color = 'green'
 
-        # Generate admission ID
-        cur.execute(f"SELECT COUNT(*) FROM admisiones WHERE {_D('creado_en',db)}={T}")
-        n = cur.fetchone()[0]
-        id_adm = f"ADM{str(n + 1).zfill(3)}-{datetime.now().strftime('%Y%m%d')}"
+        # Generate admission ID — find max existing number for today's date prefix
+        date_str = datetime.now().strftime('%Y%m%d')
+        cur.execute(core.adapt(
+            f"SELECT id_adm FROM admisiones WHERE id_adm LIKE ? ORDER BY id_adm DESC LIMIT 1", db),
+            (f'ADM%-{date_str}',))
+        last = cur.fetchone()
+        if last:
+            try:
+                last_num = int(last[0].split('-')[0].replace('ADM', ''))
+            except (ValueError, IndexError):
+                last_num = 0
+        else:
+            last_num = 0
+        id_adm = f"ADM{str(last_num + 1).zfill(3)}-{date_str}"
 
         # Generate turno: PP (preferencial), PC (cita programada), PS (sin cita)
         pref = 'PP' if d.get('turno_tipo') == 'preferencial' else (
