@@ -1108,8 +1108,10 @@ body {
   async function checkPuesto() {
     try {
       const data = await api('GET','/api/atencion/mi-puesto');
-      if (data && data.puesto) { puestoActual=data.puesto; enterMain(); }
-      else await loadPuestos();
+      // Only reuse session puesto if it's an admisiones puesto
+      if (data && data.puesto && data.puesto.tipo === 'admisiones') {
+        puestoActual=data.puesto; enterMain();
+      } else await loadPuestos();
     } catch(e) { await loadPuestos(); }
   }
 
@@ -1172,7 +1174,7 @@ body {
       if (actual && !pacienteActual) showPaciente(actual);
       else if (actual) { /* keep current */ }
       else if (!actual && pacienteActual) { /* patient was moved, clear */ clearPaciente(); }
-    } catch(e) {}
+    } catch(e) { console.error('loadCola error:', e); }
   }
 
   function renderQueue(cola) {
