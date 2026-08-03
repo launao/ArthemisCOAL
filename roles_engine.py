@@ -37,6 +37,11 @@ def _get_deps():
     return core
 
 
+def _D(col, db):
+    """DATE extraction compatible with both PG and SQLite."""
+    return f"CAST({col} AS DATE)" if db == 'pg' else f"DATE({col})"
+
+
 def _is_superadmin():
     if not session.get('user_id'):
         return False
@@ -458,9 +463,9 @@ def admin_stats():
 
         # Admisiones hoy
         if db == 'pg':
-            r = core.row(cur, "SELECT COUNT(*) as total FROM admisiones WHERE DATE(creado_en)=CURRENT_DATE")
+            r = core.row(cur, f"SELECT COUNT(*) as total FROM admisiones WHERE {_D('creado_en',db)}=CURRENT_DATE")
         else:
-            r = core.row(cur, "SELECT COUNT(*) as total FROM admisiones WHERE DATE(creado_en)=DATE('now')")
+            r = core.row(cur, f"SELECT COUNT(*) as total FROM admisiones WHERE {_D('creado_en',db)}=DATE('now')")
         stats['admisiones_hoy'] = r['total'] if r else 0
 
         # Admisiones por estado
@@ -501,26 +506,26 @@ def admin_stats():
         # Admisiones últimos 7 días (para gráfica)
         if db == 'pg':
             tendencia = core.rows(cur,
-                "SELECT DATE(creado_en) as fecha, COUNT(*) as total "
+                f"SELECT {_D('creado_en',db)} as fecha, COUNT(*) as total "
                 "FROM admisiones WHERE creado_en >= NOW() - INTERVAL '7 days' "
-                "GROUP BY DATE(creado_en) ORDER BY fecha")
+                f"GROUP BY {_D('creado_en',db)} ORDER BY fecha")
         else:
             tendencia = core.rows(cur,
-                "SELECT DATE(creado_en) as fecha, COUNT(*) as total "
+                f"SELECT {_D('creado_en',db)} as fecha, COUNT(*) as total "
                 "FROM admisiones WHERE creado_en >= datetime('now','-7 days') "
-                "GROUP BY DATE(creado_en) ORDER BY fecha")
+                f"GROUP BY {_D('creado_en',db)} ORDER BY fecha")
         stats['tendencia_admisiones'] = tendencia
 
         # Triage por nivel hoy
         if db == 'pg':
             triage = core.rows(cur,
-                "SELECT triage_nivel, COUNT(*) as total FROM admisiones "
-                "WHERE triage_nivel IS NOT NULL AND DATE(creado_en)=CURRENT_DATE "
+                f"SELECT triage_nivel, COUNT(*) as total FROM admisiones "
+                f"WHERE triage_nivel IS NOT NULL AND {_D('creado_en',db)}=CURRENT_DATE "
                 "GROUP BY triage_nivel ORDER BY triage_nivel")
         else:
             triage = core.rows(cur,
-                "SELECT triage_nivel, COUNT(*) as total FROM admisiones "
-                "WHERE triage_nivel IS NOT NULL AND DATE(creado_en)=DATE('now') "
+                f"SELECT triage_nivel, COUNT(*) as total FROM admisiones "
+                f"WHERE triage_nivel IS NOT NULL AND {_D('creado_en',db)}=DATE('now') "
                 "GROUP BY triage_nivel ORDER BY triage_nivel")
         stats['triage_hoy'] = triage
 
@@ -756,9 +761,9 @@ def dashboard_medico():
 
         # Pacientes atendidos hoy
         if db == 'pg':
-            r = core.row(cur, "SELECT COUNT(*) as total FROM historia_clinica WHERE DATE(creado_en)=CURRENT_DATE")
+            r = core.row(cur, f"SELECT COUNT(*) as total FROM historia_clinica WHERE {_D('creado_en',db)}=CURRENT_DATE")
         else:
-            r = core.row(cur, "SELECT COUNT(*) as total FROM historia_clinica WHERE DATE(creado_en)=DATE('now')")
+            r = core.row(cur, f"SELECT COUNT(*) as total FROM historia_clinica WHERE {_D('creado_en',db)}=DATE('now')")
         data['atendidos_hoy'] = r['total'] if r else 0
 
         return jsonify(data)
@@ -790,13 +795,13 @@ def dashboard_enfermeria():
         # Triage completados hoy
         if db == 'pg':
             triage_hoy = core.rows(cur,
-                "SELECT triage_nivel, COUNT(*) as total FROM admisiones "
-                "WHERE triage_nivel IS NOT NULL AND DATE(creado_en)=CURRENT_DATE "
+                f"SELECT triage_nivel, COUNT(*) as total FROM admisiones "
+                f"WHERE triage_nivel IS NOT NULL AND {_D('creado_en',db)}=CURRENT_DATE "
                 "GROUP BY triage_nivel")
         else:
             triage_hoy = core.rows(cur,
-                "SELECT triage_nivel, COUNT(*) as total FROM admisiones "
-                "WHERE triage_nivel IS NOT NULL AND DATE(creado_en)=DATE('now') "
+                f"SELECT triage_nivel, COUNT(*) as total FROM admisiones "
+                f"WHERE triage_nivel IS NOT NULL AND {_D('creado_en',db)}=DATE('now') "
                 "GROUP BY triage_nivel")
         data['triage_hoy_por_nivel'] = triage_hoy
 
@@ -840,9 +845,9 @@ def dashboard_admisiones_stats():
 
         # Hoy total
         if db == 'pg':
-            r = core.row(cur, "SELECT COUNT(*) as total FROM admisiones WHERE DATE(creado_en)=CURRENT_DATE")
+            r = core.row(cur, f"SELECT COUNT(*) as total FROM admisiones WHERE {_D('creado_en',db)}=CURRENT_DATE")
         else:
-            r = core.row(cur, "SELECT COUNT(*) as total FROM admisiones WHERE DATE(creado_en)=DATE('now')")
+            r = core.row(cur, f"SELECT COUNT(*) as total FROM admisiones WHERE {_D('creado_en',db)}=DATE('now')")
         data['total_hoy'] = r['total'] if r else 0
 
         return jsonify(data)

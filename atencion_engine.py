@@ -35,6 +35,11 @@ def _get_deps():
     return core
 
 
+def _D(col, db):
+    """DATE extraction compatible with both PG and SQLite."""
+    return f"CAST({col} AS DATE)" if db == 'pg' else f"DATE({col})"
+
+
 def _is_authenticated():
     return bool(session.get('user_id'))
 
@@ -293,7 +298,7 @@ def atencion_cola():
         f"a.destino, a.llamado_count, a.puesto_id, "
         f"p.nombres, p.apellidos, p.celular, p.eps, p.tipo_doc, p.num_doc "
         f"FROM admisiones a LEFT JOIN pacientes p ON a.paciente_id=p.id "
-        f"WHERE DATE(a.creado_en)={T} AND a.estado=? "
+        f"WHERE {_D('a.creado_en',db)}={T} AND a.estado=? "
         f"ORDER BY a.id", db), (queue_estado,))
 
     # Build result with sorting
@@ -342,7 +347,7 @@ def atencion_cola():
             f"a.destino, a.llamado_count, "
             f"p.nombres, p.apellidos, p.celular, p.eps, p.tipo_doc, p.num_doc "
             f"FROM admisiones a LEFT JOIN pacientes p ON a.paciente_id=p.id "
-            f"WHERE DATE(a.creado_en)={T} AND a.estado='llamando' AND a.puesto_id=?", db),
+            f"WHERE {_D('a.creado_en',db)}={T} AND a.estado='llamando' AND a.puesto_id=?", db),
             (puesto_id,))
         if a:
             nombre = a.get('nombre_temp') or ''
@@ -406,7 +411,7 @@ def atencion_siguiente():
         # If this puesto already has a patient in 'llamando', return them to queue
         cur.execute(core.adapt(
             f"UPDATE admisiones SET estado=?, puesto_id=NULL, destino=NULL "
-            f"WHERE estado='llamando' AND puesto_id=? AND DATE(creado_en)={T}", db),
+            f"WHERE estado='llamando' AND puesto_id=? AND {_D('creado_en',db)}={T}", db),
             (stage['queue_estado'], puesto_id))
         conn.commit()
 
@@ -427,7 +432,7 @@ def atencion_siguiente():
             f"a.servicio_nombre, a.color_alerta, a.doc_num_temp, "
             f"p.nombres, p.apellidos "
             f"FROM admisiones a LEFT JOIN pacientes p ON a.paciente_id=p.id "
-            f"WHERE DATE(a.creado_en)={T} AND a.estado=? "
+            f"WHERE {_D('a.creado_en',db)}={T} AND a.estado=? "
             f"ORDER BY {order} LIMIT 1", db), (queue_estado,))
 
         if not siguiente:

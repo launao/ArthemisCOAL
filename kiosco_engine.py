@@ -27,6 +27,10 @@ def _get_deps():
     import core
     return core
 
+def _D(col, db):
+    """DATE extraction compatible with both PG and SQLite."""
+    return f"CAST({col} AS DATE)" if db == 'pg' else f"DATE({col})"
+
 # ── POST /api/kiosco/anuncio ─────────────────────────────────────────────────
 
 @kiosco_bp.route('/api/kiosco/anuncio', methods=['POST'])
@@ -51,7 +55,7 @@ def kiosco_anuncio():
             color = 'green'
 
         # Generate admission ID
-        cur.execute(f"SELECT COUNT(*) FROM admisiones WHERE DATE(creado_en)={T}")
+        cur.execute(f"SELECT COUNT(*) FROM admisiones WHERE {_D('creado_en',db)}={T}")
         n = cur.fetchone()[0]
         id_adm = f"ADM{str(n + 1).zfill(3)}-{datetime.now().strftime('%Y%m%d')}"
 
@@ -59,7 +63,7 @@ def kiosco_anuncio():
         pref = 'PP' if d.get('turno_tipo') == 'preferencial' else (
             'PC' if d.get('tipo_atencion') == 'cita_programada' else 'PS')
         cur.execute(
-            core.adapt(f"SELECT COUNT(*) FROM admisiones WHERE turno LIKE ? AND DATE(creado_en)={T}", db),
+            core.adapt(f"SELECT COUNT(*) FROM admisiones WHERE turno LIKE ? AND {_D('creado_en',db)}={T}", db),
             (f'{pref}%',))
         nt = cur.fetchone()[0]
         turno = f"{pref}{nt + 1}"
@@ -135,9 +139,9 @@ def kiosco_turnos_hoy():
     cur = conn.cursor()
     T = core.TODAY(db)
 
-    total = core.rows(cur, f"SELECT turno_tipo, COUNT(*) as total FROM admisiones WHERE DATE(creado_en)={T} GROUP BY turno_tipo")
+    total = core.rows(cur, f"SELECT turno_tipo, COUNT(*) as total FROM admisiones WHERE {_D('creado_en',db)}={T} GROUP BY turno_tipo")
     en_espera = core.rows(cur, core.adapt(
-        f"SELECT turno_tipo, COUNT(*) as total FROM admisiones WHERE DATE(creado_en)={T} AND estado=? GROUP BY turno_tipo", db),
+        f"SELECT turno_tipo, COUNT(*) as total FROM admisiones WHERE {_D('creado_en',db)}={T} AND estado=? GROUP BY turno_tipo", db),
         ('kiosco',))
 
     cur.close()
@@ -165,7 +169,7 @@ def kiosco_cola():
         f"a.fecha_llamado, a.triage_nivel, a.triage_ts, a.triage_enfermera, "
         f"a.destino, a.llamado_count, p.nombres, p.apellidos "
         f"FROM admisiones a LEFT JOIN pacientes p ON a.paciente_id=p.id "
-        f"WHERE DATE(a.creado_en)={T} "
+        f"WHERE {_D('a.creado_en',db)}={T} "
         f"ORDER BY CASE a.estado WHEN 'llamando' THEN 0 WHEN 'kiosco' THEN 1 "
         f"WHEN 'atendido' THEN 2 ELSE 3 END, "
         f"CASE WHEN a.turno_tipo='preferencial' THEN 0 ELSE 1 END, a.id", db))
@@ -259,7 +263,7 @@ def kiosco_llamar_turno():
 
         # Move any OTHER currently "llamando" turns to previous state or atendido
         cur.execute(core.adapt(
-            f"UPDATE admisiones SET estado='atendido' WHERE estado='llamando' AND id!=? AND DATE(creado_en)={T}", db),
+            f"UPDATE admisiones SET estado='atendido' WHERE estado='llamando' AND id!=? AND {_D('creado_en',db)}={T}", db),
             (turno_id,))
 
         # Set this one to "llamando" with destino and count

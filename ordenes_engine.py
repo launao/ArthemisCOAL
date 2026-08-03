@@ -32,6 +32,11 @@ def _get_deps():
     return core
 
 
+def _D(col, db):
+    """DATE extraction compatible with both PG and SQLite."""
+    return f"CAST({col} AS DATE)" if db == 'pg' else f"DATE({col})"
+
+
 def _is_authenticated():
     return bool(session.get('user_id'))
 
@@ -505,19 +510,19 @@ def ordenes_estadisticas():
     try:
         # Total today
         total_row = core.row(cur, core.adapt(
-            f"SELECT COUNT(*) as total FROM ordenes_medicas WHERE DATE(creado_en)={T}", db))
+            f"SELECT COUNT(*) as total FROM ordenes_medicas WHERE {_D('creado_en',db)}={T}", db))
         total = total_row['total'] if total_row else 0
 
         # By estado
         estados = core.rows(cur, core.adapt(
             f"SELECT estado, COUNT(*) as cantidad FROM ordenes_medicas "
-            f"WHERE DATE(creado_en)={T} GROUP BY estado", db))
+            f"WHERE {_D('creado_en',db)}={T} GROUP BY estado", db))
         por_estado = {e['estado']: e['cantidad'] for e in estados}
 
         # By tipo_orden
         tipos = core.rows(cur, core.adapt(
             f"SELECT tipo_orden, COUNT(*) as cantidad FROM ordenes_medicas "
-            f"WHERE DATE(creado_en)={T} GROUP BY tipo_orden", db))
+            f"WHERE {_D('creado_en',db)}={T} GROUP BY tipo_orden", db))
         por_tipo = {t['tipo_orden']: t['cantidad'] for t in tipos}
 
         # Average processing time (from solicitada to con_resultado)
@@ -525,12 +530,12 @@ def ordenes_estadisticas():
             tiempo = core.row(cur, core.adapt(
                 f"SELECT AVG((julianday(actualizado_en) - julianday(creado_en)) * 1440) "
                 f"as avg_minutos FROM ordenes_medicas "
-                f"WHERE DATE(creado_en)={T} AND estado='con_resultado'", db))
+                f"WHERE {_D('creado_en',db)}={T} AND estado='con_resultado'", db))
         else:
             tiempo = core.row(cur, core.adapt(
                 f"SELECT AVG(EXTRACT(EPOCH FROM (actualizado_en::timestamp - creado_en)) / 60) "
                 f"as avg_minutos FROM ordenes_medicas "
-                f"WHERE DATE(creado_en)={T} AND estado='con_resultado'", db))
+                f"WHERE {_D('creado_en',db)}={T} AND estado='con_resultado'", db))
 
         avg_minutos = round(tiempo.get('avg_minutos') or 0, 1) if tiempo else 0
 

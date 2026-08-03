@@ -32,6 +32,11 @@ def _get_deps():
     return core
 
 
+def _D(col, db):
+    """DATE extraction compatible with both PG and SQLite."""
+    return f"CAST({col} AS DATE)" if db == 'pg' else f"DATE({col})"
+
+
 def _is_authenticated():
     return bool(session.get('user_id'))
 
@@ -554,7 +559,7 @@ def facturacion_resumen_diario():
         # Total facturas today
         total_row = core.row(cur, core.adapt(
             f"SELECT COUNT(*) as total, COALESCE(SUM(total),0) as monto_total "
-            f"FROM pre_factura WHERE DATE(generado_en)={T}", db))
+            f"FROM pre_factura WHERE {_D('generado_en',db)}={T}", db))
         total_facturas = total_row['total'] if total_row else 0
         monto_total = total_row['monto_total'] if total_row else 0
 
@@ -562,21 +567,21 @@ def facturacion_resumen_diario():
         por_pagador = core.rows(cur, core.adapt(
             f"SELECT tipo_pagador, COUNT(*) as cantidad, "
             f"COALESCE(SUM(total),0) as monto "
-            f"FROM pre_factura WHERE DATE(generado_en)={T} "
+            f"FROM pre_factura WHERE {_D('generado_en',db)}={T} "
             f"GROUP BY tipo_pagador", db))
 
         # By estado
         por_estado = core.rows(cur, core.adapt(
             f"SELECT estado, COUNT(*) as cantidad, "
             f"COALESCE(SUM(total),0) as monto "
-            f"FROM pre_factura WHERE DATE(generado_en)={T} "
+            f"FROM pre_factura WHERE {_D('generado_en',db)}={T} "
             f"GROUP BY estado", db))
 
         # Copago vs pagador breakdown
         totales_row = core.row(cur, core.adapt(
             f"SELECT COALESCE(SUM(total_paciente),0) as total_copago, "
             f"COALESCE(SUM(total_pagador),0) as total_aseguradora "
-            f"FROM pre_factura WHERE DATE(generado_en)={T}", db))
+            f"FROM pre_factura WHERE {_D('generado_en',db)}={T}", db))
 
         return jsonify({
             'fecha': datetime.now().strftime('%Y-%m-%d'),

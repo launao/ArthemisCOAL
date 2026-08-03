@@ -38,6 +38,11 @@ def _get_deps():
     return core
 
 
+def _D(col, db):
+    """DATE extraction compatible with both PG and SQLite."""
+    return f"CAST({col} AS DATE)" if db == 'pg' else f"DATE({col})"
+
+
 def _is_authenticated():
     return bool(session.get('user_id'))
 
@@ -734,19 +739,19 @@ def admisiones_dashboard():
     try:
         # Total today
         total_row = core.row(cur, core.adapt(
-            f"SELECT COUNT(*) as total FROM admisiones WHERE DATE(creado_en)={T}", db))
+            f"SELECT COUNT(*) as total FROM admisiones WHERE {_D('creado_en',db)}={T}", db))
         total = total_row['total'] if total_row else 0
 
         # By estado
         estados = core.rows(cur, core.adapt(
             f"SELECT estado, COUNT(*) as cantidad FROM admisiones "
-            f"WHERE DATE(creado_en)={T} GROUP BY estado", db))
+            f"WHERE {_D('creado_en',db)}={T} GROUP BY estado", db))
         por_estado = {e['estado']: e['cantidad'] for e in estados}
 
         # By triage level
         triajes = core.rows(cur, core.adapt(
             f"SELECT triage_nivel, COUNT(*) as cantidad FROM admisiones "
-            f"WHERE DATE(creado_en)={T} AND triage_nivel IS NOT NULL GROUP BY triage_nivel", db))
+            f"WHERE {_D('creado_en',db)}={T} AND triage_nivel IS NOT NULL GROUP BY triage_nivel", db))
         por_triage = {t['triage_nivel']: t['cantidad'] for t in triajes}
 
         # Patients in each stage
@@ -766,7 +771,7 @@ def admisiones_dashboard():
             f"  (julianday(fecha_admision_inicio) - julianday(triage_ts)) * 1440 END) as avg_triage_admision, "
             f"AVG(CASE WHEN fecha_salida IS NOT NULL AND fecha_admision_fin IS NOT NULL THEN "
             f"  (julianday(fecha_salida) - julianday(fecha_admision_fin)) * 1440 END) as avg_admision_consulta "
-            f"FROM admisiones WHERE DATE(creado_en)={T}", db)) if db == 'sqlite' else None
+            f"FROM admisiones WHERE {_D('creado_en',db)}={T}", db)) if db == 'sqlite' else None
 
         if db == 'pg':
             tiempos = core.row(cur, core.adapt(
@@ -777,14 +782,14 @@ def admisiones_dashboard():
                 f"  EXTRACT(EPOCH FROM (fecha_admision_inicio - triage_ts::timestamp)) / 60 END) as avg_triage_admision, "
                 f"AVG(CASE WHEN fecha_salida IS NOT NULL AND fecha_admision_fin IS NOT NULL THEN "
                 f"  EXTRACT(EPOCH FROM (fecha_salida - fecha_admision_fin)) / 60 END) as avg_admision_consulta "
-                f"FROM admisiones WHERE DATE(creado_en)={T}", db))
+                f"FROM admisiones WHERE {_D('creado_en',db)}={T}", db))
 
         # Long-wait alerts (>30 min in any stage)
         alertas = core.rows(cur, core.adapt(
             f"SELECT a.id, a.turno, a.nombre_temp, a.estado, a.triage_nivel, a.creado_en, "
             f"p.nombres, p.apellidos "
             f"FROM admisiones a LEFT JOIN pacientes p ON a.paciente_id=p.id "
-            f"WHERE DATE(a.creado_en)={T} AND a.estado NOT IN ('atendido','cancelado')", db))
+            f"WHERE {_D('a.creado_en',db)}={T} AND a.estado NOT IN ('atendido','cancelado')", db))
 
         alertas_list = []
         now = datetime.now()
@@ -858,10 +863,10 @@ def admisiones_historial():
             q += " AND (a.doc_num_temp=? OR p.num_doc=?)"
             params.extend([num_doc, num_doc])
         if fecha_desde:
-            q += " AND DATE(a.creado_en) >= ?"
+            q += f" AND {_D('a.creado_en',db)} >= ?"
             params.append(fecha_desde)
         if fecha_hasta:
-            q += " AND DATE(a.creado_en) <= ?"
+            q += f" AND {_D('a.creado_en',db)} <= ?"
             params.append(fecha_hasta)
 
         q += " ORDER BY a.creado_en DESC LIMIT ?"
