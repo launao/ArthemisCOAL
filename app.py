@@ -593,6 +593,185 @@ def nueva_hc_page():
 def dashboard_page():
     return send_from_directory('static', 'dashboard.html')
 
+@app.route('/api/seed-demo', methods=['POST'])
+def seed_demo():
+    """One-time seed of 15 demo clinical histories. Requires superadmin."""
+    if not session.get('user_id'):
+        return jsonify({'error': 'No autenticado'}), 401
+    permisos = core.get_user_permisos()
+    if 'superadmin' not in permisos:
+        return jsonify({'error': 'Requiere superadmin'}), 403
+
+    conn, db = core.get_db()
+    cur = conn.cursor()
+    A = lambda q: core.adapt(q, db)
+
+    # Check if already seeded
+    count = core.row(cur, A("SELECT COUNT(*) as c FROM historia_clinica"))
+    if count['c'] >= 15:
+        cur.close(); core._return_db(conn, db)
+        return jsonify({'error': 'Ya hay datos demo cargados', 'total_hc': count['c']}), 409
+
+    PACIENTES = [
+        ("CC","80123456","Pedro Antonio","Ramírez Castillo","1985-03-14","M","3105551234","Compensar"),
+        ("CC","52987654","Luz Marina","Gómez Ospina","1972-11-28","F","3209876543","Sanitas"),
+        ("CC","1098765432","Sebastián","Herrera Montoya","1998-07-02","M","3001234567","Sura"),
+        ("TI","1234509876","Valentina","Ríos Castaño","2010-05-19","F","3187654321","Nueva EPS"),
+        ("CC","79654321","Jorge Eliecer","Muñoz Patiño","1960-01-30","M","3112345678","Salud Total"),
+        ("CE","E456789","María Alejandra","dos Santos Lima","1990-09-15","F","3156789012","Coomeva"),
+        ("CC","1023987654","Camila Andrea","Vargas Restrepo","1995-12-08","F","3204567890","Famisanar"),
+        ("CC","7812345","Roberto Carlos","Díaz Arango","1955-06-22","M","3178901234","Cafesalud"),
+        ("CC","1087654321","Daniela","Moreno Suárez","2000-02-14","F","3143210987","EPS Sura"),
+        ("CC","98765432","Héctor Fabio","Londoño Mejía","1968-08-05","M","3167890123","Coomeva"),
+        ("RC","1122334455","Santiago","Pérez Ochoa","2023-04-10","M","3198765432","Nueva EPS"),
+        ("CC","51234567","Gloria Patricia","Martínez Henao","1978-10-31","F","3134567890","Compensar"),
+    ]
+
+    pac_ids = []
+    for td,nd,nom,ape,fn,gen,cel,eps in PACIENTES:
+        existing = core.row(cur, A("SELECT id FROM pacientes WHERE num_doc=?"), (nd,))
+        if existing:
+            pac_ids.append(existing['id'])
+        else:
+            cur.execute(A("INSERT INTO pacientes(tipo_doc,num_doc,nombres,apellidos,fecha_nacimiento,genero,celular,eps)VALUES(?,?,?,?,?,?,?,?)"),
+                        (td,nd,nom,ape,fn,gen,cel,eps))
+            conn.commit()
+            p = core.row(cur, A("SELECT id FROM pacientes WHERE num_doc=?"), (nd,))
+            pac_ids.append(p['id'])
+
+    HISTORIAS = [
+        (0,"urgencias","Dolor torácico opresivo irradiado a brazo izquierdo, diaforesis y náuseas","urgencia","I20.0","I20.9","mejorado","domicilio","cerrada","U-D01","II","2026-07-15 08:30:00","Dra. Carolina Mejía",
+         [("Masculino 41a, dolor torácico típico. TA 150/90, FC 98, SatO2 96%. ECG: supradesnivel ST V1-V4. Troponinas elevadas.","SCA con elevación ST anterior. Protocolo ACS.","I20.0",'{"ta":"150/90","fc":98,"sat":96}')],
+         [("laboratorio","903841","Troponina I ultrasensible",1,"stat","Dolor torácico","I20.0"),("imagenologia","879101","Rx tórax PA y lateral",1,"urgente","Cardiomegalia","I20.0")],
+         [("Ácido Acetilsalicílico","19900123","300 mg","Tableta","Oral","300 mg","Dosis única","1 día","1","Masticar inmediatamente","I20.0"),("Enoxaparina","20050789","60 mg","Sol inyectable","SC","60 mg","c/12h","5 días","10","Anticoagulación","I20.0")],
+         [("cardiologia","Cardiología","SCA STEMI anterior. Cateterismo urgente","I20.0","stat")]),
+        (1,"urgencias","Caída con trauma en cadera derecha. Imposibilidad para la marcha","urgencia","S72.0","S72.00","mejorado","hospitalizacion","cerrada","U-D02","III","2026-07-16 14:20:00","Dr. Andrés Felipe Ruiz",
+         [("Femenina 53a, trauma cadera. Rotación externa MID. EVA 8/10.","Fractura cuello femoral. Rx + ortopedia.","S72.0",'{"ta":"130/80","fc":88,"sat":98}')],
+         [("imagenologia","871021","Rx pelvis AP",1,"urgente","Fractura cadera","S72.0"),("laboratorio","903859","Hemograma",1,"urgente","Pre-qx","S72.0")],
+         [("Tramadol","19950111","50 mg/mL","Sol inyectable","IV","50 mg","c/8h","3 días","9","Analgesia","S72.0")],
+         [("ortopedia","Ortopedia y Traumatología","Fractura cuello femoral Garden III. Osteosíntesis vs artroplastia","S72.0","urgente")]),
+        (2,"urgencias","Crisis asmática severa, disnea progresiva 6h, sin mejoría con inhalador","enfermedad_general","J45.1","J45.1","mejorado","domicilio","cerrada","U-D03","II","2026-07-18 22:15:00","Dra. Sandra Milena Ortiz",
+         [("Masculino 28a asmático. Sibilancias difusas, músculos accesorios. FR 28, SatO2 89%.","Exacerbación severa asma. Nebulizaciones + corticoide.","J45.1",'{"ta":"120/70","fc":110,"fr":28,"sat":89}'),
+          ("Post-nebulización x3: FR 22, SatO2 94%. Sibilancias leves. PEF 65%.","Respuesta parcial. Continuar oxígeno.","J45.1",'{"ta":"118/72","fc":92,"sat":94}')],
+         [("laboratorio","903854","Gases arteriales",1,"stat","Crisis asmática","J45.1")],
+         [("Salbutamol","20000333","5 mg/mL","Sol nebulización","Inhalatoria","0.5mL+3mL SSN","c/20min x3","1 día","3","Nebulización seriada","J45.1"),("Prednisolona","19970444","50 mg","Tableta","Oral","50 mg","Única","1 día","1","Corticoide","J45.1")],
+         []),
+        (3,"urgencias","Fiebre alta 39.5°C de 3 días, cefalea intensa y mialgias generalizadas","urgencia","A90","A90","mejorado","domicilio","cerrada","U-D04","III","2026-07-20 10:45:00","Dr. Mauricio Velásquez",
+         [("Adolescente 16a con síndrome febril. Petequias, torniquete +. Plaquetas 95,000.","Dengue con signos alarma. Hidratación IV, monitoreo c/6h.","A90",'{"ta":"100/60","fc":104,"temp":39.2}')],
+         [("laboratorio","903859","Hemograma",1,"stat","Plaquetas","A90"),("laboratorio","903856","NS1 + IgM/IgG Dengue",1,"stat","Confirmación","A90")],
+         [("Acetaminofén","19850666","500 mg","Tableta","Oral","500 mg","c/6h","5 días","20","NO AINEs","A90")],
+         []),
+        (4,"urgencias","Dolor abdominal FID 12h, progresivo, náuseas y vómito","urgencia","K35.9","K35.80","mejorado","hospitalizacion","cerrada","U-D05","III","2026-07-22 06:00:00","Dra. Carolina Mejía",
+         [("Masculino 65a, dolor FID. McBurney +, Blumberg +. Temp 38.1. Leuco 15,800.","Apendicitis aguda. TAC + cirugía general. NPO.","K35.9",'{"ta":"140/85","fc":94,"temp":38.1}')],
+         [("imagenologia","879301","TAC abdomen con contraste",1,"urgente","Apendicitis","K35.9"),("laboratorio","903859","Hemograma",1,"stat","Leucocitosis","K35.9"),("laboratorio","903866","PCR cuantitativa",1,"urgente","Inflamación","K35.9")],
+         [("Dipirona","19880222","1g/2mL","Sol inyectable","IV","2g","c/6h","1 día","4","Analgesia","K35.9"),("Metoclopramida","19900777","10 mg","Sol inyectable","IV","10 mg","c/8h","1 día","3","Antiemético","K35.9")],
+         [("cirugia_general","Cirugía General","Apendicitis aguda. Apendicectomía.","K35.9","urgente")]),
+        (5,"consulta","Control prenatal semana 28. Primer embarazo sin complicaciones","control","Z34.0","Z34.0","estable","domicilio","cerrada","C-D01",None,"2026-07-23 09:00:00","Dra. Patricia Gómez",
+         [("Gestante 28 sem. AU 27cm, FCF 144. TA 110/70. Sin complicaciones.","Embarazo 28 sem normal. Labs III trimestre. Control 2 sem.","Z34.0",'{"ta":"110/70","fc":78}')],
+         [("laboratorio","903859","Hemograma",1,"normal","Prenatal III trim","Z34.0"),("imagenologia","881302","Eco obstétrica",1,"normal","Biometría sem 28","Z34.0")],
+         [("Sulfato Ferroso","19920888","200 mg","Tableta","Oral","200 mg","c/24h","30 días","30","Hierro","Z34.0"),("Ácido Fólico","19930999","1 mg","Tableta","Oral","1 mg","c/24h","30 días","30","Suplemento","Z34.0")],
+         []),
+        (6,"urgencias","Laceración profunda antebrazo derecho por vidrio. Sangrado activo","urgencia","S51.0","S51.0","mejorado","domicilio","cerrada","U-D06","IV","2026-07-24 16:30:00","Dr. Andrés Felipe Ruiz",
+         [("Femenina 31a, laceración 8cm antebrazo. Sin compromiso tendinoso/vascular.","Sutura Nylon 4-0 (12 puntos). Profilaxis antitetánica.","S51.0",'{"ta":"115/70","fc":82,"sat":99}')],
+         [],
+         [("Cefalexina","19960111","500 mg","Cápsula","Oral","500 mg","c/6h","7 días","28","ATB profiláctico","S51.0"),("Ibuprofeno","19870222","400 mg","Tableta","Oral","400 mg","c/8h","5 días","15","AINE","S51.0")],
+         []),
+        (7,"urgencias","Disnea súbita con dolor pleurítico. Post-cirugía rodilla 10 días","urgencia","I26.9","I26.0","mejorado","hospitalizacion","cerrada","U-D07","I","2026-07-25 03:20:00","Dra. Sandra Milena Ortiz",
+         [("Masculino 67a post-artroplastia rodilla. Disnea severa. TA 90/60, SatO2 85%. Dímero D >5000.","TEP masivo. Angiotac urgente. Soporte hemodinámico.","I26.9",'{"ta":"90/60","fc":120,"fr":30,"sat":85}'),
+          ("Angiotac: TEP bilateral confirmado. HNF en infusión. Traslado UCI.","TEP masivo confirmado. Anticoagulación plena. UCI.","I26.0",'{"ta":"95/62","fc":112,"sat":90}')],
+         [("imagenologia","879401","Angiotac tórax",1,"stat","TEP","I26.9"),("laboratorio","903870","Dímero D",1,"stat","TEP","I26.9"),("laboratorio","903854","Gases arteriales",1,"stat","Hipoxemia","I26.9")],
+         [("Heparina sódica","19840333","25000 UI","Sol inyectable","IV","80 UI/kg bolo + 18 UI/kg/h","Infusión","5 días","5","Anticoagulación","I26.0")],
+         [("neumologia","Neumología","TEP masivo bilateral. Trombolisis sistémica.","I26.0","stat"),("medicina_intensiva","UCI","TEP con compromiso hemodinámico. Monitoreo invasivo.","I26.0","stat")]),
+        (8,"consulta","Cefalea crónica tipo migraña, 3-4 episodios/semana, 6 meses","consulta","G43.9","G43.0","estable","domicilio","cerrada","C-D02",None,"2026-07-26 11:00:00","Dr. Mauricio Velásquez",
+         [("Femenina 26a, migraña crónica. Pulsátil hemicraneal, foto/fonofobia. Neuro normal. MIDAS III.","Migraña sin aura crónica. Profilaxis propranolol. Control 4 sem.","G43.0",'{"ta":"105/65","fc":72}')],
+         [],
+         [("Propranolol","19860444","40 mg","Tableta","Oral","40 mg","c/12h","30 días","60","Profilaxis","G43.0"),("Sumatriptán","20020555","50 mg","Tableta","Oral","50 mg","SOS crisis","30 días","4","Rescate","G43.0")],
+         []),
+        (9,"urgencias","Alteración conciencia, glucometría 42 mg/dL. Diabético tipo 2","urgencia","E16.2","E11.6","mejorado","domicilio","cerrada","U-D08","I","2026-07-27 19:45:00","Dra. Carolina Mejía",
+         [("Masculino 58a DM2. Glasgow 10. Glucometría 42. Diaforesis.","Hipoglucemia severa por glibenclamida. Dextrosa 50%. Monitoreo.","E16.2",'{"ta":"160/95","fc":108,"glasgow":10}'),
+          ("Post-rescate: Glucometría 185. Glasgow 15. Alerta.","Recuperación. Suspender glibenclamida, ajustar insulina.","E11.6",'{"ta":"135/82","fc":82,"glasgow":15}')],
+         [("laboratorio","903869","Glucosa sérica",1,"stat","Hipoglucemia","E16.2"),("laboratorio","903862","HbA1c",1,"urgente","Control metabólico","E11.6")],
+         [("Metformina","19980666","850 mg","Tableta","Oral","850 mg","c/12h","30 días","60","Continuar","E11.6"),("Insulina Glargina","20100777","100 UI/mL","Sol inyectable","SC","14 UI","c/24h noche","30 días","1","Ajuste dosis","E11.6")],
+         [("endocrinologia","Endocrinología","Hipoglucemia severa DM2. Ajuste integral esquema.","E11.6","preferente")]),
+        (10,"urgencias","Lactante 3 años, dificultad respiratoria, rinorrea, tos y fiebre 38.5°C","urgencia","J21.0","J21.0","mejorado","domicilio","cerrada","U-D09","III","2026-07-28 07:30:00","Dr. Mauricio Velásquez",
+         [("Lactante 3a. Tirajes subcostales. Sibilancias. SatO2 93%.","Bronquiolitis aguda probable VSR. O2 + nebulización SSN hipertónica.","J21.0",'{"fc":130,"fr":42,"sat":93,"temp":38.2}')],
+         [("laboratorio","903856","Panel viral respiratorio",1,"urgente","Identificar agente","J21.0")],
+         [("Acetaminofén","19850666","150 mg/5mL","Jarabe","Oral","7.5 mL","c/6h","3 días","60 mL","15mg/kg","J21.0")],
+         []),
+        (11,"consulta","Dolor lumbar crónico 8 meses con irradiación a MID","enfermedad_general","M54.5","M51.1","estable","domicilio","cerrada","C-D03",None,"2026-07-29 15:00:00","Dr. Andrés Felipe Ruiz",
+         [("Femenina 48a, lumbalgia + ciatalgia der. Lasègue + 30°. Fuerza 4/5 dorsiflexión.","Radiculopatía L5-S1. RMN + pregabalina + fisioterapia.","M51.1",'{"ta":"120/78","fc":74}')],
+         [("imagenologia","883101","RMN columna lumbosacra",1,"preferente","Radiculopatía","M51.1")],
+         [("Pregabalina","20060888","75 mg","Cápsula","Oral","75 mg","c/12h","30 días","60","Dolor neuropático","M51.1"),("Naproxeno","19870999","250 mg","Tableta","Oral","250 mg","c/8h","10 días","30","AINE","M54.5")],
+         [("rehabilitacion","Medicina Física y Rehabilitación","Radiculopatía L5-S1. Fisioterapia 10 sesiones + TENS","M51.1","normal")]),
+        (6,"urgencias","Accidente tránsito motociclista. TEC moderado con pérdida de consciencia","accidente_transito","S06.0","S06.0","mejorado","hospitalizacion","abierta","U-D10","I","2026-08-01 23:10:00","Dra. Sandra Milena Ortiz",
+         [("Femenina 31a accidente moto. Glasgow 12. Herida parietal izq. Anisocoria leve.","TEC moderado. TAC cráneo urgente. Neuroprotección.","S06.0",'{"ta":"100/65","fc":105,"sat":95,"glasgow":12}')],
+         [("imagenologia","879501","TAC cráneo simple",1,"stat","TEC moderado","S06.0"),("imagenologia","879502","Rx columna cervical",1,"stat","Fractura cervical","S06.0"),("laboratorio","903859","Hemograma",1,"stat","Trauma","S06.0")],
+         [("Fenitoína","19840111","250 mg/5mL","Sol inyectable","IV","15 mg/kg","Única","1 día","1","Profilaxis convulsiones","S06.0")],
+         [("neurocirugia","Neurocirugía","TEC moderado Glasgow 12 con anisocoria. Decisión quirúrgica.","S06.0","stat")]),
+        (1,"consulta","Control post-op fractura cadera — 6 semanas post osteosíntesis","control","Z09.8","Z09.8","estable","domicilio","cerrada","C-D04",None,"2026-08-02 10:30:00","Dr. Andrés Felipe Ruiz",
+         [("Femenina 53a, 6 sem post-osteosíntesis cadera. Herida sana. Marcha con andador.","Evolución satisfactoria. Continuar fisio. Rx control 6 sem.","Z09.8",'{"ta":"125/75","fc":72}')],
+         [("imagenologia","871022","Rx cadera control",1,"normal","Post-quirúrgico","Z09.8")],
+         [],
+         []),
+        (9,"urgencias","Dolor precordial atípico con irradiación epigástrica. Antecedente IAM","urgencia","I20.9","K21.0","mejorado","domicilio","cerrada","U-D11","II","2026-08-03 05:15:00","Dra. Carolina Mejía",
+         [("Masculino 58a, antecedente IAM. Dolor retroesternal urente. ECG normal. Troponinas neg x2.","Dolor no cardíaco — ERGE. Troponinas neg. IBP. Gastro ambulatorio.","K21.0",'{"ta":"145/88","fc":84,"sat":98}')],
+         [("laboratorio","903841","Troponina I seriada x2",2,"stat","Descartar SCA","I20.9"),("laboratorio","903859","Hemograma",1,"urgente","General","I20.9")],
+         [("Omeprazol","19900333","20 mg","Cápsula","Oral","20 mg","c/12h","14 días","28","IBP ERGE","K21.0")],
+         []),
+    ]
+
+    created = []
+    try:
+        for h in HISTORIAS:
+            (pi,tipo_hc,motivo,causa,cie10i,cie10e,cond,dest,est,turno,tri,fecha,med,evols,ords,rxs,ics) = h
+            pid = pac_ids[pi]
+            nombre_p = f"{PACIENTES[pi][2]} {PACIENTES[pi][3]}"
+            id_adm = f"DEMO-{turno}-{pid}"
+            cur.execute(A("INSERT INTO admisiones(id_adm,turno,turno_tipo,estado,nombre_temp,doc_num_temp,servicio_nombre,paciente_id,triage_nivel,creado_en,hc_abierta)VALUES(?,?,?,?,?,?,?,?,?,?,1)"),
+                        (id_adm,turno,'general','atendido' if est=='cerrada' else 'en_atencion',nombre_p,PACIENTES[pi][1],'Urgencias' if tipo_hc=='urgencias' else 'Consulta externa',pid,tri,fecha))
+            conn.commit()
+            adm = core.row(cur, A("SELECT id FROM admisiones WHERE id_adm=?"), (id_adm,))
+            aid = adm['id']
+            cerr = fecha.replace(fecha[11:],"18:00:00") if est=='cerrada' else None
+            cur.execute(A("INSERT INTO historia_clinica(admision_id,paciente_id,tipo_hc,estado,motivo_consulta,causa_atencion,cod_cie10_ingreso,cod_cie10_egreso,condicion_egreso,destino_egreso,medico_nombre,firma_medico,creado_por,creado_en,cerrado_en)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"),
+                        (aid,pid,tipo_hc,est,motivo,causa,cie10i,cie10e,cond,dest,med,med,med,fecha,cerr))
+            conn.commit()
+            hc = core.row(cur, A("SELECT id FROM historia_clinica WHERE admision_id=?"), (aid,))
+            hid = hc['id']
+            cur.execute(A("UPDATE admisiones SET hc_id=? WHERE id=?"), (hid,aid))
+            conn.commit()
+            for ev in evols:
+                ea,an,c10,sv = ev
+                cur.execute(A("INSERT INTO hc_evoluciones(hc_id,tipo,enfermedad_actual,analisis,plan_terapeutico,cod_cie10,signos_vitales_json,medico_nombre,creado_en)VALUES(?,?,?,?,?,?,?,?,?)"),
+                            (hid,'evolucion',ea,an,an,c10,sv,med,fecha))
+                conn.commit()
+            for o in ords:
+                to,cups,ne,ca,pr,ind,dx = o
+                cur.execute(A("INSERT INTO ordenes_medicas(hc_id,admision_id,paciente_id,tipo_orden,cod_cups,nombre_estudio,cantidad,prioridad,indicacion_clinica,diagnostico_asociado,estado,medico_ordena,creado_en)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)"),
+                            (hid,aid,pid,to,cups,ne,ca,pr,ind,dx,'completada' if est=='cerrada' else 'pendiente',med,fecha))
+                conn.commit()
+            for rx in rxs:
+                me,cu,co,fo,vi,do2,fr,du,ca2,ins,dx = rx
+                cur.execute(A("INSERT INTO prescripciones(hc_id,admision_id,paciente_id,medicamento,cod_cum,concentracion,forma_farmaceutica,via_administracion,dosis,frecuencia,duracion,cantidad_total,instrucciones,diagnostico_asociado,estado,medico_nombre,creado_en)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"),
+                            (hid,aid,pid,me,cu,co,fo,vi,do2,fr,du,ca2,ins,dx,'dispensada' if est=='cerrada' else 'pendiente',med,fecha))
+                conn.commit()
+            for ic in ics:
+                es,en2,mo,dx,pr = ic
+                cur.execute(A("INSERT INTO interconsultas(hc_id,admision_id,paciente_id,tipo,especialidad_solicitada,motivo,diagnostico_presuntivo,cod_cie10,prioridad,estado,medico_solicitante,creado_en)VALUES(?,?,?,?,?,?,?,?,?,?,?,?)"),
+                            (hid,aid,pid,'interconsulta',en2,mo,mo,dx,pr,'respondida' if est=='cerrada' else 'solicitada',med,fecha))
+                conn.commit()
+            created.append({'hc_id': hid, 'paciente': nombre_p, 'dx': cie10i})
+
+        final = core.row(cur, A("SELECT COUNT(*) as c FROM historia_clinica"))
+        return jsonify({'success': True, 'created': len(created), 'total_hc': final['c'], 'historias': created})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close()
+        core._return_db(conn, db)
+
+
 @app.route('/health')
 def health():
     info = {
