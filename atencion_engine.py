@@ -275,8 +275,9 @@ def atencion_cola():
         return jsonify({'error': 'No autenticado'}), 401
 
     core = _get_deps()
-    puesto_tipo = session.get('puesto_tipo') or request.args.get('tipo', '')
-    puesto_id = session.get('puesto_id')
+    # Accept tipo from query param to avoid session conflicts between tabs
+    puesto_tipo = request.args.get('tipo', '') or session.get('puesto_tipo', '')
+    puesto_id = int(request.args.get('puesto_id', 0)) or session.get('puesto_id')
 
     if not puesto_tipo:
         return jsonify({'error': 'No hay puesto seleccionado'}), 400
@@ -290,7 +291,14 @@ def atencion_cola():
     T = core.TODAY(db)
 
     # Get queue: patients in the estado this puesto pulls from
+    # For kiosco queue: only today's patients (new arrivals)
+    # For triaje/admision queues: show ALL pending patients regardless of date
+    #   (a patient triaged yesterday should still appear in admisiones today)
     queue_estado = stage['queue_estado']
+    if queue_estado == 'kiosco':
+        date_filter = f"{_D('a.creado_en',db)}={T} AND "
+    else:
+        date_filter = ""
     admisiones = core.rows(cur, core.adapt(
         f"SELECT a.id, a.id_adm, a.turno, a.turno_tipo, a.estado, a.nombre_temp, "
         f"a.doc_num_temp, a.servicio_nombre, a.color_alerta, a.creado_en, "
@@ -298,7 +306,7 @@ def atencion_cola():
         f"a.destino, a.llamado_count, a.puesto_id, a.paciente_id, "
         f"p.nombres, p.apellidos, p.celular, p.eps, p.tipo_doc, p.num_doc "
         f"FROM admisiones a LEFT JOIN pacientes p ON a.paciente_id=p.id "
-        f"WHERE {_D('a.creado_en',db)}={T} AND a.estado=? "
+        f"WHERE {date_filter}a.estado=? "
         f"ORDER BY a.id", db), (queue_estado,))
 
     # Build result with sorting
@@ -347,7 +355,7 @@ def atencion_cola():
             f"a.destino, a.llamado_count, a.paciente_id, "
             f"p.nombres, p.apellidos, p.celular, p.eps, p.tipo_doc, p.num_doc "
             f"FROM admisiones a LEFT JOIN pacientes p ON a.paciente_id=p.id "
-            f"WHERE {_D('a.creado_en',db)}={T} AND a.estado='llamando' AND a.puesto_id=?", db),
+            f"WHERE a.estado='llamando' AND a.puesto_id=?", db),
             (puesto_id,))
         if a:
             nombre = a.get('nombre_temp') or ''
@@ -393,9 +401,11 @@ def atencion_siguiente():
         return jsonify({'error': 'No autenticado'}), 401
 
     core = _get_deps()
-    puesto_tipo = session.get('puesto_tipo')
-    puesto_id = session.get('puesto_id')
-    puesto_nombre = session.get('puesto_nombre', '')
+    d = request.json or {}
+    # Accept puesto info from request body to avoid session conflicts between tabs
+    puesto_tipo = d.get('puesto_tipo') or session.get('puesto_tipo')
+    puesto_id = d.get('puesto_id') or session.get('puesto_id')
+    puesto_nombre = d.get('puesto_nombre') or session.get('puesto_nombre', '')
 
     if not puesto_tipo or not puesto_id:
         return jsonify({'error': 'No hay puesto seleccionado'}), 400
@@ -412,12 +422,18 @@ def atencion_siguiente():
         # If this puesto already has a patient in 'llamando', return them to queue
         cur.execute(core.adapt(
             f"UPDATE admisiones SET estado=?, puesto_id=NULL, destino=NULL "
-            f"WHERE estado='llamando' AND puesto_id=? AND {_D('creado_en',db)}={T}", db),
+            f"WHERE estado='llamando' AND puesto_id=?", db),
             (stage['queue_estado'], puesto_id))
         conn.commit()
 
         # Find next patient in queue, sorted by priority
+        # For kiosco queue: only today's patients
+        # For triaje/admision: all pending patients (no date filter)
         queue_estado = stage['queue_estado']
+        if queue_estado == 'kiosco':
+            date_filter = f"{_D('a.creado_en',db)}={T} AND "
+        else:
+            date_filter = ""
 
         # Build ORDER BY: preferencial first, then triage priority, then arrival
         order = (
@@ -433,7 +449,7 @@ def atencion_siguiente():
             f"a.servicio_nombre, a.color_alerta, a.doc_num_temp, "
             f"p.nombres, p.apellidos "
             f"FROM admisiones a LEFT JOIN pacientes p ON a.paciente_id=p.id "
-            f"WHERE {_D('a.creado_en',db)}={T} AND a.estado=? "
+            f"WHERE {date_filter}a.estado=? "
             f"ORDER BY {order} LIMIT 1", db), (queue_estado,))
 
         if not siguiente:
@@ -627,7 +643,8 @@ def atencion_accion():
     core = _get_deps()
     d = request.json or {}
     turno_id = d.get('id')
-    puesto_tipo = session.get('puesto_tipo')
+    # Accept puesto_tipo from request body to avoid session conflicts between tabs
+    puesto_tipo = d.get('puesto_tipo') or session.get('puesto_tipo')
     puesto_nombre = session.get('puesto_nombre', '')
 
     if not turno_id:

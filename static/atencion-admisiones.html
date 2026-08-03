@@ -1151,7 +1151,8 @@ body {
 
   async function loadCola() {
     try {
-      const data = await api('GET','/api/atencion/cola');
+      var tipoParam = puestoActual ? '?tipo='+encodeURIComponent(puestoActual.tipo||'admisiones')+'&puesto_id='+(puestoActual.id||'') : '';
+      const data = await api('GET','/api/atencion/cola'+tipoParam);
       const cola = data.cola||[];
       const actual = data.actual||null;
 
@@ -1784,7 +1785,7 @@ body {
     const btn = document.getElementById('btnSiguiente');
     btn.disabled = true; btn.innerHTML='<span class="spinner"></span>';
     try {
-      const data = await api('POST','/api/atencion/siguiente');
+      const data = await api('POST','/api/atencion/siguiente',{puesto_tipo:puestoActual?.tipo||'admisiones',puesto_id:puestoActual?.id,puesto_nombre:puestoActual?.nombre||''});
       if (data.paciente||data.turno) {
         showPaciente(data.paciente||data);
         showToast('Paciente llamado: '+(data.paciente?.turno||data.turno||''));

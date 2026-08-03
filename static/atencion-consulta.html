@@ -433,7 +433,8 @@ async function enterMain() {
    ══════════════════════════════════════════ */
 async function fetchCola() {
   try {
-    var data = await api('GET', '/api/atencion/cola');
+    var tipoParam = puesto ? '?tipo='+encodeURIComponent(puesto.tipo||'consultorio')+'&puesto_id='+(puesto.id||'') : '';
+    var data = await api('GET', '/api/atencion/cola'+tipoParam);
     var prev = cola.length;
     cola = data.cola || [];
     if (data.actual !== undefined) {
@@ -1619,7 +1620,7 @@ async function completarAtencion() {
     }
 
     /* Complete attention */
-    await api('POST', '/api/atencion/accion', { id: actual.id });
+    await api('POST', '/api/atencion/accion', { id: actual.id, puesto_tipo: puesto?.tipo || 'consultorio' });
     toast('Atencion completada correctamente', 'success');
     actual = null; triageData = null; hcId = null; hcData = null; localPrescripciones = [];
     await fetchCola();
@@ -1642,7 +1643,7 @@ async function callNext() {
   var btn = document.getElementById('btnNext');
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
   try {
-    var data = await api('POST', '/api/atencion/siguiente', {});
+    var data = await api('POST', '/api/atencion/siguiente', {puesto_tipo:puesto?.tipo||'consultorio',puesto_id:puesto?.id,puesto_nombre:puesto?.nombre||''});
     actual = data.paciente || data.turno || data.actual || data;
     hcId = null; hcData = null; localPrescripciones = [];
     /* Try to load existing HC */

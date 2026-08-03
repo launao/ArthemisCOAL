@@ -513,7 +513,8 @@ async function enterMain() {
 // ===== QUEUE =====
 async function refreshCola() {
   try {
-    const data = await api('/api/atencion/cola');
+    var tipoParam = state.puesto ? '?tipo='+encodeURIComponent(state.puesto.tipo||'triage')+'&puesto_id='+(state.puesto.id||'') : '';
+    const data = await api('/api/atencion/cola'+tipoParam);
     const prev = state.cola.length;
     state.cola = data.cola || [];
     if (data.actual !== undefined) state.actual = data.actual;
@@ -790,7 +791,7 @@ async function siguiente() {
   const btn = document.getElementById('btnSiguiente');
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
   try {
-    const data = await api('/api/atencion/siguiente', { method: 'POST' });
+    const data = await api('/api/atencion/siguiente', { method: 'POST', body: JSON.stringify({puesto_tipo:state.puesto?.tipo||'triage',puesto_id:state.puesto?.id,puesto_nombre:state.puesto?.nombre||''}) });
     state.actual = data.paciente || data.turno || data.actual || data;
     renderWorkspace();
     refreshCola();
@@ -851,6 +852,7 @@ async function asignarTriage() {
   btn.innerHTML = '<span class="spinner"></span> Guardando...';
   try {
     const formData = gatherFormData();
+    formData.puesto_tipo = state.puesto?.tipo || 'triage';
     const result = await api('/api/atencion/accion', {
       method: 'POST', body: JSON.stringify(formData)
     });
