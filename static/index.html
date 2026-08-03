@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Arthemis Health · COAL</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/arthemis-theme.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',system-ui,sans-serif;background:#FAF9F5;color:#1A1A19;min-height:100vh}
@@ -165,6 +166,18 @@ body{font-family:'Inter',system-ui,sans-serif;background:#FAF9F5;color:#1A1A19;m
       <div class="mod-desc">Solicitud, aceptación y respuesta entre especialidades</div>
       <span class="mod-tag tag-auth">Requiere login</span>
     </a>
+    <a class="mod" href="/historias-clinicas">
+      <div class="mod-ico">📂</div>
+      <div class="mod-name">Historias Clínicas</div>
+      <div class="mod-desc">Consultar, buscar y revisar historias clínicas existentes</div>
+      <span class="mod-tag tag-auth">Requiere login</span>
+    </a>
+    <a class="mod" href="/nueva-hc">
+      <div class="mod-ico">📝</div>
+      <div class="mod-name">Nueva Historia Clínica</div>
+      <div class="mod-desc">Crear historia clínica desde cero sin flujo de turnos</div>
+      <span class="mod-tag tag-auth">Requiere login</span>
+    </a>
   </div>
 
   <div class="section-title">Administración</div>
@@ -275,6 +288,15 @@ async function doLogout() {
 }
 
 checkAuth();
+</script>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="(function(){var h=document.documentElement;var t=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',t);localStorage.setItem('arthemis-theme',t);})()" title="Cambiar tema">
+  <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+  <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+</button>
+<script>
+(function(){var t=localStorage.getItem('arthemis-theme')||'light';document.documentElement.setAttribute('data-theme',t);})();
 </script>
 </body>
 </html>

@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nueva Historia Clínica · Arthemis Health</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/arthemis-theme.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--fg);min-height:100vh}
+
+.header{background:var(--space-blue);color:#fff;padding:16px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.header img{height:40px;border-radius:8px;background:#fff;padding:3px}
+.header h1{font-size:16px;font-weight:700;letter-spacing:-0.3px;flex:1}
+.header .badge{background:var(--cyan-deep);color:#fff;padding:3px 10px;border-radius:16px;font-size:11px;font-weight:600}
+.btn-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.btn-back:hover{background:rgba(255,255,255,0.22)}
+
+.container{max-width:720px;margin:0 auto;padding:28px 20px}
+
+/* Steps indicator */
+.steps{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:28px}
+.step{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:12px;font-weight:600;color:var(--fg-muted);position:relative}
+.step .step-num{width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--fg-muted);transition:all .3s}
+.step.active .step-num{background:var(--cyan);color:#fff}
+.step.done .step-num{background:var(--success);color:#fff}
+.step.active{color:var(--fg)}
+.step-line{width:40px;height:2px;background:var(--border)}
+.step-line.done{background:var(--success)}
+
+/* Form card */
+.form-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px}
+.form-card h2{font-size:15px;font-weight:700;margin-bottom:4px}
+.form-card .form-sub{font-size:12px;color:var(--fg-muted);margin-bottom:20px}
+
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.field-row.triple{grid-template-columns:1fr 1fr 1fr}
+.field-full{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--fg-muted)}
+.field label .req{color:var(--danger)}
+.field input,.field select,.field textarea{padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--bg);color:var(--fg);outline:none;transition:border .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--cyan)}
+.field textarea{resize:vertical;min-height:70px}
+
+/* Lookup result */
+.lookup-result{background:var(--cyan-tint);border-radius:8px;padding:12px 16px;margin-bottom:16px;display:none;border-left:3px solid var(--cyan)}
+.lookup-result .lr-name{font-size:14px;font-weight:600}
+.lookup-result .lr-detail{font-size:12px;color:var(--fg-muted);margin-top:2px}
+.lookup-result.visible{display:block}
+
+/* Typeahead for CIE-10 */
+.ta-wrap{position:relative}
+.ta-drop{position:absolute;top:100%;left:0;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;max-height:180px;overflow-y:auto;z-index:20;display:none;box-shadow:0 8px 24px rgba(17,34,54,0.12)}
+.ta-drop.open{display:block}
+.ta-item{padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border)}
+.ta-item:hover,.ta-item.active{background:var(--cyan-tint)}
+.ta-item:last-child{border-bottom:none}
+.ta-item .ta-code{font-weight:700;color:var(--cyan)}
+
+/* Buttons */
+.btn-row{display:flex;gap:12px;justify-content:flex-end;margin-top:8px}
+.btn-primary{padding:10px 28px;background:var(--cyan);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-primary:hover{background:var(--cyan-deep)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.btn-secondary{padding:10px 20px;background:transparent;color:var(--fg);border:1px solid var(--border);border-radius:10px;font-size:14px;cursor:pointer;font-family:inherit}
+.btn-secondary:hover{background:var(--bg)}
+.btn-success{padding:10px 28px;background:var(--success);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-success:hover{filter:brightness(1.1)}
+
+/* Success panel */
+.success-panel{text-align:center;padding:40px 20px;display:none}
+.success-panel .big-check{font-size:48px;margin-bottom:12px}
+.success-panel h2{font-size:18px;font-weight:700;margin-bottom:4px}
+.success-panel p{font-size:13px;color:var(--fg-muted);margin-bottom:20px}
+.success-panel .hc-num{font-size:28px;font-weight:700;color:var(--cyan);display:block;margin:8px 0 16px}
+.success-panel.visible{display:block}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--space-blue);color:#fff;padding:12px 24px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;z-index:200;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.error{background:var(--danger)}
+
+@media(max-width:600px){
+  .field-row{grid-template-columns:1fr}
+  .field-row.triple{grid-template-columns:1fr}
+  .steps{flex-wrap:wrap;gap:4px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="/static/logo_coal.png" alt="COAL">
+  <h1>Nueva Historia Clínica</h1>
+  <span class="badge">Arthemis Health</span>
+  <a class="btn-back" href="/">← Inicio</a>
+</div>
+
+<div class="container">
+
+  <!-- Steps -->
+  <div class="steps">
+    <div class="step active" id="step1"><span class="step-num">1</span> Paciente</div>
+    <div class="step-line" id="line1"></div>
+    <div class="step" id="step2"><span class="step-num">2</span> Historia Clínica</div>
+    <div class="step-line" id="line2"></div>
+    <div class="step" id="step3"><span class="step-num">3</span> Confirmación</div>
+  </div>
+
+  <!-- STEP 1: Patient -->
+  <div class="form-card" id="panel1">
+    <h2>Datos del Paciente</h2>
+    <div class="form-sub">Busque un paciente existente por documento o ingrese los datos para crear uno nuevo.</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Tipo documento <span class="req">*</span></label>
+        <select id="tipoDoc">
+          <option value="CC">CC - Cédula de Ciudadanía</option>
+          <option value="TI">TI - Tarjeta de Identidad</option>
+          <option value="CE">CE - Cédula de Extranjería</option>
+          <option value="PA">PA - Pasaporte</option>
+          <option value="RC">RC - Registro Civil</option>
+          <option value="MS">MS - Menor sin ID</option>
+          <option value="AS">AS - Adulto sin ID</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Número documento <span class="req">*</span></label>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="numDoc" placeholder="Ej: 1234567890" style="flex:1">
+          <button class="btn-primary" style="padding:9px 14px;font-size:12px" onclick="buscarPaciente()">Buscar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="lookup-result" id="lookupResult">
+      <div class="lr-name" id="lrName"></div>
+      <div class="lr-detail" id="lrDetail"></div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Nombres <span class="req">*</span></label>
+        <input type="text" id="nombres" placeholder="Nombres del paciente">
+      </div>
+      <div class="field">
+        <label>Apellidos <span class="req">*</span></label>
+        <input type="text" id="apellidos" placeholder="Apellidos del paciente">
+      </div>
+    </div>
+
+    <div class="field-row triple">
+      <div class="field">
+        <label>Fecha nacimiento</label>
+        <input type="date" id="fechaNac">
+      </div>
+      <div class="field">
+        <label>Género</label>
+        <select id="genero">
+          <option value="">Seleccione</option>
+          <option value="M">Masculino</option>
+          <option value="F">Femenino</option>
+          <option value="I">Indeterminado</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Celular</label>
+        <input type="tel" id="celular" placeholder="300 123 4567">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>EPS / Aseguradora</label>
+        <input type="text" id="eps" placeholder="Ej: Nueva EPS, Sura, Sanitas...">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="siguientePaso(2)">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: HC Data -->
+  <div class="form-card" id="panel2" style="display:none">
+    <h2>Datos de la Historia Clínica</h2>
+    <div class="form-sub">Información clínica inicial para la apertura de la historia.</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Tipo de HC</label>
+        <select id="tipoHC">
+          <option value="consulta">Consulta</option>
+          <option value="urgencias">Urgencias</option>
+          <option value="hospitalizacion">Hospitalización</option>
+          <option value="cirugia">Cirugía</option>
+          <option value="control">Control</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Causa de atención</label>
+        <select id="causaAtencion">
+          <option value="consulta">Consulta general</option>
+          <option value="urgencia">Urgencia</option>
+          <option value="control">Control</option>
+          <option value="remision">Remisión</option>
+          <option value="accidente_trabajo">Accidente de trabajo</option>
+          <option value="accidente_transito">Accidente de tránsito</option>
+          <option value="enfermedad_general">Enfermedad general</option>
+          <option value="enfermedad_laboral">Enfermedad laboral</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field field-full">
+        <label>Motivo de consulta <span class="req">*</span></label>
+        <textarea id="motivoConsulta" placeholder="Describa el motivo de consulta del paciente..." rows="3"></textarea>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field field-full ta-wrap">
+        <label>Diagnóstico CIE-10 de ingreso</label>
+        <input type="text" id="cie10Input" placeholder="Buscar código CIE-10..." autocomplete="off">
+        <div class="ta-drop" id="cie10Drop"></div>
+        <input type="hidden" id="cie10Code">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field field-full">
+        <label>Servicio</label>
+        <input type="text" id="servicio" placeholder="Ej: Consulta externa, Ortopedia..." value="Consulta directa">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="siguientePaso(1)">← Atrás</button>
+      <button class="btn-primary" onclick="siguientePaso(3)">Revisar y Crear →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Confirm -->
+  <div class="form-card" id="panel3" style="display:none">
+    <h2>Confirmar y Crear</h2>
+    <div class="form-sub">Revise los datos antes de crear la historia clínica.</div>
+
+    <div id="resumenData" style="font-size:13px;line-height:1.8"></div>
+
+    <div class="btn-row" style="margin-top:16px">
+      <button class="btn-secondary" onclick="siguientePaso(2)">← Editar</button>
+      <button class="btn-success" id="btnCrear" onclick="crearHC()">Crear Historia Clínica</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-panel" id="successPanel">
+    <div class="big-check">✅</div>
+    <h2>Historia Clínica Creada</h2>
+    <span class="hc-num" id="hcCreatedId"></span>
+    <p>La historia clínica ha sido creada exitosamente. Puede continuar a la consulta médica o regresar al inicio.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="/atencion/consulta" class="btn-primary" style="text-decoration:none">Ir a Consulta Médica</a>
+      <a href="/historias-clinicas" class="btn-secondary" style="text-decoration:none">Ver Historias Clínicas</a>
+      <button class="btn-secondary" onclick="resetForm()">Crear Otra</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/static/catalogos_col.js"></script>
+<script>
+const API = '';
+let foundPatient = null;
+
+function toast(msg, isErr) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isErr ? ' error' : '');
+  setTimeout(() => t.className = 'toast', 3500);
+}
+
+// ── Patient lookup ──
+async function buscarPaciente() {
+  const numDoc = document.getElementById('numDoc').value.trim();
+  if (!numDoc) { toast('Ingrese un número de documento', true); return; }
+
+  try {
+    const r = await fetch(API + '/api/hc/buscar?q=' + encodeURIComponent(numDoc), { credentials: 'include' });
+    const d = await r.json();
+    const historias = d.historias || [];
+    const lr = document.getElementById('lookupResult');
+
+    if (historias.length && historias[0].p_num_doc === numDoc) {
+      const h = historias[0];
+      foundPatient = h;
+      document.getElementById('nombres').value = h.nombres || '';
+      document.getElementById('apellidos').value = h.apellidos || '';
+      document.getElementById('genero').value = h.genero || '';
+      document.getElementById('eps').value = h.p_eps || '';
+      document.getElementById('fechaNac').value = (h.fecha_nacimiento || '').substring(0, 10);
+
+      document.getElementById('lrName').textContent = [h.nombres, h.apellidos].filter(Boolean).join(' ');
+      document.getElementById('lrDetail').textContent = `${h.p_tipo_doc || 'CC'} ${h.p_num_doc} · EPS: ${h.p_eps || '—'} · ${historias.length} HC(s) registrada(s)`;
+      lr.classList.add('visible');
+      toast('Paciente encontrado');
+    } else {
+      foundPatient = null;
+      lr.classList.remove('visible');
+      toast('Paciente no encontrado — ingrese los datos para crearlo');
+    }
+  } catch (e) {
+    toast('Error buscando paciente', true);
+  }
+}
+
+// ── CIE-10 Typeahead ──
+(function() {
+  if (typeof Typeahead === 'undefined') return;
+  const input = document.getElementById('cie10Input');
+  const drop = document.getElementById('cie10Drop');
+  const hidden = document.getElementById('cie10Code');
+  let timer = null;
+
+  input.addEventListener('input', function() {
+    clearTimeout(timer);
+    const q = this.value.trim();
+    if (q.length < 2) { drop.classList.remove('open'); return; }
+    timer = setTimeout(() => {
+      const results = Typeahead.searchCIE10(q).slice(0, 10);
+      if (!results.length) { drop.classList.remove('open'); return; }
+      drop.innerHTML = results.map(r =>
+        `<div class="ta-item" data-code="${r.code}" data-name="${r.name}">
+          <span class="ta-code">${r.code}</span> ${r.name}
+        </div>`
+      ).join('');
+      drop.classList.add('open');
+    }, 200);
+  });
+
+  drop.addEventListener('click', function(e) {
+    const item = e.target.closest('.ta-item');
+    if (!item) return;
+    input.value = item.dataset.code + ' — ' + item.dataset.name;
+    hidden.value = item.dataset.code;
+    drop.classList.remove('open');
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.ta-wrap')) drop.classList.remove('open');
+  });
+})();
+
+// ── Step navigation ──
+function siguientePaso(step) {
+  // Validate step 1
+  if (step === 2) {
+    const numDoc = document.getElementById('numDoc').value.trim();
+    const nombres = document.getElementById('nombres').value.trim();
+    const apellidos = document.getElementById('apellidos').value.trim();
+    if (!numDoc || !nombres || !apellidos) {
+      toast('Complete los campos obligatorios: documento, nombres y apellidos', true);
+      return;
+    }
+  }
+
+  // Validate step 2 → 3
+  if (step === 3) {
+    const motivo = document.getElementById('motivoConsulta').value.trim();
+    if (!motivo) {
+      toast('Ingrese el motivo de consulta', true);
+      return;
+    }
+    renderResumen();
+  }
+
+  // Show/hide panels
+  document.getElementById('panel1').style.display = step === 1 ? '' : 'none';
+  document.getElementById('panel2').style.display = step === 2 ? '' : 'none';
+  document.getElementById('panel3').style.display = step === 3 ? '' : 'none';
+
+  // Update step indicators
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById('step' + i);
+    el.classList.remove('active', 'done');
+    if (i === step) el.classList.add('active');
+    else if (i < step) el.classList.add('done');
+  }
+  for (let i = 1; i <= 2; i++) {
+    const line = document.getElementById('line' + i);
+    line.classList.toggle('done', i < step);
+  }
+}
+
+function renderResumen() {
+  const data = collectData();
+  document.getElementById('resumenData').innerHTML = `
+    <div style="display:grid;grid-template-columns:140px 1fr;gap:6px 16px">
+      <strong>Documento:</strong> <span>${data.tipo_doc} ${data.num_doc}</span>
+      <strong>Paciente:</strong> <span>${data.nombres} ${data.apellidos}</span>
+      <strong>Género:</strong> <span>${data.genero || '—'}</span>
+      <strong>F. Nacimiento:</strong> <span>${data.fecha_nacimiento || '—'}</span>
+      <strong>Celular:</strong> <span>${data.celular || '—'}</span>
+      <strong>EPS:</strong> <span>${data.eps || '—'}</span>
+      <strong style="border-top:1px solid var(--border);padding-top:8px">Tipo HC:</strong> <span style="border-top:1px solid var(--border);padding-top:8px">${data.tipo_hc}</span>
+      <strong>Causa:</strong> <span>${data.causa_atencion}</span>
+      <strong>Motivo:</strong> <span>${data.motivo_consulta}</span>
+      <strong>CIE-10:</strong> <span>${document.getElementById('cie10Input').value || '—'}</span>
+      <strong>Servicio:</strong> <span>${data.servicio || '—'}</span>
+    </div>
+  `;
+}
+
+function collectData() {
+  return {
+    tipo_doc: document.getElementById('tipoDoc').value,
+    num_doc: document.getElementById('numDoc').value.trim(),
+    nombres: document.getElementById('nombres').value.trim(),
+    apellidos: document.getElementById('apellidos').value.trim(),
+    fecha_nacimiento: document.getElementById('fechaNac').value,
+    genero: document.getElementById('genero').value,
+    celular: document.getElementById('celular').value.trim(),
+    eps: document.getElementById('eps').value.trim(),
+    tipo_hc: document.getElementById('tipoHC').value,
+    causa_atencion: document.getElementById('causaAtencion').value,
+    motivo_consulta: document.getElementById('motivoConsulta').value.trim(),
+    cod_cie10_ingreso: document.getElementById('cie10Code').value,
+    servicio: document.getElementById('servicio').value.trim(),
+  };
+}
+
+async function crearHC() {
+  const btn = document.getElementById('btnCrear');
+  btn.disabled = true;
+  btn.textContent = 'Creando...';
+
+  const data = collectData();
+
+  try {
+    const r = await fetch(API + '/api/hc/crear-directa', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+    const d = await r.json();
+
+    if (d.success) {
+      document.getElementById('panel3').style.display = 'none';
+      document.getElementById('hcCreatedId').textContent = 'HC #' + d.hc_id;
+      document.getElementById('successPanel').classList.add('visible');
+
+      // Mark step 3 as done
+      document.getElementById('step3').classList.remove('active');
+      document.getElementById('step3').classList.add('done');
+      document.getElementById('line2').classList.add('done');
+
+      toast('Historia clínica creada exitosamente');
+    } else {
+      toast(d.error || 'Error creando HC', true);
+    }
+  } catch (e) {
+    toast('Error de conexión', true);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Crear Historia Clínica';
+}
+
+function resetForm() {
+  foundPatient = null;
+  document.getElementById('successPanel').classList.remove('visible');
+  document.querySelectorAll('#panel1 input, #panel1 select, #panel2 input, #panel2 select, #panel2 textarea').forEach(el => {
+    if (el.type === 'select-one') el.selectedIndex = 0;
+    else el.value = '';
+  });
+  document.getElementById('servicio').value = 'Consulta directa';
+  document.getElementById('lookupResult').classList.remove('visible');
+  siguientePaso(1);
+}
+</script>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="(function(){var h=document.documentElement;var t=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',t);localStorage.setItem('arthemis-theme',t);})()" title="Cambiar tema">
+  <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+  <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+</button>
+<script>
+(function(){var t=localStorage.getItem('arthemis-theme')||'light';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+</body>
+</html>

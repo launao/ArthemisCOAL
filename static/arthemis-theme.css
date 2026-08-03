@@ -1,0 +1,619 @@
+/* ═══════════════════════════════════════════════════════════════
+   Arthemis Health · Design System v1.0
+   Brandbook-aligned theme: Geist typography, brand palette,
+   light/dark mode, elevation, component overrides.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Geist Font ── */
+@import url('https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/style.css');
+@import url('https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-mono/style.css');
+
+/* ══════════════════════════════════════════
+   LIGHT MODE (default)
+   Brandbook p.9: Paper bg, White cards,
+   Space Blue text, Cyan accent
+   ══════════════════════════════════════════ */
+html[data-theme="light"] {
+  /* Tinta & Profundidad */
+  --space-blue: #112236;
+  --nebula: #1C3A57;
+  --deep-space: #0A1626;
+
+  /* Acento */
+  --cyan: #5998B3;
+  --cyan-deep: #3E7E99;
+  --cyan-tint: #DCEAEF;
+
+  /* Superficies Cálidas */
+  --paper: #F8FAF7;
+  --crema: #F6F0E6;
+  --sand: #F2EEE7;
+  --mist: #ECE8E1;
+  --stone: #E3DED4;
+  --ash: #D6D2C9;
+
+  /* Semánticos */
+  --success: #2E7D5B;
+  --warning: #B8842B;
+  --danger: #B4472F;
+
+  /* ── Roles (mapped to generic vars used by components) ── */
+  --primary: #112236;
+  --accent: #5998B3;
+  --accent-hover: #3E7E99;
+  --bg: #F8FAF7;
+  --white: #FFFFFF;
+  --dark: #112236;
+  --font: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', 'SF Mono', 'Consolas', monospace;
+
+  /* Text hierarchy */
+  --ink: #112236;
+  --ink2: #1C3A57;
+  --ink3: #5A7186;
+  --ink4: #8A9BAA;
+
+  /* Surfaces */
+  --iv2: #F2EEE7;
+  --line: #ECE8E1;
+  --line2: #E3DED4;
+
+  /* Elevation shadows (blue-tinted, never black) */
+  --shadow-1: 0 1px 3px rgba(17,34,54,.06), 0 1px 2px rgba(17,34,54,.04);
+  --shadow-2: 0 4px 16px rgba(17,34,54,.08), 0 2px 6px rgba(17,34,54,.04);
+  --shadow-3: 0 12px 40px rgba(17,34,54,.12), 0 4px 12px rgba(17,34,54,.06);
+
+  /* Focus ring */
+  --focus-ring: 0 0 0 2px var(--cyan-tint), 0 0 0 4px var(--cyan);
+
+  /* Triage — these are clinical, stay constant */
+  --triage-i: #B4472F;
+  --triage-ii: #C2633A;
+  --triage-iii: #B8842B;
+  --triage-iv: #2E7D5B;
+  --triage-v: #5998B3;
+
+  color-scheme: light;
+}
+
+/* ══════════════════════════════════════════
+   DARK MODE
+   Brandbook p.3,18: Deep Space bg,
+   Space Blue cards, Paper text
+   ══════════════════════════════════════════ */
+html[data-theme="dark"] {
+  --space-blue: #112236;
+  --nebula: #1C3A57;
+  --deep-space: #0A1626;
+  --cyan: #5998B3;
+  --cyan-deep: #3E7E99;
+  --cyan-tint: #1A3A4F;
+  --paper: #F8FAF7;
+  --crema: #F6F0E6;
+  --sand: #F2EEE7;
+
+  --success: #3DA676;
+  --warning: #D4A44A;
+  --danger: #D4634A;
+
+  --primary: #F8FAF7;
+  --accent: #5998B3;
+  --accent-hover: #79B2C8;
+  --bg: #0A1626;
+  --white: #112236;
+  --dark: #0A1626;
+  --font: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', 'SF Mono', 'Consolas', monospace;
+
+  --ink: #F8FAF7;
+  --ink2: #DCEAEF;
+  --ink3: #8A9BAA;
+  --ink4: #5A7186;
+
+  --iv2: #1C3A57;
+  --line: #1C3A57;
+  --line2: #264A66;
+
+  --shadow-1: 0 1px 3px rgba(0,0,0,.2), 0 1px 2px rgba(0,0,0,.12);
+  --shadow-2: 0 4px 16px rgba(0,0,0,.25), 0 2px 6px rgba(0,0,0,.15);
+  --shadow-3: 0 12px 40px rgba(0,0,0,.35), 0 4px 12px rgba(0,0,0,.2);
+
+  --focus-ring: 0 0 0 2px rgba(89,152,179,.3), 0 0 0 4px var(--cyan);
+
+  --triage-i: #D4634A;
+  --triage-ii: #D4804A;
+  --triage-iii: #D4A44A;
+  --triage-iv: #3DA676;
+  --triage-v: #5998B3;
+
+  color-scheme: dark;
+}
+
+/* ══════════════════════════════════════════
+   GLOBAL RESETS & BASE
+   ══════════════════════════════════════════ */
+html[data-theme] {
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--bg);
+}
+
+html[data-theme] button,
+html[data-theme] input,
+html[data-theme] textarea,
+html[data-theme] select {
+  font-family: var(--font);
+}
+
+/* ── Focus states (brandbook: Cyan accent border) ── */
+html[data-theme] input:focus,
+html[data-theme] textarea:focus,
+html[data-theme] select:focus {
+  outline: none;
+  border-color: var(--cyan) !important;
+  box-shadow: 0 0 0 3px rgba(89,152,179,.15);
+}
+
+html[data-theme] button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ══════════════════════════════════════════
+   ELEVATION (Brandbook p.13)
+   Blue-tinted, never black. Luz viene de arriba.
+   ══════════════════════════════════════════ */
+html[data-theme] .section-card,
+html[data-theme] .record-card,
+html[data-theme] .login-card,
+html[data-theme] .patient-header,
+html[data-theme] .submit-bar {
+  box-shadow: var(--shadow-1);
+}
+
+html[data-theme] .ta-drop,
+html[data-theme] .q-card:hover {
+  box-shadow: var(--shadow-2);
+}
+
+html[data-theme] .toast {
+  box-shadow: var(--shadow-3);
+}
+
+/* ══════════════════════════════════════════
+   BUTTONS (Brandbook p.14)
+   Radio 12px, altura 52px, etiqueta Medium 500
+   Primario: Cyan bg. Secundario: outline.
+   ══════════════════════════════════════════ */
+html[data-theme] .btn-primary,
+html[data-theme] .btn-action.primary {
+  background: var(--cyan) !important;
+  border-radius: 12px;
+  font-weight: 500;
+  min-height: 44px;
+  letter-spacing: .01em;
+  transition: background .15s, box-shadow .15s;
+}
+
+html[data-theme] .btn-primary:hover,
+html[data-theme] .btn-action.primary:hover {
+  background: var(--cyan-deep) !important;
+  box-shadow: var(--shadow-1);
+}
+
+html[data-theme] .btn-action.success {
+  background: var(--success) !important;
+}
+html[data-theme] .btn-action.success:hover {
+  filter: brightness(1.08);
+}
+
+html[data-theme] .btn-action.warning {
+  background: var(--warning) !important;
+}
+html[data-theme] .btn-action.warning:hover {
+  filter: brightness(1.08);
+}
+
+html[data-theme] .btn-action.outline {
+  color: var(--cyan);
+  border-color: var(--cyan);
+}
+html[data-theme] .btn-action.outline:hover {
+  background: var(--cyan-tint) !important;
+}
+
+html[data-theme] .btn-siguiente {
+  background: var(--cyan);
+  border-radius: 12px;
+  font-weight: 500;
+  min-height: 52px;
+}
+html[data-theme] .btn-siguiente:hover {
+  background: var(--cyan-deep);
+}
+
+/* ══════════════════════════════════════════
+   INPUTS (Brandbook p.15)
+   Campos claros, borde suave, foco = cyan
+   ══════════════════════════════════════════ */
+html[data-theme] .form-group input,
+html[data-theme] .form-group select,
+html[data-theme] .form-group textarea,
+html[data-theme] .field-item input,
+html[data-theme] .field-item select,
+html[data-theme] .field-item textarea {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  transition: border-color .15s, box-shadow .15s;
+}
+
+html[data-theme] .field-item label,
+html[data-theme] .form-group label {
+  color: var(--ink3);
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+
+/* ══════════════════════════════════════════
+   CARDS (Brandbook p.15)
+   White surface, shadow-1, radius 14-16px
+   ══════════════════════════════════════════ */
+html[data-theme] .section-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+html[data-theme] .section-title {
+  color: var(--ink3);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: .08em;
+}
+
+html[data-theme] .record-card {
+  background: var(--iv2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+html[data-theme] .login-card {
+  border-radius: 16px;
+  box-shadow: var(--shadow-3);
+}
+
+/* ══════════════════════════════════════════
+   HEADER
+   Brandbook p.17: Space Blue nav bar (dark),
+   or white bar (light)
+   ══════════════════════════════════════════ */
+html[data-theme="light"] .header {
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+}
+
+html[data-theme="dark"] .header {
+  background: var(--space-blue);
+  border-bottom: 1px solid var(--line);
+}
+
+html[data-theme] .hdr-title {
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: .01em;
+}
+
+html[data-theme] .hdr-badge {
+  background: var(--cyan);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+
+html[data-theme] .hdr-meta {
+  color: var(--ink3);
+}
+
+/* ══════════════════════════════════════════
+   SIDEBAR & QUEUE
+   ══════════════════════════════════════════ */
+html[data-theme] .sidebar {
+  background: var(--white);
+  border-right: 1px solid var(--line);
+}
+
+html[data-theme] .queue-count {
+  background: var(--cyan);
+}
+
+html[data-theme] .q-turno {
+  color: var(--cyan);
+  font-family: var(--font-mono);
+}
+
+html[data-theme] .q-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  transition: background .15s, box-shadow .15s;
+}
+
+html[data-theme] .q-card:hover {
+  background: var(--iv2);
+}
+
+/* ══════════════════════════════════════════
+   TABS (pill bar)
+   ══════════════════════════════════════════ */
+html[data-theme] .tab-bar {
+  background: var(--iv2);
+  border-radius: 14px;
+  padding: 4px;
+}
+
+html[data-theme] .tab-btn {
+  border-radius: 10px;
+  font-weight: 500;
+  color: var(--ink4);
+  transition: all .15s;
+}
+
+html[data-theme] .tab-btn:hover {
+  color: var(--ink2);
+}
+
+html[data-theme] .tab-btn.active {
+  background: var(--white);
+  color: var(--ink);
+  box-shadow: var(--shadow-1);
+}
+
+/* ══════════════════════════════════════════
+   TRIAGE BADGES
+   ══════════════════════════════════════════ */
+html[data-theme] .triage-I { background: var(--triage-i); }
+html[data-theme] .triage-II { background: var(--triage-ii); }
+html[data-theme] .triage-III { background: var(--triage-iii); }
+html[data-theme] .triage-IV { background: var(--triage-iv); }
+html[data-theme] .triage-V { background: var(--triage-v); }
+
+/* ══════════════════════════════════════════
+   PATIENT HEADER
+   ══════════════════════════════════════════ */
+html[data-theme] .patient-header {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+html[data-theme] .pat-turno {
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-weight: 800;
+}
+
+/* ══════════════════════════════════════════
+   HC BANNER
+   ══════════════════════════════════════════ */
+html[data-theme] .hc-banner {
+  background: var(--cyan-tint);
+  border: 1px solid var(--cyan);
+}
+
+html[data-theme] .hc-banner-text {
+  color: var(--cyan-deep);
+}
+
+/* ══════════════════════════════════════════
+   TOAST
+   ══════════════════════════════════════════ */
+html[data-theme] .toast.info { background: var(--cyan); }
+html[data-theme] .toast.success { background: var(--success); }
+html[data-theme] .toast.error { background: var(--danger); }
+
+/* ══════════════════════════════════════════
+   EVOLUCION
+   ══════════════════════════════════════════ */
+html[data-theme] .evol-entry {
+  border-left-color: var(--cyan);
+}
+
+html[data-theme] .evol-entry-time {
+  color: var(--cyan);
+}
+
+/* ══════════════════════════════════════════
+   ESTADO BADGES
+   ══════════════════════════════════════════ */
+html[data-theme] .estado-solicitada { background: #FEF3C7; color: var(--warning); }
+html[data-theme] .estado-con_resultado,
+html[data-theme] .estado-respondida { background: rgba(46,125,91,.1); color: var(--success); }
+html[data-theme] .estado-cancelada { background: var(--iv2); color: var(--ink4); }
+
+/* ══════════════════════════════════════════
+   PRINT BUTTONS
+   ══════════════════════════════════════════ */
+html[data-theme] .btn-print {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  border-radius: 12px;
+}
+html[data-theme] .btn-print:hover {
+  background: var(--cyan-tint);
+}
+
+/* ══════════════════════════════════════════
+   RX TABLE
+   ══════════════════════════════════════════ */
+html[data-theme] .rx-table th {
+  background: var(--iv2);
+  color: var(--ink3);
+}
+
+html[data-theme] .rx-table .rx-med {
+  color: var(--ink);
+}
+
+/* ══════════════════════════════════════════
+   TYPEAHEAD (for atencion-consulta)
+   ══════════════════════════════════════════ */
+html[data-theme] .ta-drop {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 0 0 12px 12px;
+}
+
+html[data-theme] .ta-item:hover,
+html[data-theme] .ta-item.active {
+  background: var(--cyan-tint);
+}
+
+html[data-theme] .ta-item .ta-code {
+  color: var(--cyan);
+}
+
+html[data-theme] .tag-chip {
+  background: var(--cyan-tint);
+  border-color: var(--cyan);
+  color: var(--cyan-deep);
+}
+
+/* ══════════════════════════════════════════
+   LOGIN SCREEN
+   ══════════════════════════════════════════ */
+html[data-theme="light"] #loginScreen {
+  background: linear-gradient(160deg, var(--space-blue) 0%, var(--nebula) 50%, var(--deep-space) 100%);
+}
+
+html[data-theme="dark"] #loginScreen {
+  background: linear-gradient(160deg, var(--deep-space) 0%, #0D1B2A 50%, #060F18 100%);
+}
+
+html[data-theme] .login-card {
+  background: var(--white);
+}
+
+html[data-theme] .login-title {
+  color: var(--ink);
+}
+
+html[data-theme] .login-sub {
+  color: var(--ink3);
+}
+
+/* ══════════════════════════════════════════
+   PUESTO SCREEN
+   ══════════════════════════════════════════ */
+html[data-theme] .puesto-btn {
+  background: var(--white);
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  color: var(--ink);
+  box-shadow: var(--shadow-1);
+  transition: all .2s;
+}
+
+html[data-theme] .puesto-btn:hover {
+  border-color: var(--cyan);
+  background: var(--cyan-tint);
+  box-shadow: var(--shadow-2);
+}
+
+/* ══════════════════════════════════════════
+   STATUS DOT
+   ══════════════════════════════════════════ */
+html[data-theme] .status-dot { background: var(--success); }
+html[data-theme] .status-dot.disconnected { background: var(--danger); }
+
+/* ══════════════════════════════════════════
+   KIOSCO-SPECIFIC OVERRIDES
+   ══════════════════════════════════════════ */
+html[data-theme] .kiosco-header,
+html[data-theme] .kiosk-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+}
+
+/* ══════════════════════════════════════════
+   MONOSPACE DATA (vitals, IDs, codes)
+   Brandbook p.11: Geist Mono for datos
+   ══════════════════════════════════════════ */
+html[data-theme] .triage-stat-value,
+html[data-theme] .q-turno,
+html[data-theme] .pat-turno,
+html[data-theme] .info-value {
+  font-family: var(--font-mono);
+}
+
+/* ══════════════════════════════════════════
+   SCROLLBAR (subtle brand tint)
+   ══════════════════════════════════════════ */
+html[data-theme]::-webkit-scrollbar,
+html[data-theme] *::-webkit-scrollbar {
+  width: 6px;
+}
+html[data-theme]::-webkit-scrollbar-track,
+html[data-theme] *::-webkit-scrollbar-track {
+  background: transparent;
+}
+html[data-theme]::-webkit-scrollbar-thumb,
+html[data-theme] *::-webkit-scrollbar-thumb {
+  background: var(--ash, #D6D2C9);
+  border-radius: 3px;
+}
+html[data-theme="dark"]::-webkit-scrollbar-thumb,
+html[data-theme="dark"] *::-webkit-scrollbar-thumb {
+  background: var(--nebula);
+}
+
+/* ══════════════════════════════════════════
+   THEME TOGGLE BUTTON
+   ══════════════════════════════════════════ */
+.theme-toggle {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-2);
+  transition: all .2s;
+  z-index: 9998;
+}
+
+.theme-toggle:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.theme-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Hide sun in light, moon in dark */
+html[data-theme="light"] .theme-toggle .icon-sun { display: none; }
+html[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+
+/* ══════════════════════════════════════════
+   TYPOGRAPHY SCALE (Brandbook p.11)
+   Display 60/600, Heading 40/600,
+   Subtitle 30/500, Body 24/400,
+   Mono·Datos 20/400
+   (scaled down for web: /2.5 roughly)
+   ══════════════════════════════════════════ */
+html[data-theme] .text-display { font-size: 24px; font-weight: 600; line-height: 1.2; }
+html[data-theme] .text-heading { font-size: 16px; font-weight: 600; line-height: 1.3; }
+html[data-theme] .text-subtitle { font-size: 13px; font-weight: 500; line-height: 1.4; }
+html[data-theme] .text-body { font-size: 14px; font-weight: 400; line-height: 1.55; }
+html[data-theme] .text-mono { font-size: 13px; font-weight: 400; font-family: var(--font-mono); }

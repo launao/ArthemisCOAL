@@ -581,6 +581,14 @@ def admin_dashboard_page():
 def admin_usuarios_page():
     return send_from_directory('static', 'admin-usuarios.html')
 
+@app.route('/historias-clinicas')
+def historias_clinicas_page():
+    return send_from_directory('static', 'historias-clinicas.html')
+
+@app.route('/nueva-hc')
+def nueva_hc_page():
+    return send_from_directory('static', 'nueva-hc.html')
+
 @app.route('/dashboard')
 def dashboard_page():
     return send_from_directory('static', 'dashboard.html')

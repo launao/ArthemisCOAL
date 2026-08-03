@@ -295,7 +295,7 @@ def atencion_cola():
         f"SELECT a.id, a.id_adm, a.turno, a.turno_tipo, a.estado, a.nombre_temp, "
         f"a.doc_num_temp, a.servicio_nombre, a.color_alerta, a.creado_en, "
         f"a.triage_nivel, a.triage_ts, a.triage_enfermera, a.triage_notas, "
-        f"a.destino, a.llamado_count, a.puesto_id, "
+        f"a.destino, a.llamado_count, a.puesto_id, a.paciente_id, "
         f"p.nombres, p.apellidos, p.celular, p.eps, p.tipo_doc, p.num_doc "
         f"FROM admisiones a LEFT JOIN pacientes p ON a.paciente_id=p.id "
         f"WHERE {_D('a.creado_en',db)}={T} AND a.estado=? "
@@ -344,7 +344,7 @@ def atencion_cola():
             f"SELECT a.id, a.id_adm, a.turno, a.turno_tipo, a.estado, a.nombre_temp, "
             f"a.doc_num_temp, a.servicio_nombre, a.color_alerta, a.creado_en, "
             f"a.triage_nivel, a.triage_ts, a.triage_enfermera, a.triage_notas, "
-            f"a.destino, a.llamado_count, "
+            f"a.destino, a.llamado_count, a.paciente_id, "
             f"p.nombres, p.apellidos, p.celular, p.eps, p.tipo_doc, p.num_doc "
             f"FROM admisiones a LEFT JOIN pacientes p ON a.paciente_id=p.id "
             f"WHERE {_D('a.creado_en',db)}={T} AND a.estado='llamando' AND a.puesto_id=?", db),
@@ -359,6 +359,7 @@ def atencion_cola():
                 'turno': a['turno'],
                 'turno_tipo': a.get('turno_tipo', 'general'),
                 'nombre': nombre,
+                'paciente_id': a.get('paciente_id'),
                 'doc_num': a.get('num_doc') or a.get('doc_num_temp', ''),
                 'doc_tipo': a.get('tipo_doc') or 'CC',
                 'servicio': a.get('servicio_nombre', ''),
@@ -484,6 +485,7 @@ def atencion_siguiente():
                 'id_adm': a.get('id_adm'),
                 'turno': a['turno'],
                 'nombre': nombre,
+                'paciente_id': a.get('paciente_id'),
                 'doc_num': a.get('num_doc') or a.get('doc_num_temp', ''),
                 'doc_tipo': a.get('tipo_doc') or 'CC',
                 'servicio': a.get('servicio_nombre', ''),

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Historias Clínicas · Arthemis Health</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/arthemis-theme.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--fg);min-height:100vh}
+
+.header{background:var(--space-blue);color:#fff;padding:16px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.header img{height:40px;border-radius:8px;background:#fff;padding:3px}
+.header h1{font-size:16px;font-weight:700;letter-spacing:-0.3px;flex:1}
+.header .badge{background:var(--cyan-deep);color:#fff;padding:3px 10px;border-radius:16px;font-size:11px;font-weight:600}
+.btn-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.btn-back:hover{background:rgba(255,255,255,0.22)}
+
+.container{max-width:1100px;margin:0 auto;padding:24px 20px}
+
+/* Search bar */
+.search-bar{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.search-field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px}
+.search-field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--fg-muted)}
+.search-field input,.search-field select{padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--bg);color:var(--fg);outline:none;transition:border .2s}
+.search-field input:focus,.search-field select:focus{border-color:var(--cyan)}
+.btn-search{padding:9px 20px;background:var(--cyan);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .2s;height:38px}
+.btn-search:hover{background:var(--cyan-deep)}
+.btn-clear{padding:9px 14px;background:transparent;color:var(--fg-muted);border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;height:38px}
+.btn-clear:hover{background:var(--bg)}
+
+/* Stats row */
+.stats-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.stat-card{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:14px 18px;flex:1;min-width:120px}
+.stat-card .stat-num{font-size:24px;font-weight:700;color:var(--cyan)}
+.stat-card .stat-label{font-size:11px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+
+/* Results table */
+.table-wrap{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.table-wrap table{width:100%;border-collapse:collapse;font-size:13px}
+.table-wrap th{background:var(--bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:10px 14px;text-align:left;color:var(--fg-muted);border-bottom:1px solid var(--border)}
+.table-wrap td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+.table-wrap tr:last-child td{border-bottom:none}
+.table-wrap tr:hover td{background:var(--cyan-tint);transition:background .15s}
+
+.badge-estado{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.badge-abierta{background:#E6F4EA;color:#16a34a}
+.badge-cerrada{background:var(--cyan-tint);color:var(--cyan-deep)}
+.badge-triage{font-weight:700;padding:2px 8px;border-radius:6px;font-size:11px}
+.triage-I{background:#fee2e2;color:#991b1b}
+.triage-II{background:#ffedd5;color:#9a3412}
+.triage-III{background:#fef9c3;color:#854d0e}
+.triage-IV{background:#E6F4EA;color:#166534}
+.triage-V{background:#dbeafe;color:#1e40af}
+
+.btn-ver{padding:5px 12px;background:var(--cyan);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit;transition:background .15s}
+.btn-ver:hover{background:var(--cyan-deep)}
+
+.empty-msg{text-align:center;padding:48px 20px;color:var(--fg-muted);font-size:14px}
+.empty-msg .big-ico{font-size:40px;margin-bottom:12px;display:block}
+
+/* Pagination */
+.pagination{display:flex;align-items:center;justify-content:center;gap:8px;padding:16px;font-size:13px}
+.pagination button{padding:6px 12px;border:1px solid var(--border);background:var(--card-bg);color:var(--fg);border-radius:6px;cursor:pointer;font-family:inherit;font-size:12px}
+.pagination button:hover{background:var(--cyan-tint)}
+.pagination button:disabled{opacity:0.4;cursor:not-allowed}
+.pagination .page-info{color:var(--fg-muted);font-size:12px}
+
+/* Detail modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(17,34,54,0.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card-bg);border-radius:14px;max-width:700px;width:95%;max-height:85vh;overflow-y:auto;padding:24px;box-shadow:0 16px 48px rgba(17,34,54,0.2)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.modal-header h2{font-size:16px;font-weight:700}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--fg-muted);padding:4px 8px;border-radius:6px}
+.modal-close:hover{background:var(--bg)}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.detail-item{padding:8px 12px;background:var(--bg);border-radius:8px}
+.detail-item .dt-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--fg-muted);margin-bottom:2px}
+.detail-item .dt-value{font-size:13px;font-weight:500}
+.detail-full{grid-column:1/-1}
+.detail-section{margin-top:16px}
+.detail-section h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--cyan);margin-bottom:8px}
+.evol-card{background:var(--bg);border-radius:8px;padding:10px 14px;margin-bottom:8px;border-left:3px solid var(--cyan)}
+.evol-card .evol-meta{font-size:11px;color:var(--fg-muted);margin-bottom:4px}
+.evol-card .evol-text{font-size:13px;line-height:1.5}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--space-blue);color:#fff;padding:12px 24px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;z-index:200;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.error{background:var(--danger)}
+
+@media(max-width:700px){
+  .search-bar{flex-direction:column}
+  .detail-grid{grid-template-columns:1fr}
+  .table-wrap{overflow-x:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="/static/logo_coal.png" alt="COAL">
+  <h1>Historias Clínicas</h1>
+  <span class="badge">Arthemis Health</span>
+  <a class="btn-back" href="/">← Inicio</a>
+</div>
+
+<div class="container">
+
+  <!-- Search -->
+  <div class="search-bar" id="searchBar">
+    <div class="search-field" style="flex:2">
+      <label>Buscar paciente</label>
+      <input type="text" id="searchQ" placeholder="Nombre, documento o # HC..." autocomplete="off">
+    </div>
+    <div class="search-field">
+      <label>Estado</label>
+      <select id="searchEstado">
+        <option value="">Todas</option>
+        <option value="abierta">Abierta</option>
+        <option value="cerrada">Cerrada</option>
+      </select>
+    </div>
+    <div class="search-field">
+      <label>Desde</label>
+      <input type="date" id="searchDesde">
+    </div>
+    <div class="search-field">
+      <label>Hasta</label>
+      <input type="date" id="searchHasta">
+    </div>
+    <button class="btn-search" onclick="buscar(1)">Buscar</button>
+    <button class="btn-clear" onclick="limpiar()">Limpiar</button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" id="statTotal">—</div>
+      <div class="stat-label">Total encontradas</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statAbiertas">—</div>
+      <div class="stat-label">Abiertas</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statCerradas">—</div>
+      <div class="stat-label">Cerradas</div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#HC</th>
+          <th>Paciente</th>
+          <th>Documento</th>
+          <th>Tipo</th>
+          <th>Estado</th>
+          <th>Triage</th>
+          <th>Fecha</th>
+          <th>Médico</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tbodyHC">
+        <tr><td colspan="9" class="empty-msg"><span class="big-ico">📂</span>Ingrese criterios de búsqueda para consultar historias clínicas</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination" id="pagination" style="display:none">
+    <button id="btnPrev" onclick="buscar(currentPage-1)">← Anterior</button>
+    <span class="page-info" id="pageInfo"></span>
+    <button id="btnNext" onclick="buscar(currentPage+1)">Siguiente →</button>
+  </div>
+
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)cerrarModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">Historia Clínica</h2>
+      <button class="modal-close" onclick="cerrarModal()">×</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '';
+let currentPage = 1;
+
+function toast(msg, isErr) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isErr ? ' error' : '');
+  setTimeout(() => t.className = 'toast', 3500);
+}
+
+// Auto-search on Enter
+document.getElementById('searchQ').addEventListener('keydown', e => {
+  if (e.key === 'Enter') buscar(1);
+});
+
+async function buscar(page) {
+  page = page || 1;
+  currentPage = page;
+
+  const q = document.getElementById('searchQ').value.trim();
+  const estado = document.getElementById('searchEstado').value;
+  const desde = document.getElementById('searchDesde').value;
+  const hasta = document.getElementById('searchHasta').value;
+
+  const params = new URLSearchParams({ page, per_page: 20 });
+  if (q) params.set('q', q);
+  if (estado) params.set('estado', estado);
+  if (desde) params.set('fecha_desde', desde);
+  if (hasta) params.set('fecha_hasta', hasta);
+
+  try {
+    const r = await fetch(API + '/api/hc/buscar?' + params, { credentials: 'include' });
+    if (r.status === 401) {
+      toast('Debe iniciar sesión', true);
+      return;
+    }
+    const d = await r.json();
+    renderResults(d);
+  } catch (e) {
+    toast('Error de conexión', true);
+  }
+}
+
+function renderResults(data) {
+  const tbody = document.getElementById('tbodyHC');
+  const historias = data.historias || [];
+  const total = data.total || 0;
+  const pages = data.pages || 0;
+
+  document.getElementById('statTotal').textContent = total;
+
+  // Count open/closed in current result (approx from page)
+  let abiertas = 0, cerradas = 0;
+  historias.forEach(h => {
+    if (h.estado === 'abierta') abiertas++;
+    else cerradas++;
+  });
+  document.getElementById('statAbiertas').textContent = abiertas;
+  document.getElementById('statCerradas').textContent = cerradas;
+
+  if (!historias.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="empty-msg"><span class="big-ico">🔍</span>No se encontraron historias clínicas con esos criterios</td></tr>';
+    document.getElementById('pagination').style.display = 'none';
+    return;
+  }
+
+  tbody.innerHTML = historias.map(h => {
+    const nombre = [h.nombres, h.apellidos].filter(Boolean).join(' ') || '—';
+    const doc = h.p_num_doc ? `${h.p_tipo_doc || 'CC'} ${h.p_num_doc}` : '—';
+    const estadoBadge = h.estado === 'abierta'
+      ? '<span class="badge-estado badge-abierta">Abierta</span>'
+      : '<span class="badge-estado badge-cerrada">Cerrada</span>';
+    const triage = h.triage_nivel
+      ? `<span class="badge-triage triage-${h.triage_nivel}">${h.triage_nivel}</span>`
+      : '—';
+    const fecha = h.creado_en ? h.creado_en.substring(0, 10) : '—';
+    const medico = h.medico_nombre || '—';
+    return `<tr>
+      <td><strong>${h.id}</strong></td>
+      <td>${nombre}</td>
+      <td>${doc}</td>
+      <td style="font-size:11px">${h.tipo_hc || 'urgencias'}</td>
+      <td>${estadoBadge}</td>
+      <td>${triage}</td>
+      <td>${fecha}</td>
+      <td style="font-size:12px">${medico}</td>
+      <td><button class="btn-ver" onclick="verHC(${h.id})">Ver</button></td>
+    </tr>`;
+  }).join('');
+
+  // Pagination
+  const pagDiv = document.getElementById('pagination');
+  if (pages > 1) {
+    pagDiv.style.display = 'flex';
+    document.getElementById('btnPrev').disabled = currentPage <= 1;
+    document.getElementById('btnNext').disabled = currentPage >= pages;
+    document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${pages}`;
+  } else {
+    pagDiv.style.display = 'none';
+  }
+}
+
+function limpiar() {
+  document.getElementById('searchQ').value = '';
+  document.getElementById('searchEstado').value = '';
+  document.getElementById('searchDesde').value = '';
+  document.getElementById('searchHasta').value = '';
+  document.getElementById('tbodyHC').innerHTML = '<tr><td colspan="9" class="empty-msg"><span class="big-ico">📂</span>Ingrese criterios de búsqueda para consultar historias clínicas</td></tr>';
+  document.getElementById('pagination').style.display = 'none';
+  document.getElementById('statTotal').textContent = '—';
+  document.getElementById('statAbiertas').textContent = '—';
+  document.getElementById('statCerradas').textContent = '—';
+}
+
+async function verHC(hcId) {
+  try {
+    const r = await fetch(API + '/api/hc/' + hcId, { credentials: 'include' });
+    const d = await r.json();
+    if (d.error) { toast(d.error, true); return; }
+    renderModal(d);
+  } catch (e) {
+    toast('Error cargando HC', true);
+  }
+}
+
+function renderModal(data) {
+  const hc = data.hc || {};
+  const evoluciones = data.evoluciones || [];
+  const ordenes = data.ordenes || [];
+  const prescripciones = data.prescripciones || [];
+
+  document.getElementById('modalTitle').textContent = `Historia Clínica #${hc.id}`;
+
+  const nombre = [hc.nombres, hc.apellidos].filter(Boolean).join(' ') || '—';
+  const doc = hc.p_num_doc ? `${hc.p_tipo_doc || 'CC'} ${hc.p_num_doc}` : '—';
+  const estadoBadge = hc.estado === 'abierta'
+    ? '<span class="badge-estado badge-abierta">Abierta</span>'
+    : '<span class="badge-estado badge-cerrada">Cerrada</span>';
+
+  let html = `
+    <div class="detail-grid">
+      <div class="detail-item"><div class="dt-label">Paciente</div><div class="dt-value">${nombre}</div></div>
+      <div class="detail-item"><div class="dt-label">Documento</div><div class="dt-value">${doc}</div></div>
+      <div class="detail-item"><div class="dt-label">Estado</div><div class="dt-value">${estadoBadge}</div></div>
+      <div class="detail-item"><div class="dt-label">Turno</div><div class="dt-value">${hc.turno || '—'}</div></div>
+      <div class="detail-item"><div class="dt-label">Triage</div><div class="dt-value">${hc.triage_nivel || '—'}</div></div>
+      <div class="detail-item"><div class="dt-label">Tipo HC</div><div class="dt-value">${hc.tipo_hc || 'urgencias'}</div></div>
+      <div class="detail-item"><div class="dt-label">EPS</div><div class="dt-value">${hc.p_eps || '—'}</div></div>
+      <div class="detail-item"><div class="dt-label">Fecha apertura</div><div class="dt-value">${hc.creado_en || '—'}</div></div>
+      <div class="detail-item detail-full"><div class="dt-label">Motivo de consulta</div><div class="dt-value">${hc.motivo_consulta || '—'}</div></div>
+      <div class="detail-item"><div class="dt-label">CIE-10 Ingreso</div><div class="dt-value">${hc.cod_cie10_ingreso || '—'}</div></div>
+      <div class="detail-item"><div class="dt-label">CIE-10 Egreso</div><div class="dt-value">${hc.cod_cie10_egreso || '—'}</div></div>
+      <div class="detail-item"><div class="dt-label">Condición egreso</div><div class="dt-value">${hc.condicion_egreso || '—'}</div></div>
+      <div class="detail-item"><div class="dt-label">Destino egreso</div><div class="dt-value">${hc.destino_egreso || '—'}</div></div>
+      <div class="detail-item"><div class="dt-label">Médico</div><div class="dt-value">${hc.medico_nombre || hc.firma_medico || '—'}</div></div>
+      <div class="detail-item"><div class="dt-label">Fecha cierre</div><div class="dt-value">${hc.cerrado_en || '—'}</div></div>
+    </div>
+  `;
+
+  // Evoluciones
+  if (evoluciones.length) {
+    html += `<div class="detail-section"><h3>Evoluciones (${evoluciones.length})</h3>`;
+    evoluciones.forEach(ev => {
+      html += `<div class="evol-card">
+        <div class="evol-meta">${ev.creado_en || ''} · ${ev.medico_nombre || ''} · ${ev.tipo || 'evolución'} ${ev.cod_cie10 ? '· CIE-10: ' + ev.cod_cie10 : ''}</div>
+        <div class="evol-text">${ev.enfermedad_actual ? '<strong>Enfermedad actual:</strong> ' + ev.enfermedad_actual + '<br>' : ''}${ev.analisis ? '<strong>Análisis:</strong> ' + ev.analisis + '<br>' : ''}${ev.plan_terapeutico ? '<strong>Plan:</strong> ' + ev.plan_terapeutico : ''}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Órdenes
+  if (ordenes.length) {
+    html += `<div class="detail-section"><h3>Órdenes Médicas (${ordenes.length})</h3>`;
+    ordenes.forEach(o => {
+      html += `<div class="evol-card">
+        <div class="evol-meta">${o.creado_en || ''} · ${o.tipo || ''} · ${o.estado || ''}</div>
+        <div class="evol-text">${o.nombre || ''} ${o.cod_cups ? '(CUPS: ' + o.cod_cups + ')' : ''}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Prescripciones
+  if (prescripciones.length) {
+    html += `<div class="detail-section"><h3>Prescripciones (${prescripciones.length})</h3>`;
+    prescripciones.forEach(rx => {
+      html += `<div class="evol-card">
+        <div class="evol-meta">${rx.creado_en || ''} · ${rx.estado || ''}</div>
+        <div class="evol-text"><strong>${rx.medicamento || ''}</strong> ${rx.concentracion || ''} · ${rx.via || ''} · ${rx.dosis || ''} c/${rx.frecuencia || ''} × ${rx.duracion || ''} = ${rx.cantidad_total || '?'} unid.</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Button to open in consultation view
+  html += `<div style="margin-top:20px;text-align:center">
+    <a href="/atencion/consulta" class="btn-search" style="text-decoration:none;display:inline-block">Ir a Consulta Médica</a>
+  </div>`;
+
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function cerrarModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+// Escape to close modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') cerrarModal();
+});
+
+// Initial empty search to show recent
+buscar(1);
+</script>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="(function(){var h=document.documentElement;var t=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',t);localStorage.setItem('arthemis-theme',t);})()" title="Cambiar tema">
+  <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+  <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+</button>
+<script>
+(function(){var t=localStorage.getItem('arthemis-theme')||'light';document.documentElement.setAttribute('data-theme',t);})();
+</script>
+</body>
+</html>

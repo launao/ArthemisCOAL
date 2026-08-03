@@ -73,6 +73,224 @@ def _add_timeline(cur, db, admision_id, evento, detalle='', usuario=None, puesto
         (admision_id, evento, detalle, usuario, puesto))
 
 
+# ── GET /api/hc/buscar ────────────────────────────────────────────────────────
+
+@hc_bp.route('/api/hc/buscar')
+def hc_buscar():
+    """Search historias clínicas by patient doc, name, date range, or estado.
+
+    Query params: q (text search on name/doc), estado, fecha_desde, fecha_hasta, page, per_page
+    """
+    if not _is_authenticated():
+        return jsonify({'error': 'No autenticado'}), 401
+
+    core = _get_deps()
+    q_text = request.args.get('q', '').strip()
+    estado = request.args.get('estado', '').strip()
+    fecha_desde = request.args.get('fecha_desde', '').strip()
+    fecha_hasta = request.args.get('fecha_hasta', '').strip()
+    page = max(1, int(request.args.get('page', 1)))
+    per_page = min(50, max(5, int(request.args.get('per_page', 20))))
+    offset = (page - 1) * per_page
+
+    conn, db = core.get_db()
+    cur = conn.cursor()
+    try:
+        base = (
+            "FROM historia_clinica h "
+            "LEFT JOIN admisiones a ON h.admision_id=a.id "
+            "LEFT JOIN pacientes p ON h.paciente_id=p.id "
+            "WHERE 1=1"
+        )
+        params = []
+
+        if q_text:
+            like = f"%{q_text}%"
+            base += " AND (p.nombres LIKE ? OR p.apellidos LIKE ? OR p.num_doc LIKE ? OR CAST(h.id AS CHAR) LIKE ?)"
+            params.extend([like, like, like, like])
+
+        if estado:
+            base += " AND h.estado=?"
+            params.append(estado)
+
+        if fecha_desde:
+            base += " AND h.creado_en>=?"
+            params.append(fecha_desde)
+
+        if fecha_hasta:
+            base += " AND h.creado_en<=?"
+            params.append(fecha_hasta + ' 23:59:59')
+
+        # Count
+        count_row = core.row(cur, core.adapt(f"SELECT COUNT(*) as total {base}", db), params)
+        total = count_row['total'] if count_row else 0
+
+        # Fetch page
+        select_q = (
+            "SELECT h.id, h.admision_id, h.paciente_id, h.tipo_hc, h.estado, "
+            "h.motivo_consulta, h.cod_cie10_ingreso, h.cod_cie10_egreso, "
+            "h.condicion_egreso, h.destino_egreso, h.creado_en, h.cerrado_en, "
+            "h.medico_nombre, h.firma_medico, "
+            "a.turno, a.triage_nivel, a.estado as admision_estado, "
+            "p.nombres, p.apellidos, p.tipo_doc as p_tipo_doc, p.num_doc as p_num_doc, "
+            "p.genero, p.fecha_nacimiento, p.eps as p_eps "
+            f"{base} ORDER BY h.creado_en DESC LIMIT ? OFFSET ?"
+        )
+        params.extend([per_page, offset])
+        historias = core.rows(cur, core.adapt(select_q, db), params)
+
+        return jsonify({
+            'historias': historias,
+            'total': total,
+            'page': page,
+            'per_page': per_page,
+            'pages': (total + per_page - 1) // per_page if total else 0,
+        })
+    finally:
+        cur.close()
+        core._return_db(conn, db)
+
+
+# ── POST /api/hc/crear-directa ──────────────────────────────────────────────
+
+@hc_bp.route('/api/hc/crear-directa', methods=['POST'])
+def hc_crear_directa():
+    """Create a standalone HC without the turno/admision flow.
+
+    Input: tipo_doc, num_doc, nombres, apellidos, fecha_nacimiento, genero,
+           celular, eps, tipo_hc, motivo_consulta, causa_atencion, cod_cie10_ingreso
+    Creates or finds the patient, creates a minimal admision, then opens HC.
+    """
+    if not _has_permiso_hc():
+        return jsonify({'error': 'No autorizado'}), 403
+
+    core = _get_deps()
+    d = request.json or {}
+
+    required = ['tipo_doc', 'num_doc', 'nombres', 'apellidos']
+    missing = [f for f in required if not d.get(f, '').strip()]
+    if missing:
+        return jsonify({'error': f'Campos requeridos: {", ".join(missing)}'}), 400
+
+    conn, db = core.get_db()
+    cur = conn.cursor()
+    try:
+        # Find or create patient
+        paciente = core.row(cur, core.adapt(
+            "SELECT * FROM pacientes WHERE num_doc=?", db), (d['num_doc'].strip(),))
+
+        if not paciente:
+            cur.execute(core.adapt(
+                "INSERT INTO pacientes(tipo_doc,num_doc,nombres,apellidos,"
+                "fecha_nacimiento,genero,celular,eps)"
+                "VALUES(?,?,?,?,?,?,?,?)", db),
+                (d.get('tipo_doc', 'CC'), d['num_doc'].strip(),
+                 d['nombres'].strip(), d['apellidos'].strip(),
+                 d.get('fecha_nacimiento', ''),
+                 d.get('genero', ''),
+                 d.get('celular', ''),
+                 d.get('eps', '')))
+            conn.commit()
+            paciente = core.row(cur, core.adapt(
+                "SELECT * FROM pacientes WHERE num_doc=?", db), (d['num_doc'].strip(),))
+        else:
+            # Update patient info if provided
+            updates, vals = [], []
+            for field in ('nombres', 'apellidos', 'fecha_nacimiento', 'genero', 'celular', 'eps'):
+                if d.get(field, '').strip():
+                    updates.append(f"{field}=?")
+                    vals.append(d[field].strip())
+            if updates:
+                vals.append(paciente['id'])
+                cur.execute(core.adapt(
+                    f"UPDATE pacientes SET {','.join(updates)} WHERE id=?", db), vals)
+                conn.commit()
+
+        paciente_id = paciente['id']
+
+        # Create minimal admission (estado='en_atencion' — skipping turno flow)
+        id_adm = f"HC-{d['num_doc'].strip()}-{core.NOW(db)}"
+        nombre_full = f"{d['nombres'].strip()} {d['apellidos'].strip()}"
+        cur.execute(core.adapt(
+            f"INSERT INTO admisiones(id_adm,turno,turno_tipo,estado,nombre_temp,"
+            f"doc_num_temp,servicio_nombre,paciente_id,creado_en)"
+            f"VALUES(?,?,?,?,?,?,?,?,{core.NOW(db)})", db),
+            (id_adm, f"D-{d['num_doc'].strip()[-4:]}",
+             'general', 'en_atencion',
+             nombre_full, d['num_doc'].strip(),
+             d.get('servicio', 'Consulta directa'),
+             paciente_id))
+        conn.commit()
+
+        adm = core.row(cur, core.adapt(
+            "SELECT id FROM admisiones WHERE id_adm=?", db), (id_adm,))
+        admision_id = adm['id']
+
+        # Create HC
+        cur.execute(core.adapt(
+            "INSERT INTO historia_clinica(admision_id,paciente_id,tipo_hc,estado,"
+            "motivo_consulta,causa_atencion,cod_cie10_ingreso,creado_por)"
+            "VALUES(?,?,?,?,?,?,?,?)", db),
+            (admision_id, paciente_id,
+             d.get('tipo_hc', 'consulta'), 'abierta',
+             d.get('motivo_consulta', ''),
+             d.get('causa_atencion', 'consulta'),
+             d.get('cod_cie10_ingreso', ''),
+             session.get('usuario', 'sistema')))
+        conn.commit()
+
+        hc = core.row(cur, core.adapt(
+            "SELECT id FROM historia_clinica WHERE admision_id=?", db), (admision_id,))
+
+        # Update admission with HC
+        cur.execute(core.adapt(
+            "UPDATE admisiones SET hc_abierta=1, hc_id=? WHERE id=?", db),
+            (hc['id'], admision_id))
+        conn.commit()
+
+        core.audit(cur, db, 'historia_clinica', hc['id'], 'crear_directa',
+                   f"HC directa #{hc['id']} creada por {session.get('usuario', '?')} "
+                   f"para paciente {nombre_full}")
+        conn.commit()
+
+        return jsonify({
+            'success': True,
+            'hc_id': hc['id'],
+            'admision_id': admision_id,
+            'paciente_id': paciente_id,
+        }), 201
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close()
+        core._return_db(conn, db)
+
+
+# ── GET /api/hc/paciente/<paciente_id> ───────────────────────────────────────
+
+@hc_bp.route('/api/hc/paciente/<int:paciente_id>')
+def hc_por_paciente(paciente_id):
+    """List all HCs for a patient."""
+    if not _is_authenticated():
+        return jsonify({'error': 'No autenticado'}), 401
+
+    core = _get_deps()
+    conn, db = core.get_db()
+    cur = conn.cursor()
+    try:
+        historias = core.rows(cur, core.adapt(
+            "SELECT h.*, a.turno, a.triage_nivel "
+            "FROM historia_clinica h "
+            "LEFT JOIN admisiones a ON h.admision_id=a.id "
+            "WHERE h.paciente_id=? ORDER BY h.creado_en DESC", db),
+            (paciente_id,))
+        return jsonify({'historias': historias, 'total': len(historias)})
+    finally:
+        cur.close()
+        core._return_db(conn, db)
+
+
 # ── POST /api/hc/abrir ────────────────────────────────────────────────────────
 
 @hc_bp.route('/api/hc/abrir', methods=['POST'])

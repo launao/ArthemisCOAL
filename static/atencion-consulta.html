@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Arthemis Health · Consultorio Médico</title>
+<link rel="stylesheet" href="/static/arthemis-theme.css">
 <style>
 :root {
   --primary: #2E5D7A; --accent: #3A7A9B; --bg: #FAF9F5; --dark: #1A1A19;
@@ -201,6 +202,33 @@ input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px s
 /* Separator */
 .sep { height: 1px; background: var(--line); margin: 16px 0; }
 
+/* Typeahead dropdown */
+.ta-wrap { position: relative; }
+.ta-drop { position: absolute; left: 0; right: 0; top: 100%; background: var(--white); border: 1px solid var(--line); border-radius: 0 0 10px 10px; max-height: 220px; overflow-y: auto; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,.1); display: none; }
+.ta-drop.open { display: block; }
+.ta-item { padding: 8px 12px; font-size: 13px; color: var(--ink2); cursor: pointer; border-bottom: 1px solid var(--line); }
+.ta-item:last-child { border-bottom: none; }
+.ta-item:hover, .ta-item.active { background: #EDF4F7; color: var(--ink); }
+.ta-item .ta-code { font-weight: 700; color: var(--primary); margin-right: 6px; font-size: 12px; }
+.ta-item .ta-desc { font-size: 12px; color: var(--ink3); display: block; margin-top: 1px; }
+
+/* Multi-tag chips */
+.tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; min-height: 0; }
+.tag-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; background: #EDF4F7; border: 1px solid var(--accent); border-radius: 6px; font-size: 12px; color: var(--primary); font-weight: 600; }
+.tag-chip .tag-x { cursor: pointer; font-size: 14px; color: var(--ink4); margin-left: 2px; line-height: 1; }
+.tag-chip .tag-x:hover { color: var(--danger); }
+
+/* Rx auto-fill highlight */
+.rx-autofill { animation: rxFlash .4s ease; }
+@keyframes rxFlash { 0% { background: #DBEAFE; } 100% { background: var(--bg); } }
+
+/* Egreso summary */
+.egreso-summary { margin-bottom: 16px; }
+.egreso-summary-item { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.egreso-summary-item:last-child { border-bottom: none; }
+.egreso-summary-label { font-weight: 700; color: var(--ink3); min-width: 130px; font-size: 12px; text-transform: uppercase; }
+.egreso-summary-value { color: var(--ink); flex: 1; }
+
 /* Responsive */
 @media (max-width: 768px) {
   .sidebar { width: 100%; max-height: 200px; border-right: none; border-bottom: 1px solid var(--line); }
@@ -263,6 +291,7 @@ input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px s
 
 <div class="toast" id="toast"></div>
 
+<script src="/static/catalogos_col.js"></script>
 <script>
 (function() {
 'use strict';
@@ -466,6 +495,7 @@ function renderWorkspace() {
   var ws = document.getElementById('workspace');
   triageData = null;
   localPrescripciones = [];
+  _taCollectedDx = [];
   activeTab = 'triage';
 
   if (!actual) {
@@ -522,7 +552,7 @@ function renderWorkspace() {
     '<select id="hcCausa"><option value="urgencia">Urgencia</option><option value="accidente_trabajo">Accidente de trabajo</option>' +
     '<option value="accidente_transito">Accidente de transito</option><option value="evento_catastrofico">Evento catastrofico</option>' +
     '<option value="otro">Otro</option></select></div>' +
-    '<div class="field-item"><label>Cod. diagnostico ingreso (CIE-10)</label><input type="text" id="hcCie10" placeholder="Ej: R10.4"></div>' +
+    '<div class="field-item"><label>Cod. diagnostico ingreso (CIE-10)</label><div id="hcCie10Tags" class="tag-container"></div><input type="text" id="hcCie10" placeholder="Escriba para buscar CIE-10..." autocomplete="off"></div>' +
     '<div class="field-item field-full"><label>Motivo de consulta *</label><textarea id="hcMotivo" placeholder="Motivo principal de consulta del paciente..." rows="2"></textarea></div>' +
     '</div>' +
     '<div style="margin-top:14px;"><button class="btn-action primary" id="btnAbrirHC" onclick="APP.abrirHC()">Abrir Historia Clinica</button></div>' +
@@ -535,7 +565,7 @@ function renderWorkspace() {
     '<div class="field-item"><label>Tipo de evolucion</label>' +
     '<select id="evolTipo"><option value="evolucion">Evolucion</option><option value="nota_medica">Nota medica</option>' +
     '<option value="ingreso">Ingreso</option><option value="egreso">Egreso</option></select></div>' +
-    '<div class="field-item"><label>Codigo CIE-10</label><input type="text" id="evolCie10" placeholder="Ej: K35.9"></div>' +
+    '<div class="field-item"><label>Codigo CIE-10</label><div id="evolCie10Tags" class="tag-container"></div><input type="text" id="evolCie10" placeholder="Buscar CIE-10..." autocomplete="off"></div>' +
     '<div class="field-item field-full"><label>Enfermedad actual *</label><textarea id="evolEnfActual" placeholder="Descripcion cronologica de la enfermedad actual..." rows="3"></textarea></div>' +
     '<div class="field-item field-full"><label>Examen fisico *</label><textarea id="evolExamenFisico" placeholder="Hallazgos del examen fisico..." rows="3"></textarea></div>' +
     '<div class="field-item field-full"><label>Analisis</label><textarea id="evolAnalisis" placeholder="Analisis clinico y correlacion..." rows="2"></textarea></div>' +
@@ -567,11 +597,11 @@ function renderWorkspace() {
     '<div class="field-item"><label>Tipo de orden *</label>' +
     '<select id="ordTipo"><option value="">-- Seleccionar --</option><option value="laboratorio">Laboratorio</option>' +
     '<option value="imagen">Imagenologia</option><option value="procedimiento">Procedimiento</option></select></div>' +
-    '<div class="field-item"><label>Nombre del estudio *</label><input type="text" id="ordNombre" placeholder="Ej: Hemograma completo"></div>' +
-    '<div class="field-item"><label>Codigo CUPS</label><input type="text" id="ordCups" placeholder="Ej: 902210"></div>' +
+    '<div class="field-item"><label>Nombre del estudio *</label><input type="text" id="ordNombre" placeholder="Buscar estudio CUPS..." autocomplete="off"></div>' +
+    '<div class="field-item"><label>Codigo CUPS</label><input type="text" id="ordCups" placeholder="Auto" readonly style="background:#f0f0ec;"></div>' +
     '<div class="field-item"><label>Servicio destino</label><input type="text" id="ordServicio" placeholder="Ej: Laboratorio clinico"></div>' +
     '<div class="field-item field-full"><label>Indicacion clinica</label><textarea id="ordIndicacion" placeholder="Indicacion clinica para el estudio..." rows="2"></textarea></div>' +
-    '<div class="field-item"><label>Diagnostico asociado (CIE-10)</label><input type="text" id="ordDx" placeholder="Ej: K35.9"></div>' +
+    '<div class="field-item"><label>Diagnostico asociado (CIE-10)</label><input type="text" id="ordDx" placeholder="Buscar CIE-10..." autocomplete="off"></div>' +
     '<div class="field-item"><label>Prioridad *</label>' +
     '<div class="radio-group" style="margin-top:6px;">' +
     '<label class="radio-opt"><input type="radio" name="ordPrioridad" value="rutina" checked> Rutina</label>' +
@@ -591,9 +621,9 @@ function renderWorkspace() {
     '<div id="icNoHc" style="display:none;"><div class="list-empty">Debe abrir la Historia Clinica antes de solicitar interconsultas</div></div>' +
     '<div id="icForm">' +
     '<div class="fields-grid">' +
-    '<div class="field-item"><label>Especialidad solicitada *</label><input type="text" id="icEspecialidad" placeholder="Ej: Cirugia General"></div>' +
-    '<div class="field-item"><label>Diagnostico presuntivo</label><input type="text" id="icDx" placeholder="Ej: Apendicitis aguda"></div>' +
-    '<div class="field-item"><label>Codigo CIE-10</label><input type="text" id="icCie10" placeholder="Ej: K35.9"></div>' +
+    '<div class="field-item"><label>Especialidad solicitada *</label><input type="text" id="icEspecialidad" placeholder="Buscar especialidad..." autocomplete="off"></div>' +
+    '<div class="field-item"><label>Diagnostico presuntivo (CIE-10)</label><div id="icDxTags" class="tag-container"></div><input type="text" id="icDx" placeholder="Buscar diagnostico CIE-10..." autocomplete="off"></div>' +
+    '<div class="field-item"><label>Codigo CIE-10 adicional</label><input type="text" id="icCie10" placeholder="Buscar CIE-10..." autocomplete="off"></div>' +
     '<div class="field-item"><label>Prioridad *</label>' +
     '<select id="icPrioridad"><option value="normal">Normal</option><option value="urgente">Urgente</option><option value="stat">STAT</option></select></div>' +
     '<div class="field-item field-full"><label>Motivo de interconsulta *</label><textarea id="icMotivo" placeholder="Describa el motivo de la interconsulta..." rows="3"></textarea></div>' +
@@ -610,24 +640,26 @@ function renderWorkspace() {
     '<div id="rxNoHc" style="display:none;"><div class="list-empty">Debe abrir la Historia Clinica antes de crear prescripciones</div></div>' +
     '<div id="rxForm">' +
     '<div class="fields-grid">' +
-    '<div class="field-item"><label>Medicamento *</label><input type="text" id="rxMedicamento" placeholder="Ej: Acetaminofen"></div>' +
-    '<div class="field-item"><label>Concentracion</label><input type="text" id="rxConcentracion" placeholder="Ej: 500 mg"></div>' +
+    '<div class="field-item" style="grid-column:1/-1;"><label>Medicamento * (lista INVIMA Colombia)</label><input type="text" id="rxMedicamento" placeholder="Buscar medicamento INVIMA..." autocomplete="off"></div>' +
+    '<div class="field-item"><label>Codigo CUM</label><input type="text" id="rxCum" placeholder="Auto" readonly style="background:#f0f0ec;"></div>' +
+    '<div class="field-item"><label>Concentracion</label><select id="rxConcentracion"><option value="">-- Seleccionar --</option></select></div>' +
     '<div class="field-item"><label>Forma farmaceutica</label>' +
-    '<select id="rxForma"><option value="tableta">Tableta</option><option value="capsula">Capsula</option>' +
+    '<select id="rxForma"><option value="">-- Seleccionar --</option>' +
+    '<option value="tableta">Tableta</option><option value="capsula">Capsula</option>' +
     '<option value="solucion_oral">Solucion oral</option><option value="solucion_inyectable">Solucion inyectable</option>' +
     '<option value="suspension">Suspension</option><option value="crema">Crema</option><option value="unguento">Unguento</option>' +
     '<option value="supositorio">Supositorio</option><option value="inhalador">Inhalador</option><option value="parche">Parche</option>' +
     '<option value="gotas">Gotas</option><option value="otra">Otra</option></select></div>' +
     '<div class="field-item"><label>Via de administracion</label>' +
-    '<select id="rxVia"><option value="oral">Oral</option><option value="iv">Intravenosa</option><option value="im">Intramuscular</option>' +
+    '<select id="rxVia"><option value="">-- Seleccionar --</option>' +
+    '<option value="oral">Oral</option><option value="iv">Intravenosa</option><option value="im">Intramuscular</option>' +
     '<option value="sc">Subcutanea</option><option value="topica">Topica</option><option value="inhalatoria">Inhalatoria</option>' +
     '<option value="rectal">Rectal</option><option value="sublingual">Sublingual</option><option value="oftalmica">Oftalmica</option>' +
     '<option value="otica">Otica</option><option value="otra">Otra</option></select></div>' +
-    '<div class="field-item"><label>Dosis *</label><input type="text" id="rxDosis" placeholder="Ej: 1 tableta"></div>' +
-    '<div class="field-item"><label>Frecuencia *</label><input type="text" id="rxFrecuencia" placeholder="Ej: Cada 8 horas"></div>' +
-    '<div class="field-item"><label>Duracion (dias)</label><input type="number" id="rxDuracion" placeholder="Ej: 5"></div>' +
-    '<div class="field-item"><label>Cantidad total</label><input type="number" id="rxCantidad" placeholder="Ej: 15"></div>' +
-    '<div class="field-item"><label>Codigo CUM</label><input type="text" id="rxCum" placeholder="Codigo CUM"></div>' +
+    '<div class="field-item"><label>Dosis *</label><input type="text" id="rxDosis" placeholder="Sugerida al seleccionar"></div>' +
+    '<div class="field-item"><label>Frecuencia *</label><input type="text" id="rxFrecuencia" placeholder="Sugerida al seleccionar"></div>' +
+    '<div class="field-item"><label>Duracion (dias)</label><input type="number" id="rxDuracion" placeholder="Sugerido" onchange="APP.calcRxTotal()"></div>' +
+    '<div class="field-item"><label>Cantidad total <span id="rxCalcHint" style="font-weight:400;color:var(--ink4);font-size:11px;"></span></label><input type="number" id="rxCantidad" placeholder="Auto-calculado"></div>' +
     '<div class="field-item field-full"><label>Indicaciones especiales</label><textarea id="rxIndicaciones" placeholder="Tomar con alimentos, no mezclar con..." rows="2"></textarea></div>' +
     '</div>' +
     '<div style="margin-top:14px;"><button class="btn-action primary" id="btnAgregarRx" onclick="APP.agregarRx()">Agregar prescripcion</button></div>' +
@@ -638,10 +670,16 @@ function renderWorkspace() {
 
   /* ── TAB 6: Egreso ── */
   h += '<div class="tab-pane" id="tabEgreso">';
+
+  /* HC event summary */
+  h += '<div class="section-card" id="egresoResumen"><div class="section-title">Resumen de Atencion</div>' +
+    '<div id="egresoResumenBody"><div style="text-align:center;padding:16px;color:var(--ink4);font-size:13px;">Cargando resumen...</div></div></div>';
+
   h += '<div class="section-card"><div class="section-title">Diagnostico y Condicion de Egreso</div>' +
+    '<div id="egresoDxAcumulados" class="tag-container" style="margin-bottom:10px;"></div>' +
     '<div class="fields-grid">' +
-    '<div class="field-item"><label>Diagnostico principal de egreso (CIE-10) *</label><input type="text" id="egresoDx" placeholder="Ej: K35.9"></div>' +
-    '<div class="field-item field-full"><label>Diagnosticos relacionados</label><input type="text" id="egresoDxRel" placeholder="Ej: R10.4, R11.0 (separados por coma)"></div>' +
+    '<div class="field-item"><label>Diagnostico principal de egreso (CIE-10) *</label><input type="text" id="egresoDx" placeholder="Buscar CIE-10..." autocomplete="off"></div>' +
+    '<div class="field-item field-full"><label>Diagnosticos relacionados</label><div id="egresoDxRelTags" class="tag-container"></div><input type="text" id="egresoDxRel" placeholder="Buscar diagnostico CIE-10..." autocomplete="off"></div>' +
     '<div class="field-item"><label>Condicion de egreso *</label>' +
     '<select id="egresoCondicion"><option value="">-- Seleccionar --</option>' +
     '<option value="vivo">Vivo</option><option value="muerto">Muerto</option><option value="no_aplica">No aplica</option></select></div>' +
@@ -672,9 +710,332 @@ function renderWorkspace() {
   ws.innerHTML = h;
   ws.scrollTop = 0;
 
-  /* Post-render: load triage, check HC */
+  /* Post-render: load triage, check HC, init typeaheads */
   loadTriageData(p.id);
   checkHCState();
+  initTypeaheads();
+}
+
+/* ══════════════════════════════════════════
+   TYPEAHEAD INTEGRATION
+   ══════════════════════════════════════════ */
+var _taCollectedDx = []; /* accumulated diagnoses across HC */
+
+function initTypeaheads() {
+  if (typeof Typeahead === 'undefined') return;
+
+  /* ── HC: CIE-10 ingreso (multi) ── */
+  var hcCie10 = document.getElementById('hcCie10');
+  if (hcCie10) {
+    Typeahead.create(hcCie10,
+      function(q) { return Typeahead.searchCIE10(q); },
+      function(r) { return '<span class="ta-code">' + esc(r.c) + '</span>' + esc(r.n); },
+      function(r) { addTag('hcCie10Tags', r.c, r.c + ' - ' + r.n); hcCie10.value = ''; collectDx(r.c, r.n); }
+    );
+  }
+
+  /* ── HC evolution: CIE-10 (multi) ── */
+  var evolCie10 = document.getElementById('evolCie10');
+  if (evolCie10) {
+    Typeahead.create(evolCie10,
+      function(q) { return Typeahead.searchCIE10(q); },
+      function(r) { return '<span class="ta-code">' + esc(r.c) + '</span>' + esc(r.n); },
+      function(r) { addTag('evolCie10Tags', r.c, r.c + ' - ' + r.n); evolCie10.value = ''; collectDx(r.c, r.n); }
+    );
+  }
+
+  /* ── Ordenes: nombre estudio (CUPS) ── */
+  var ordNombre = document.getElementById('ordNombre');
+  if (ordNombre) {
+    var ordTipo = document.getElementById('ordTipo');
+    Typeahead.create(ordNombre,
+      function(q) {
+        var tipo = ordTipo ? ordTipo.value : '';
+        return Typeahead.searchCUPS(q, tipo);
+      },
+      function(r) { return '<span class="ta-code">' + esc(r.cups) + '</span>' + esc(r.n) + '<span class="ta-desc">' + esc(r.tipo) + '</span>'; },
+      function(r) {
+        ordNombre.value = r.n;
+        var cups = document.getElementById('ordCups');
+        if (cups) { cups.value = r.cups; cups.classList.add('rx-autofill'); setTimeout(function(){ cups.classList.remove('rx-autofill'); }, 400); }
+        if (ordTipo && !ordTipo.value && r.tipo) ordTipo.value = r.tipo;
+      }
+    );
+    /* Re-search when tipo changes */
+    if (ordTipo) ordTipo.addEventListener('change', function() { if (ordNombre.value.length >= 2) ordNombre.dispatchEvent(new Event('input')); });
+  }
+
+  /* ── Ordenes: dx CIE-10 ── */
+  var ordDx = document.getElementById('ordDx');
+  if (ordDx) {
+    Typeahead.create(ordDx,
+      function(q) { return Typeahead.searchCIE10(q); },
+      function(r) { return '<span class="ta-code">' + esc(r.c) + '</span>' + esc(r.n); },
+      function(r) { ordDx.value = r.c + ' - ' + r.n; }
+    );
+  }
+
+  /* ── Interconsultas: especialidad ── */
+  var icEsp = document.getElementById('icEspecialidad');
+  if (icEsp) {
+    Typeahead.create(icEsp,
+      function(q) { return Typeahead.searchEsp(q); },
+      function(r) { return esc(r); },
+      function(r) { icEsp.value = r; }
+    );
+  }
+
+  /* ── Interconsultas: dx presuntivo (multi CIE-10) ── */
+  var icDx = document.getElementById('icDx');
+  if (icDx) {
+    Typeahead.create(icDx,
+      function(q) { return Typeahead.searchCIE10(q); },
+      function(r) { return '<span class="ta-code">' + esc(r.c) + '</span>' + esc(r.n); },
+      function(r) { addTag('icDxTags', r.c, r.c + ' - ' + r.n); icDx.value = ''; }
+    );
+  }
+
+  /* ── Interconsultas: CIE-10 adicional ── */
+  var icCie10 = document.getElementById('icCie10');
+  if (icCie10) {
+    Typeahead.create(icCie10,
+      function(q) { return Typeahead.searchCIE10(q); },
+      function(r) { return '<span class="ta-code">' + esc(r.c) + '</span>' + esc(r.n); },
+      function(r) { icCie10.value = r.c + ' - ' + r.n; }
+    );
+  }
+
+  /* ── Prescripciones: medicamento INVIMA ── */
+  var rxMed = document.getElementById('rxMedicamento');
+  if (rxMed) {
+    Typeahead.create(rxMed,
+      function(q) { return Typeahead.searchMeds(q); },
+      function(r) { return '<span class="ta-code">' + esc(r.cum) + '</span>' + esc(r.n) + '<span class="ta-desc">' + (r.conc||[]).join(', ') + '</span>'; },
+      function(r) { rxMed.value = r.n; fillRxFromMed(r); }
+    );
+  }
+
+  /* ── Egreso: dx principal CIE-10 ── */
+  var egDx = document.getElementById('egresoDx');
+  if (egDx) {
+    Typeahead.create(egDx,
+      function(q) { return Typeahead.searchCIE10(q); },
+      function(r) { return '<span class="ta-code">' + esc(r.c) + '</span>' + esc(r.n); },
+      function(r) { egDx.value = r.c + ' - ' + r.n; }
+    );
+  }
+
+  /* ── Egreso: dx relacionados (multi) ── */
+  var egRel = document.getElementById('egresoDxRel');
+  if (egRel) {
+    Typeahead.create(egRel,
+      function(q) { return Typeahead.searchCIE10(q); },
+      function(r) { return '<span class="ta-code">' + esc(r.c) + '</span>' + esc(r.n); },
+      function(r) { addTag('egresoDxRelTags', r.c, r.c + ' - ' + r.n); egRel.value = ''; }
+    );
+  }
+}
+
+/* ── Tag helpers ── */
+function addTag(containerId, value, label) {
+  var container = document.getElementById(containerId);
+  if (!container) return;
+  /* Avoid duplicates */
+  var existing = container.querySelectorAll('.tag-chip');
+  for (var i = 0; i < existing.length; i++) {
+    if (existing[i].getAttribute('data-value') === value) return;
+  }
+  var chip = document.createElement('span');
+  chip.className = 'tag-chip';
+  chip.setAttribute('data-value', value);
+  chip.innerHTML = esc(label) + ' <span class="tag-x" onclick="this.parentElement.remove()">&times;</span>';
+  container.appendChild(chip);
+}
+
+function getTagValues(containerId) {
+  var container = document.getElementById(containerId);
+  if (!container) return [];
+  var chips = container.querySelectorAll('.tag-chip');
+  var vals = [];
+  for (var i = 0; i < chips.length; i++) vals.push(chips[i].getAttribute('data-value'));
+  return vals;
+}
+
+function collectDx(code, name) {
+  for (var i = 0; i < _taCollectedDx.length; i++) {
+    if (_taCollectedDx[i].c === code) return;
+  }
+  _taCollectedDx.push({ c: code, n: name });
+}
+
+/* ── Rx auto-fill from INVIMA selection ── */
+function fillRxFromMed(med) {
+  /* CUM */
+  var cum = document.getElementById('rxCum');
+  if (cum) { cum.value = med.cum || ''; }
+
+  /* Concentracion dropdown */
+  var conc = document.getElementById('rxConcentracion');
+  if (conc && med.conc && med.conc.length) {
+    conc.innerHTML = '<option value="">-- Seleccionar --</option>';
+    med.conc.forEach(function(c) { conc.innerHTML += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; });
+    conc.value = med.conc[0];
+    conc.classList.add('rx-autofill');
+    setTimeout(function(){ conc.classList.remove('rx-autofill'); }, 400);
+  }
+
+  /* Forma farmaceutica */
+  var forma = document.getElementById('rxForma');
+  if (forma && med.forma && med.forma.length) {
+    /* Try to match first option in select */
+    var matched = false;
+    for (var i = 0; i < forma.options.length; i++) {
+      var opt = forma.options[i].value.toLowerCase().replace(/_/g,' ');
+      for (var j = 0; j < med.forma.length; j++) {
+        if (opt === med.forma[j].toLowerCase() || med.forma[j].toLowerCase().indexOf(opt) >= 0) {
+          forma.selectedIndex = i; matched = true; break;
+        }
+      }
+      if (matched) break;
+    }
+    if (!matched && med.forma[0]) {
+      /* Add as custom option */
+      var nopt = document.createElement('option');
+      nopt.value = med.forma[0].toLowerCase().replace(/\s+/g,'_');
+      nopt.textContent = med.forma[0];
+      forma.appendChild(nopt);
+      forma.value = nopt.value;
+    }
+    forma.classList.add('rx-autofill');
+    setTimeout(function(){ forma.classList.remove('rx-autofill'); }, 400);
+  }
+
+  /* Via de administracion */
+  var via = document.getElementById('rxVia');
+  if (via && med.via && med.via.length) {
+    var matched2 = false;
+    for (var k = 0; k < via.options.length; k++) {
+      var ov = via.options[k].value.toLowerCase();
+      for (var m = 0; m < med.via.length; m++) {
+        if (ov === med.via[m].toLowerCase() || med.via[m].toLowerCase().indexOf(ov) >= 0) {
+          via.selectedIndex = k; matched2 = true; break;
+        }
+      }
+      if (matched2) break;
+    }
+    via.classList.add('rx-autofill');
+    setTimeout(function(){ via.classList.remove('rx-autofill'); }, 400);
+  }
+
+  /* Dosis, frecuencia, duracion sugeridos */
+  var dosis = document.getElementById('rxDosis');
+  if (dosis && med.dosis) { dosis.value = med.dosis; dosis.classList.add('rx-autofill'); setTimeout(function(){ dosis.classList.remove('rx-autofill'); }, 400); }
+  var freq = document.getElementById('rxFrecuencia');
+  if (freq && med.frec) { freq.value = med.frec; freq.classList.add('rx-autofill'); setTimeout(function(){ freq.classList.remove('rx-autofill'); }, 400); }
+  var dur = document.getElementById('rxDuracion');
+  if (dur && med.dur) { dur.value = med.dur; dur.classList.add('rx-autofill'); setTimeout(function(){ dur.classList.remove('rx-autofill'); }, 400); }
+
+  /* Auto-calculate total */
+  calcRxTotal();
+}
+
+function calcRxTotal() {
+  var freq = document.getElementById('rxFrecuencia');
+  var dur = document.getElementById('rxDuracion');
+  var cant = document.getElementById('rxCantidad');
+  var hint = document.getElementById('rxCalcHint');
+  if (!freq || !dur || !cant) return;
+
+  var fVal = (freq.value || '').toLowerCase();
+  var dVal = parseInt(dur.value) || 0;
+  if (!dVal || !fVal) return;
+
+  /* Parse frequency to doses per day */
+  var dosesPerDay = 0;
+  var m;
+  if ((m = fVal.match(/cada\s+(\d+)\s*h/))) dosesPerDay = 24 / parseInt(m[1]);
+  else if (fVal.indexOf('8 h') >= 0 || fVal.indexOf('c/8') >= 0) dosesPerDay = 3;
+  else if (fVal.indexOf('6 h') >= 0 || fVal.indexOf('c/6') >= 0) dosesPerDay = 4;
+  else if (fVal.indexOf('12 h') >= 0 || fVal.indexOf('c/12') >= 0) dosesPerDay = 2;
+  else if (fVal.indexOf('24 h') >= 0 || fVal.indexOf('dia') >= 0 || fVal.indexOf('c/24') >= 0) dosesPerDay = 1;
+  else if (fVal.indexOf('4 h') >= 0 || fVal.indexOf('c/4') >= 0) dosesPerDay = 6;
+
+  if (dosesPerDay > 0) {
+    var total = Math.ceil(dosesPerDay * dVal);
+    cant.value = total;
+    if (hint) hint.textContent = '(' + dosesPerDay + ' dosis/dia x ' + dVal + ' dias)';
+    cant.classList.add('rx-autofill');
+    setTimeout(function(){ cant.classList.remove('rx-autofill'); }, 400);
+  }
+}
+
+/* ── Egreso summary ── */
+function renderEgresoSummary() {
+  var el = document.getElementById('egresoResumenBody');
+  if (!el) return;
+  var h = '<div class="egreso-summary">';
+
+  /* Patient info */
+  if (actual) {
+    h += '<div class="egreso-summary-item"><div class="egreso-summary-label">Paciente</div><div class="egreso-summary-value">' + esc(actual.paciente_nombre || actual.nombre || '') + '</div></div>';
+    h += '<div class="egreso-summary-item"><div class="egreso-summary-label">Turno</div><div class="egreso-summary-value">' + esc(actual.turno || '') + '</div></div>';
+    h += '<div class="egreso-summary-item"><div class="egreso-summary-label">Triage</div><div class="egreso-summary-value">' + esc(actual.triage_nivel || '?') + (TRIAGE[actual.triage_nivel] ? ' - ' + TRIAGE[actual.triage_nivel].label : '') + '</div></div>';
+  }
+
+  /* HC info */
+  if (hcId) {
+    h += '<div class="egreso-summary-item"><div class="egreso-summary-label">HC #</div><div class="egreso-summary-value">' + hcId + '</div></div>';
+  }
+
+  /* Triage motivo */
+  if (triageData && triageData.motivo_consulta) {
+    h += '<div class="egreso-summary-item"><div class="egreso-summary-label">Motivo consulta</div><div class="egreso-summary-value">' + esc(triageData.motivo_consulta) + '</div></div>';
+  }
+
+  /* Collected diagnoses */
+  if (_taCollectedDx.length) {
+    h += '<div class="egreso-summary-item"><div class="egreso-summary-label">Diagnosticos</div><div class="egreso-summary-value">';
+    _taCollectedDx.forEach(function(d) { h += '<span class="tag-chip" style="margin:2px;">' + esc(d.c) + ' - ' + esc(d.n) + '</span>'; });
+    h += '</div></div>';
+  }
+
+  /* Orders count */
+  var ordList = document.getElementById('ordenesList');
+  if (ordList) {
+    var ordCards = ordList.querySelectorAll('.record-card');
+    if (ordCards.length) h += '<div class="egreso-summary-item"><div class="egreso-summary-label">Ordenes</div><div class="egreso-summary-value">' + ordCards.length + ' orden(es) registrada(s)</div></div>';
+  }
+
+  /* IC count */
+  var icListEl = document.getElementById('icList');
+  if (icListEl) {
+    var icCards = icListEl.querySelectorAll('.record-card');
+    if (icCards.length) h += '<div class="egreso-summary-item"><div class="egreso-summary-label">Interconsultas</div><div class="egreso-summary-value">' + icCards.length + ' interconsulta(s)</div></div>';
+  }
+
+  /* Rx count */
+  var rxCount = localPrescripciones.length;
+  if (rxCount) h += '<div class="egreso-summary-item"><div class="egreso-summary-label">Prescripciones</div><div class="egreso-summary-value">' + rxCount + ' medicamento(s)</div></div>';
+
+  h += '</div>';
+  el.innerHTML = h;
+
+  /* Pre-load accumulated diagnoses in egreso */
+  var acum = document.getElementById('egresoDxAcumulados');
+  if (acum && _taCollectedDx.length) {
+    acum.innerHTML = '<div style="font-size:11px;color:var(--ink4);margin-bottom:4px;">Diagnosticos acumulados (click para usar como principal):</div>';
+    _taCollectedDx.forEach(function(d) {
+      var chip = document.createElement('span');
+      chip.className = 'tag-chip';
+      chip.style.cursor = 'pointer';
+      chip.textContent = d.c + ' - ' + d.n;
+      chip.onclick = function() {
+        var egDx = document.getElementById('egresoDx');
+        if (egDx) egDx.value = d.c + ' - ' + d.n;
+      };
+      acum.appendChild(chip);
+    });
+  }
 }
 
 /* ══════════════════════════════════════════
@@ -832,6 +1193,7 @@ function switchTab(tab) {
   if (tab === 'ordenes' && hcId) loadOrdenes();
   if (tab === 'ic' && hcId) loadInterconsultas();
   if (tab === 'rx') loadPrescripcionesFromHC();
+  if (tab === 'egreso') renderEgresoSummary();
   if (!hcId && (tab === 'ordenes' || tab === 'ic' || tab === 'rx')) showNoHC();
 }
 
@@ -846,11 +1208,13 @@ async function abrirHC() {
   var btn = document.getElementById('btnAbrirHC');
   setBtn(btn, true, 'Abriendo...');
   try {
+    var cie10Tags = getTagValues('hcCie10Tags');
+    var cie10Val = cie10Tags.length ? cie10Tags.join(', ') : document.getElementById('hcCie10').value;
     var data = await api('POST', '/api/hc/abrir', {
       admision_id: actual.id,
       motivo_consulta: motivo,
       causa_atencion: document.getElementById('hcCausa').value,
-      cod_cie10_ingreso: document.getElementById('hcCie10').value
+      cod_cie10_ingreso: cie10Val
     });
     hcId = data.hc_id;
     toast('Historia clinica abierta correctamente', 'success');
@@ -882,13 +1246,15 @@ async function guardarEvolucion() {
   var btn = document.getElementById('btnGuardarEvol');
   setBtn(btn, true, 'Guardando...');
   try {
+    var evolCie10Tags = getTagValues('evolCie10Tags');
+    var evolCie10Val = evolCie10Tags.length ? evolCie10Tags.join(', ') : document.getElementById('evolCie10').value;
     await api('POST', '/api/hc/' + hcId + '/evolucion', {
       tipo: document.getElementById('evolTipo').value,
       enfermedad_actual: enfActual,
       examen_fisico: exFisico,
       analisis: document.getElementById('evolAnalisis').value,
       plan_terapeutico: document.getElementById('evolPlan').value,
-      cod_cie10: document.getElementById('evolCie10').value,
+      cod_cie10: evolCie10Val,
       signos_vitales_json: sv
     });
     toast('Evolucion guardada correctamente', 'success');
@@ -896,6 +1262,7 @@ async function guardarEvolucion() {
     ['evolEnfActual','evolExamenFisico','evolAnalisis','evolPlan','evolCie10','svTAS','svTAD','svFC','svFR','svTemp','svSpO2'].forEach(function(id) {
       var el = document.getElementById(id); if (el) el.value = '';
     });
+    var evolTagC = document.getElementById('evolCie10Tags'); if (evolTagC) evolTagC.innerHTML = '';
     loadEvoluciones();
   } catch(e) {
     toast('Error: ' + e.message, 'error');
@@ -1043,6 +1410,8 @@ async function solicitarIC() {
   var btn = document.getElementById('btnSolicitarIC');
   setBtn(btn, true, 'Solicitando...');
   try {
+    var icDxTags = getTagValues('icDxTags');
+    var dxPresuntivo = icDxTags.length ? icDxTags.join(', ') : document.getElementById('icDx').value;
     await api('POST', '/api/interconsultas/solicitar', {
       hc_id: hcId,
       admision_id: actual.id,
@@ -1050,13 +1419,14 @@ async function solicitarIC() {
       especialidad_solicitada: especialidad,
       motivo: motivo,
       prioridad: document.getElementById('icPrioridad').value,
-      diagnostico_presuntivo: document.getElementById('icDx').value,
+      diagnostico_presuntivo: dxPresuntivo,
       cod_cie10: document.getElementById('icCie10').value
     });
     toast('Interconsulta solicitada correctamente', 'success');
     ['icEspecialidad','icDx','icCie10','icMotivo'].forEach(function(id) {
       var el = document.getElementById(id); if (el) el.value = '';
     });
+    var icTagC = document.getElementById('icDxTags'); if (icTagC) icTagC.innerHTML = '';
     loadInterconsultas();
   } catch(e) {
     toast('Error: ' + e.message, 'error');
@@ -1188,9 +1558,11 @@ async function guardarEgresoDx() {
   var btn = document.getElementById('btnGuardarEgresoDx');
   setBtn(btn, true, 'Guardando...');
   try {
+    var dxRelTags = getTagValues('egresoDxRelTags');
+    var dxRelVal = dxRelTags.length ? dxRelTags.join(', ') : document.getElementById('egresoDxRel').value;
     await api('PUT', '/api/hc/' + hcId + '/diagnostico-egreso', {
       cod_cie10_egreso: dx,
-      diagnosticos_relacionados: document.getElementById('egresoDxRel').value,
+      diagnosticos_relacionados: dxRelVal,
       condicion_egreso: document.getElementById('egresoCondicion').value,
       destino_egreso: document.getElementById('egresoDestino').value
     });
@@ -1234,9 +1606,11 @@ async function completarAtencion() {
       var dx = document.getElementById('egresoDx').value.trim();
       if (dx) {
         try {
+          var relTags2 = getTagValues('egresoDxRelTags');
+          var relVal2 = relTags2.length ? relTags2.join(', ') : document.getElementById('egresoDxRel').value;
           await api('PUT', '/api/hc/' + hcId + '/diagnostico-egreso', {
             cod_cie10_egreso: dx,
-            diagnosticos_relacionados: document.getElementById('egresoDxRel').value,
+            diagnosticos_relacionados: relVal2,
             condicion_egreso: condicion,
             destino_egreso: destino
           });
@@ -1363,7 +1737,8 @@ window.APP = {
   eliminarRx: eliminarRx,
   guardarEgresoDx: guardarEgresoDx,
   cerrarHC: cerrarHC,
-  imprimir: imprimir
+  imprimir: imprimir,
+  calcRxTotal: calcRxTotal
 };
 
 /* ══════════════════════════════════════════
@@ -1381,6 +1756,15 @@ window.APP = {
 })();
 
 })();
+</script>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="(function(){var h=document.documentElement;var t=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',t);localStorage.setItem('arthemis-theme',t);})()" title="Cambiar tema">
+  <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+  <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+</button>
+<script>
+(function(){var t=localStorage.getItem('arthemis-theme')||'light';document.documentElement.setAttribute('data-theme',t);})();
 </script>
 </body>
 </html>
