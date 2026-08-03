@@ -889,16 +889,19 @@ async function registrarTurno(tipoAtencion){
   try{
     const r = await fetch(`${API}/api/kiosco/anuncio`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
     const d = await r.json();
+    console.log('[kiosco] anuncio response:', r.status, d);
     if(d.success || d.turno){
       TURNO_DATA = d;
       renderTurno(d);
       goScreen('turno');
     } else {
-      renderTurno({turno:'—', color_alerta:'yellow'});
+      console.error('[kiosco] API error:', d.error, d.trace);
+      renderTurno({turno:'ERR', color_alerta:'yellow', _error: d.error || 'Sin respuesta'});
       goScreen('turno');
     }
   }catch(e){
-    renderTurno({turno:'—', color_alerta:'yellow'});
+    console.error('[kiosco] fetch error:', e);
+    renderTurno({turno:'ERR', color_alerta:'yellow', _error: e.message});
     goScreen('turno');
   }
 }
@@ -911,6 +914,13 @@ function renderTurno(d){
   badge.className = 'tk-badge ' + (isPref ? 'pref' : 'gen');
   document.getElementById('tkNum').textContent = d.turno || '—';
   document.getElementById('tkSvc').textContent = SELECTED_SERVICE?.nombre || '';
+  /* Show error detail if turno failed */
+  if(d._error){
+    document.getElementById('tkSvc').textContent = '⚠ ' + d._error;
+    document.getElementById('tkSvc').style.color = '#C24444';
+  } else {
+    document.getElementById('tkSvc').style.color = '';
+  }
   const box = document.getElementById('tkNumBox');
   box.style.background = isPref ? 'linear-gradient(135deg,var(--grn),#3DA868)' : 'linear-gradient(135deg,var(--primary),var(--accent))';
 

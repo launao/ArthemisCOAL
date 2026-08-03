@@ -16,7 +16,7 @@ Endpoints:
   GET  /api/audit                   — log de auditoría (admin)
 """
 
-import json
+import json, traceback
 from datetime import datetime
 from flask import Blueprint, request, jsonify
 
@@ -123,7 +123,9 @@ def kiosco_anuncio():
 
     except Exception as e:
         conn.rollback()
-        return jsonify({'error': f'Error interno: {str(e)}'}), 500
+        tb = traceback.format_exc()
+        print(f"[KIOSCO ANUNCIO ERROR] {e}\n{tb}")
+        return jsonify({'error': f'Error interno: {str(e)}', 'trace': tb}), 500
     finally:
         cur.close()
         core._return_db(conn, db)

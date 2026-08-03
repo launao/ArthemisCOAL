@@ -587,11 +587,24 @@ def dashboard_page():
 
 @app.route('/health')
 def health():
-    return jsonify({
+    info = {
         'status': 'ok',
         'db': 'pg' if core.USE_PG else 'sqlite',
         'ts': datetime.now().isoformat(),
-    })
+    }
+    # Quick DB test
+    try:
+        conn, db = core.get_db()
+        cur = conn.cursor()
+        T = core.TODAY(db)
+        D = f"CAST(creado_en AS DATE)" if db == 'pg' else f"DATE(creado_en)"
+        cur.execute(f"SELECT COUNT(*) FROM admisiones WHERE {D}={T}")
+        info['admisiones_hoy'] = cur.fetchone()[0]
+        cur.close()
+        core._return_db(conn, db)
+    except Exception as e:
+        info['db_error'] = str(e)
+    return jsonify(info)
 
 # ── BLUEPRINT REGISTRATION ───────────────────────────────────────────────────
 
