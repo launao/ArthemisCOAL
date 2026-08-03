@@ -600,10 +600,18 @@ def health():
         D = f"CAST(creado_en AS DATE)" if db == 'pg' else f"DATE(creado_en)"
         cur.execute(f"SELECT COUNT(*) FROM admisiones WHERE {D}={T}")
         info['admisiones_hoy'] = cur.fetchone()[0]
+        # Show last 10 admissions with their states
+        rows = core.rows(cur, "SELECT id, id_adm, turno, estado, nombre_temp, creado_en FROM admisiones ORDER BY id DESC LIMIT 10")
+        info['ultimas_admisiones'] = rows
+        # Show puestos
+        puestos = core.rows(cur, "SELECT id, codigo, nombre, tipo, activo FROM puestos_atencion")
+        info['puestos'] = puestos
         cur.close()
         core._return_db(conn, db)
     except Exception as e:
         info['db_error'] = str(e)
+        import traceback
+        info['db_trace'] = traceback.format_exc()
     return jsonify(info)
 
 # ── BLUEPRINT REGISTRATION ───────────────────────────────────────────────────

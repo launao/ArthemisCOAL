@@ -1343,9 +1343,9 @@ async function loadCola(){
 }
 
 function renderCola(){
-  const waiting = colaData.filter(t=>t.estado === 'esperando' || t.estado === 'espera');
+  const waiting = colaData.filter(t=>['kiosco','triaje','admision','en_atencion'].includes(t.estado));
   const calling = colaData.filter(t=>t.estado === 'llamando');
-  const done = colaData.filter(t=>t.estado === 'atendido');
+  const done = colaData.filter(t=>t.estado === 'atendido' || t.estado === 'facturado');
 
   document.getElementById('statWait').textContent = waiting.length;
   document.getElementById('statCall').textContent = calling.length;
@@ -1376,7 +1376,7 @@ function renderCola(){
       <div class="turn-row">
         <div class="turn-info">
           <span class="tn">${escAttr(t.turno)} ${t.prioritario ? '<span class="badge-prio">PRIORITARIO</span>' : ''}</span>
-          <span class="sv">${escAttr(t.nombre||'')} — ${escAttr(t.servicio||'')}</span>
+          <span class="sv">${escAttr(t.nombre||'')} — ${escAttr(t.servicio||'')} <em style="color:#888;font-size:11px">(${t.estado})</em></span>
         </div>
         <button class="btn btn-primary btn-sm" data-id="${t.id}" data-act="llamar">Llamar</button>
       </div>
