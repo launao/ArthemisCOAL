@@ -286,6 +286,24 @@ function toast(msg, isErr) {
   setTimeout(() => t.className = 'toast', 3500);
 }
 
+// ── Pre-fill from URL params (coming from historias-clinicas "Nuevo evento") ──
+(function prefillFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const numDoc = params.get('num_doc');
+  if (!numDoc) return;
+
+  document.getElementById('numDoc').value = numDoc;
+  if (params.get('tipo_doc')) document.getElementById('tipoDoc').value = params.get('tipo_doc');
+  if (params.get('nombres')) document.getElementById('nombres').value = params.get('nombres');
+  if (params.get('apellidos')) document.getElementById('apellidos').value = params.get('apellidos');
+  if (params.get('eps')) document.getElementById('eps').value = params.get('eps');
+  if (params.get('genero')) document.getElementById('genero').value = params.get('genero');
+  if (params.get('fecha_nac')) document.getElementById('fechaNac').value = params.get('fecha_nac');
+
+  // Auto-trigger patient lookup
+  setTimeout(() => buscarPaciente(), 300);
+})();
+
 // ── Patient lookup ──
 async function buscarPaciente() {
   const numDoc = document.getElementById('numDoc').value.trim();
@@ -455,6 +473,10 @@ async function crearHC() {
       document.getElementById('panel3').style.display = 'none';
       document.getElementById('hcCreatedId').textContent = 'HC #' + d.hc_id;
       document.getElementById('successPanel').classList.add('visible');
+
+      // Update "Ir a Consulta Médica" link to load the new HC directly
+      var consultaLink = document.querySelector('#successPanel a[href^="/atencion/consulta"]');
+      if (consultaLink) consultaLink.href = '/atencion/consulta?hc_id=' + d.hc_id;
 
       // Mark step 3 as done
       document.getElementById('step3').classList.remove('active');

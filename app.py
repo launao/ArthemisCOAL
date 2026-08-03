@@ -787,12 +787,27 @@ def health():
         D = f"CAST(creado_en AS DATE)" if db == 'pg' else f"DATE(creado_en)"
         cur.execute(f"SELECT COUNT(*) FROM admisiones WHERE {D}={T}")
         info['admisiones_hoy'] = cur.fetchone()[0]
-        # Show last 10 admissions with their states
-        rows = core.rows(cur, "SELECT id, id_adm, turno, estado, nombre_temp, creado_en FROM admisiones ORDER BY id DESC LIMIT 10")
+        # Show all admissions with their states grouped by estado
+        rows = core.rows(cur, "SELECT id, id_adm, turno, estado, triage_nivel, nombre_temp, creado_en FROM admisiones ORDER BY id DESC LIMIT 30")
         info['ultimas_admisiones'] = rows
+        # Count by estado
+        estados = core.rows(cur, "SELECT estado, COUNT(*) as cnt FROM admisiones GROUP BY estado")
+        info['admisiones_por_estado'] = {r['estado']: r['cnt'] for r in estados}
+        # Today's by estado
+        estados_hoy = core.rows(cur, core.adapt(f"SELECT estado, COUNT(*) as cnt FROM admisiones WHERE {D}={T} GROUP BY estado", db))
+        info['hoy_por_estado'] = {r['estado']: r['cnt'] for r in estados_hoy}
         # Show puestos
         puestos = core.rows(cur, "SELECT id, codigo, nombre, tipo, activo FROM puestos_atencion")
         info['puestos'] = puestos
+        # Show current date/time from DB perspective
+        if db == 'pg':
+            cur.execute("SELECT NOW() as now_ts, CURRENT_DATE as today, current_setting('TIMEZONE') as tz")
+        else:
+            cur.execute("SELECT datetime('now') as now_ts, DATE('now') as today, 'UTC' as tz")
+        ts_row = cur.fetchone()
+        info['db_now'] = ts_row[0] if ts_row else None
+        info['db_today'] = str(ts_row[1]) if ts_row else None
+        info['db_timezone'] = ts_row[2] if ts_row else None
         cur.close()
         core._return_db(conn, db)
     except Exception as e:

@@ -1742,6 +1742,71 @@ window.APP = {
 };
 
 /* ══════════════════════════════════════════
+   DIRECT LOAD (from historias-clinicas)
+   ══════════════════════════════════════════ */
+async function tryDirectLoad() {
+  var params = new URLSearchParams(window.location.search);
+  var directHcId = params.get('hc_id');
+  var directAdmId = params.get('admision_id');
+  if (!directHcId && !directAdmId) return false;
+
+  try {
+    var hcDetail;
+    if (directHcId) {
+      hcDetail = await api('GET', '/api/hc/' + directHcId);
+    } else {
+      // Get HC by admision_id
+      var hcByAdm = await api('GET', '/api/hc/por-admision/' + directAdmId);
+      if (hcByAdm && hcByAdm.hc) {
+        hcDetail = await api('GET', '/api/hc/' + hcByAdm.hc.id);
+      }
+    }
+
+    if (!hcDetail || !hcDetail.hc) return false;
+
+    var hc = hcDetail.hc;
+
+    // Build the 'actual' object that renderWorkspace expects
+    actual = {
+      id: hc.admision_id,
+      turno: hc.turno || 'DIR',
+      paciente_nombre: [hc.nombres, hc.apellidos].filter(Boolean).join(' ') || 'Paciente',
+      nombre: [hc.nombres, hc.apellidos].filter(Boolean).join(' ') || 'Paciente',
+      doc_tipo: hc.p_tipo_doc || 'CC',
+      doc_num: hc.p_num_doc || '',
+      triage_nivel: hc.triage_nivel || '?',
+      paciente_id: hc.paciente_id,
+      // Mark as direct-loaded so we can adjust UI
+      _direct_load: true
+    };
+
+    // Set HC state
+    hcId = hc.id;
+    hcData = hc;
+
+    // Create a virtual puesto for header display
+    puesto = { nombre: 'Consulta directa' };
+
+    // Enter workspace directly
+    showScreen('mainScreen');
+    document.getElementById('hdrPuesto').textContent = 'Consulta directa — HC #' + hc.id;
+    document.getElementById('hdrUser').textContent = user ? (user.nombre || user.usuario || '') : '';
+    startClock();
+    renderWorkspace();
+
+    // If HC is already opened, show opened state
+    if (hcId) {
+      setTimeout(function() { showHCOpened(); }, 200);
+    }
+
+    return true;
+  } catch(e) {
+    console.error('Direct load failed:', e);
+    return false;
+  }
+}
+
+/* ══════════════════════════════════════════
    INIT
    ══════════════════════════════════════════ */
 (async function() {
@@ -1749,6 +1814,11 @@ window.APP = {
     var me = await api('GET', '/api/auth/me');
     if (!me || !me.autenticado) throw new Error('No autenticado');
     user = me;
+
+    // Check if direct load from URL params
+    var directLoaded = await tryDirectLoad();
+    if (directLoaded) return;
+
     await checkPuesto();
   } catch(e) {
     showScreen('loginScreen');

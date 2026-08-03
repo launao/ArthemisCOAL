@@ -390,10 +390,29 @@ function renderModal(data) {
     html += `</div>`;
   }
 
-  // Button to open in consultation view
-  html += `<div style="margin-top:20px;text-align:center">
-    <a href="/atencion/consulta" class="btn-search" style="text-decoration:none;display:inline-block">Ir a Consulta Médica</a>
-  </div>`;
+  // Action buttons
+  html += `<div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">`;
+
+  // "Continuar atención" — only for open HCs
+  if (hc.estado === 'abierta') {
+    html += `<a href="/atencion/consulta?hc_id=${hc.id}" class="btn-search" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;background:#27ae60;border-color:#27ae60">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Continuar Atención</a>`;
+  }
+
+  // "Nuevo evento" — create new HC for this patient
+  const encDoc = encodeURIComponent(hc.p_num_doc || '');
+  const encNom = encodeURIComponent(hc.nombres || '');
+  const encApe = encodeURIComponent(hc.apellidos || '');
+  const encEps = encodeURIComponent(hc.p_eps || '');
+  const encGen = encodeURIComponent(hc.genero || '');
+  const encFnac = encodeURIComponent((hc.fecha_nacimiento || '').substring(0, 10));
+  const encTdoc = encodeURIComponent(hc.p_tipo_doc || 'CC');
+  html += `<a href="/nueva-hc?num_doc=${encDoc}&tipo_doc=${encTdoc}&nombres=${encNom}&apellidos=${encApe}&eps=${encEps}&genero=${encGen}&fecha_nac=${encFnac}" class="btn-search" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+    Nuevo Evento / Visita</a>`;
+
+  html += `</div>`;
 
   document.getElementById('modalBody').innerHTML = html;
   document.getElementById('modalOverlay').classList.add('open');
