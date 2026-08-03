@@ -217,7 +217,7 @@ input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px s
 <!-- LOGIN -->
 <div class="screen active" id="loginScreen">
   <div class="login-card">
-    <div class="login-logo"><div class="logo-icon">A</div><div class="login-title">Arthemis Health</div></div>
+    <div class="login-logo"><img src="/static/logo_coal.png" alt="COAL" style="height:40px;border-radius:8px;"><div class="login-title">Arthemis Health</div><div style="font-size:11px;color:#6B6460;margin-top:2px;">COAL · Clínica de Ortopedia y Accidentes Laborales</div></div>
     <div class="login-sub">Consultorio Medico - Urgencias</div>
     <form id="loginForm">
       <div class="form-group"><label>Usuario</label><input type="text" id="usuario" required autocomplete="username"></div>
@@ -237,7 +237,7 @@ input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px s
 <!-- MAIN -->
 <div class="screen" id="mainScreen">
   <div class="header">
-    <div class="hdr-mark">A</div>
+    <img src="/static/logo_coal.png" alt="COAL" style="height:32px;border-radius:6px;background:#fff;padding:2px;">
     <div class="hdr-title">Consultorio Medico</div>
     <div class="hdr-badge">Urgencias</div>
     <div class="hdr-spacer"></div>
@@ -419,6 +419,11 @@ async function fetchCola() {
     }
     if (cola.length > prev && prev > 0) playNotif();
     renderQueue();
+    // Sync "Llamar siguiente" button state when queue changes
+    if (!actual) {
+      var btn = document.getElementById('btnNext');
+      if (btn) btn.disabled = (cola.length === 0);
+    }
   } catch(e) {}
 }
 

@@ -704,12 +704,9 @@ body {
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
     <div class="login-logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-        </svg>
-      </div>
+      <img src="/static/logo_coal.png" alt="COAL" style="height:40px;border-radius:8px;">
       <span>Arthemis Health</span>
+      <div style="font-size:11px;color:#6B6460;margin-top:2px;">COAL · Clínica de Ortopedia y Accidentes Laborales</div>
     </div>
     <h2>Admisiones Urgencias</h2>
     <div class="login-error" id="loginError"></div>
@@ -731,11 +728,7 @@ body {
 <div class="puesto-screen" id="puestoScreen">
   <div class="puesto-card">
     <div class="login-logo" style="margin-bottom:0;">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-        </svg>
-      </div>
+      <img src="/static/logo_coal.png" alt="COAL" style="height:40px;border-radius:8px;">
       <span>Arthemis Health</span>
     </div>
     <h2>Seleccione su puesto de trabajo</h2>
@@ -1477,11 +1470,90 @@ body {
   }
 
   // ── TAB 2: Aseguramiento ──
+  // ── Listas de entidades colombianas ──
+  const EPS_CONTRIBUTIVO = [
+    {code:'EPS001',name:'Aliansalud EPS'},
+    {code:'EPS002',name:'Salud Total EPS'},
+    {code:'EPS005',name:'Sanitas EPS'},
+    {code:'EPS008',name:'Compensar EPS'},
+    {code:'EPS010',name:'Sura EPS'},
+    {code:'EPS012',name:'Comfenalco Valle EPS'},
+    {code:'EPS013',name:'Saludvida EPS'},
+    {code:'EPS016',name:'Coomeva EPS'},
+    {code:'EPS017',name:'Famisanar EPS'},
+    {code:'EPS018',name:'Servicio Occidental de Salud SOS'},
+    {code:'EPS023',name:'Cruz Blanca EPS'},
+    {code:'EPS033',name:'Nueva EPS'},
+    {code:'EPS037',name:'Nueva EPS - Movilidad'},
+    {code:'EPS044',name:'Medimas EPS'},
+    {code:'EPS046',name:'EPS SURA (Suramericana)'},
+  ];
+  const EPS_SUBSIDIADO = [
+    {code:'ESS002',name:'Coosalud ESS'},
+    {code:'ESS024',name:'Mutual Ser ESS'},
+    {code:'ESS062',name:'Asmet Salud ESS'},
+    {code:'ESS076',name:'Emssanar ESS'},
+    {code:'ESS091',name:'Comfasucre ESS'},
+    {code:'ESS118',name:'Ambuq ESS'},
+    {code:'ESS133',name:'Mallamas ESS'},
+    {code:'ESS207',name:'Cajacopi ESS'},
+    {code:'EPS033',name:'Nueva EPS (Subsidiado)'},
+    {code:'EPS044',name:'Medimas (Subsidiado)'},
+    {code:'ESS001',name:'Capital Salud ESS'},
+    {code:'CCF015',name:'Comfamiliar Huila'},
+    {code:'CCF023',name:'Comfamiliar Nariño'},
+    {code:'CCF033',name:'Comfamiliar Cartagena'},
+  ];
+  const ARL_LIST = [
+    {code:'ARL001',name:'Positiva Compañía de Seguros'},
+    {code:'ARL002',name:'ARL Sura'},
+    {code:'ARL003',name:'Colmena Seguros'},
+    {code:'ARL004',name:'Seguros Bolívar ARL'},
+    {code:'ARL005',name:'Liberty Seguros ARL'},
+    {code:'ARL006',name:'AXA Colpatria ARL'},
+    {code:'ARL007',name:'Equidad Seguros ARL'},
+    {code:'ARL008',name:'Alfa ARL'},
+    {code:'ARL009',name:'Aurora ARL'},
+    {code:'ARL010',name:'Mapfre ARL'},
+  ];
+  const ASEG_SOAT = [
+    {code:'SOAT01',name:'Seguros del Estado'},
+    {code:'SOAT02',name:'La Previsora'},
+    {code:'SOAT03',name:'Seguros Bolívar'},
+    {code:'SOAT04',name:'Suramericana'},
+    {code:'SOAT05',name:'Liberty Seguros'},
+    {code:'SOAT06',name:'AXA Colpatria'},
+    {code:'SOAT07',name:'Allianz'},
+    {code:'SOAT08',name:'Mapfre'},
+    {code:'SOAT09',name:'Zurich'},
+    {code:'SOAT10',name:'Mundial de Seguros'},
+    {code:'SOAT11',name:'Equidad Seguros'},
+  ];
+  const ASEG_POLIZA = [
+    {code:'POL01',name:'Suramericana (Póliza salud)'},
+    {code:'POL02',name:'Seguros Bolívar'},
+    {code:'POL03',name:'AXA Colpatria'},
+    {code:'POL04',name:'Allianz'},
+    {code:'POL05',name:'Liberty Seguros'},
+    {code:'POL06',name:'Mapfre Colombia'},
+    {code:'POL07',name:'Zurich Colombia'},
+    {code:'POL08',name:'Plan Complementario Sura'},
+    {code:'POL09',name:'Plan Complementario Sanitas'},
+    {code:'POL10',name:'Colsanitas'},
+    {code:'POL11',name:'Medisanitas'},
+  ];
+
+  function makeSelect(id, list, placeholder) {
+    return '<select id="'+id+'"><option value="">'+placeholder+'</option>' +
+      list.map(function(e){return '<option value="'+e.name+'" data-code="'+e.code+'">'+e.name+'</option>';}).join('') +
+      '</select>';
+  }
+
   const PAGADOR_FIELDS = {
     eps_contributivo: `
       <div class="form-row">
-        <div class="form-group-sm"><label>EPS</label><input type="text" id="pgEntidad" placeholder="Ej: Sanitas, Sura, Nueva EPS..."></div>
-        <div class="form-group-sm"><label>Codigo EPS</label><input type="text" id="pgCodigo" placeholder="Codigo ADRES"></div>
+        <div class="form-group-sm"><label>EPS</label>${makeSelect('pgEntidad', EPS_CONTRIBUTIVO, 'Seleccione EPS...')}</div>
+        <div class="form-group-sm"><label>Codigo EPS</label><input type="text" id="pgCodigo" placeholder="Codigo ADRES" readonly></div>
       </div>
       <div class="form-row">
         <div class="form-group-sm"><label>Estado afiliacion</label>
@@ -1496,8 +1568,8 @@ body {
       </div>`,
     eps_subsidiado: `
       <div class="form-row">
-        <div class="form-group-sm"><label>EPS-S</label><input type="text" id="pgEntidad" placeholder="Ej: Mutual Ser, Coosalud..."></div>
-        <div class="form-group-sm"><label>Codigo EPS</label><input type="text" id="pgCodigo" placeholder="Codigo ADRES"></div>
+        <div class="form-group-sm"><label>EPS-S</label>${makeSelect('pgEntidad', EPS_SUBSIDIADO, 'Seleccione EPS-S...')}</div>
+        <div class="form-group-sm"><label>Codigo EPS</label><input type="text" id="pgCodigo" placeholder="Codigo ADRES" readonly></div>
       </div>
       <div class="form-row">
         <div class="form-group-sm"><label>Estado afiliacion</label>
@@ -1508,7 +1580,7 @@ body {
       <div class="form-group-sm"><label>No. autorizacion</label><input type="text" id="pgAutorizacion" placeholder="Numero de autorizacion"></div>`,
     arl: `
       <div class="form-row">
-        <div class="form-group-sm"><label>ARL</label><input type="text" id="pgEntidad" placeholder="Ej: Sura, Positiva, Colmena..."></div>
+        <div class="form-group-sm"><label>ARL</label>${makeSelect('pgEntidad', ARL_LIST, 'Seleccione ARL...')}</div>
         <div class="form-group-sm"><label>Empresa</label><input type="text" id="pgEmpresa" placeholder="Nombre empresa empleadora"></div>
       </div>
       <div class="form-row">
@@ -1518,7 +1590,7 @@ body {
       <div class="form-group-sm"><label>No. autorizacion</label><input type="text" id="pgAutorizacion"></div>`,
     soat: `
       <div class="form-row">
-        <div class="form-group-sm"><label>Aseguradora SOAT</label><input type="text" id="pgEntidad" placeholder="Ej: Suramericana, La Previsora..."></div>
+        <div class="form-group-sm"><label>Aseguradora SOAT</label>${makeSelect('pgEntidad', ASEG_SOAT, 'Seleccione aseguradora...')}</div>
         <div class="form-group-sm"><label>No. poliza SOAT</label><input type="text" id="pgPoliza"></div>
       </div>
       <div class="form-row">
@@ -1528,7 +1600,7 @@ body {
       <div class="form-group-sm"><label>No. autorizacion</label><input type="text" id="pgAutorizacion"></div>`,
     poliza: `
       <div class="form-row">
-        <div class="form-group-sm"><label>Aseguradora</label><input type="text" id="pgEntidad" placeholder="Nombre aseguradora"></div>
+        <div class="form-group-sm"><label>Aseguradora</label>${makeSelect('pgEntidad', ASEG_POLIZA, 'Seleccione aseguradora...')}</div>
         <div class="form-group-sm"><label>No. poliza</label><input type="text" id="pgPoliza"></div>
       </div>
       <div class="form-group-sm"><label>No. autorizacion</label><input type="text" id="pgAutorizacion"></div>`,
@@ -1555,7 +1627,25 @@ body {
     // Pre-fill EPS from patient data
     if (pacienteVinculado && pacienteVinculado.eps && (tipo==='eps_contributivo'||tipo==='eps_subsidiado')) {
       const el = document.getElementById('pgEntidad');
-      if (el) el.value = pacienteVinculado.eps;
+      if (el) {
+        // Try to match by name
+        for (let i=0; i<el.options.length; i++) {
+          if (el.options[i].text.toLowerCase().includes(pacienteVinculado.eps.toLowerCase())) {
+            el.selectedIndex = i; break;
+          }
+        }
+      }
+    }
+    // Auto-fill code when entity dropdown changes
+    const entSel = document.getElementById('pgEntidad');
+    const codeEl = document.getElementById('pgCodigo');
+    if (entSel && codeEl) {
+      entSel.addEventListener('change', function() {
+        const opt = entSel.options[entSel.selectedIndex];
+        codeEl.value = opt && opt.dataset.code ? opt.dataset.code : '';
+      });
+      // Fire initial change if pre-filled
+      if (entSel.value) entSel.dispatchEvent(new Event('change'));
     }
   };
 

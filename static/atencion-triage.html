@@ -288,8 +288,9 @@ input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px s
 <div class="screen active" id="loginScreen">
   <div class="login-card">
     <div class="login-logo">
-      <div class="login-mark">A</div>
+      <img src="/static/logo_coal.png" alt="COAL" style="height:40px;border-radius:8px;">
       <div class="login-name">Arthemis Health</div>
+      <div style="font-size:11px;color:#6B6460;margin-top:2px;">COAL · Clínica de Ortopedia y Accidentes Laborales</div>
     </div>
     <div class="login-sub">Triage Clínico · Enfermería</div>
     <form id="loginForm">
@@ -317,7 +318,7 @@ input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px s
 <div class="screen" id="mainScreen">
   <div class="header">
     <div class="hdr-logo">
-      <div class="hdr-mark">A</div>
+      <img src="/static/logo_coal.png" alt="COAL" style="height:32px;border-radius:6px;background:#fff;padding:2px;">
       <div class="hdr-title">Triage Clínico</div>
     </div>
     <div class="hdr-badge">Enfermería</div>
@@ -517,6 +518,11 @@ async function refreshCola() {
     if (data.actual !== undefined) state.actual = data.actual;
     if (state.cola.length > prev && prev > 0) playBeep();
     renderQueue();
+    // Sync "Llamar siguiente" button state when queue changes
+    if (!state.actual) {
+      const btn = document.getElementById('btnSiguiente');
+      if (btn) btn.disabled = (state.cola.length === 0);
+    }
   } catch(err) { console.error('Cola error:', err); }
 }
 
