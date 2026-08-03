@@ -503,10 +503,10 @@ async function enterMain() {
   // Load triage form config
   try { const cfg = await api('/api/atencion/triage-config'); state.formConfig = cfg.campos || []; }
   catch(e) { console.warn('No triage config:', e); }
-  refreshCola();
+  await refreshCola();
+  renderWorkspace();
   startPolling();
   connectSSE();
-  renderWorkspace();
 }
 
 // ===== QUEUE =====
@@ -539,7 +539,7 @@ function renderQueue() {
     card.className = 'q-card';
     card.innerHTML =
       '<div class="q-turno">' + escHtml(t.turno || '—') + '</div>' +
-      '<div class="q-info"><div class="q-name">' + escHtml(t.paciente_nombre || t.nombre || 'Sin nombre') + '</div>' +
+      '<div class="q-info"><div class="q-name">' + escHtml(t.paciente_nombre || t.nombre || ('Paciente ' + (t.turno || ''))) + '</div>' +
       '<div class="q-meta"><span class="q-badge general">' + escHtml(t.turno_tipo || 'General') + '</span>' +
       '<span class="q-time">' + minutesAgo(t.creado_en) + '</span></div></div>';
     c.appendChild(card);

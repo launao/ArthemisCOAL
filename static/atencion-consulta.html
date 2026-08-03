@@ -392,11 +392,11 @@ async function selectPuesto(p) {
   } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
-function enterMain() {
+async function enterMain() {
   showScreen('mainScreen');
   document.getElementById('hdrPuesto').textContent = puesto.nombre || 'Consultorio';
   document.getElementById('hdrUser').textContent = user ? (user.nombre || user.usuario || '') : '';
-  startClock(); fetchCola(); startPolling(); connectSSE(); renderWorkspace();
+  startClock(); await fetchCola(); renderWorkspace(); startPolling(); connectSSE();
 }
 
 /* ══════════════════════════════════════════
@@ -438,7 +438,7 @@ function renderQueue() {
     return '<div class="q-card">' +
       '<div class="q-turno">' + esc(t.turno) + '</div>' +
       '<div class="q-info">' +
-        '<div class="q-name">' + esc(t.paciente_nombre || t.nombre || 'Paciente') + '</div>' +
+        '<div class="q-name">' + esc(t.paciente_nombre || t.nombre || ('Paciente ' + (t.turno || ''))) + '</div>' +
         '<div class="q-meta">' +
           '<span class="triage-badge triage-' + nv + '">' + nv + ' - ' + (TRIAGE[nv] ? TRIAGE[nv].label : nv) + '</span>' +
         '</div>' +
