@@ -853,17 +853,40 @@ async function asignarTriage() {
     const result = await api('/api/atencion/accion', {
       method: 'POST', body: JSON.stringify(formData)
     });
-    toast('Triage nivel ' + state.selectedNivel + ' asignado correctamente', 'success');
+    const nivelAsignado = state.selectedNivel;
     state.actual = null;
     state.selectedNivel = null;
     await refreshCola();
-    if (state.cola.length > 0) await siguiente();
-    else renderWorkspace();
+    renderTriageComplete(nivelAsignado);
   } catch(err) {
     toast('Error: ' + err.message, 'error');
     btn.disabled = false;
     btn.textContent = 'Completar Triage';
   }
+}
+
+function renderTriageComplete(nivel) {
+  const ws = document.getElementById('workspace');
+  const colors = { I:'#C24444', II:'#E97025', III:'#D4A017', IV:'#16a34a', V:'#2E5D7A' };
+  const names = { I:'Resucitación', II:'Emergencia', III:'Urgencia', IV:'Prioritaria', V:'No urgente' };
+  const pendientes = state.cola.length;
+  ws.innerHTML =
+    '<div class="empty-state" style="text-align:center;">' +
+      '<div style="font-size:48px;margin-bottom:12px;">✅</div>' +
+      '<div style="font-size:20px;font-weight:700;margin-bottom:6px;">Triage completado</div>' +
+      '<div style="margin-bottom:20px;">' +
+        '<span style="display:inline-block;padding:6px 16px;border-radius:8px;font-weight:700;font-size:15px;color:#fff;background:' + (colors[nivel]||'#2E5D7A') + ';">Nivel ' + nivel + ' — ' + (names[nivel]||'') + '</span>' +
+      '</div>' +
+      '<div style="color:var(--ink4);font-size:14px;margin-bottom:24px;">Paciente enviado a admisiones · ' + pendientes + ' paciente' + (pendientes !== 1 ? 's' : '') + ' en espera</div>' +
+      '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">' +
+        '<button class="btn-siguiente" onclick="APP.siguiente()"' + (pendientes === 0 ? ' disabled' : '') + ' style="padding:14px 36px;font-size:16px;">Llamar siguiente</button>' +
+        '<button onclick="APP.volverEspera()" style="padding:14px 36px;font-size:16px;font-weight:600;border:2px solid var(--line);border-radius:14px;background:var(--white);color:var(--ink);cursor:pointer;">Volver a espera</button>' +
+      '</div>' +
+    '</div>';
+}
+
+function volverEspera() {
+  renderWorkspace();
 }
 
 async function rellamar() {
@@ -927,7 +950,7 @@ function cleanup() {
 }
 
 // ===== PUBLIC API =====
-window.APP = { siguiente, asignarTriage, rellamar, noPresento, selectNivel, toggleDisc, updateEva, updateGlasgow };
+window.APP = { siguiente, asignarTriage, rellamar, noPresento, selectNivel, toggleDisc, updateEva, updateGlasgow, volverEspera };
 
 // ===== INIT =====
 (async function() {

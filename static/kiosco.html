@@ -451,11 +451,7 @@ button,input{font-family:var(--font)}
             <div class="uo-box"></div><div class="uo-ico">♿</div><div class="uo-label" data-t="disability">Discapacidad</div>
           </div>
         </div>
-        <div class="consent-check" id="urgConsentBox" onclick="toggleUrgConsent()">
-          <div class="cc-box" id="urgConsentIcon"></div>
-          <div class="cc-label" data-t="dataConsent">Acepto el tratamiento de mis datos personales y de salud</div>
-        </div>
-        <button class="btn btn-primary" style="width:100%;background:linear-gradient(135deg,#932222,#C24444)" id="btnUrgSubmit" disabled onclick="submitUrgency()">
+        <button class="btn btn-primary" style="width:100%;background:linear-gradient(135deg,#932222,#C24444)" id="btnUrgSubmit" onclick="submitUrgency()">
           <span data-t="requestUrgent">Solicitar atención urgente</span>
         </button>
       </div>
@@ -871,7 +867,6 @@ function toggleUrgConsent(){
   resetIdleTimer();
 }
 function submitUrgency(){
-  if(!URG_CONSENT) return;
   SELECTED_SERVICE = { codigo:'urgencias', nombre: t('urgency') };
   registrarTurno('urgencias');
 }
@@ -1057,8 +1052,7 @@ function resetKiosk(){
   document.getElementById('consentBoxIcon').innerHTML = '';
   document.getElementById('btnConsentContinue').disabled = true;
   document.querySelectorAll('.urg-opt').forEach(o=>o.classList.remove('checked'));
-  document.getElementById('urgConsentBox').classList.remove('checked');
-  document.getElementById('urgConsentIcon').innerHTML = '';
+  // urgConsentBox removed — consent handled in consent screen
   document.getElementById('btnUrgSubmit').disabled = true;
   document.getElementById('priorityBadgeWrap').style.display = 'none';
   document.getElementById('waPhone').value = '';
