@@ -453,8 +453,6 @@ def atencion_siguiente():
             f"ORDER BY {order} LIMIT 1", db), (queue_estado,))
 
         if not siguiente:
-            cur.close()
-            core._return_db(conn, db)
             return jsonify({'success': False, 'message': 'No hay pacientes en espera'})
 
         turno_id = siguiente['id']
