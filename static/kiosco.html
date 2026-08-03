@@ -9,15 +9,15 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --primary:#5147C4;
-  --accent:#7269D8;
-  --bg:#FAF8F4;
-  --dark:#1C1916;
+  --primary:#2E5D7A;
+  --accent:#3A7A9B;
+  --bg:#FAF9F5;
+  --dark:#1A1A19;
   --white:#FFFFFF;
   --iv2:#F2EFE9;
   --line:#E6E1D8;
   --line2:#D8D2C7;
-  --ink:#1C1916;
+  --ink:#1A1A19;
   --ink2:#3D3834;
   --ink3:#6B6460;
   --ink4:#A09890;
@@ -62,7 +62,7 @@ button,input{font-family:var(--font)}
   display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--ink4);
   transition:all .3s}
 .pdot-wrap.active .pdot{background:var(--primary);border-color:var(--primary);color:#fff;
-  box-shadow:0 0 0 5px rgba(81,71,196,.14);transform:scale(1.05)}
+  box-shadow:0 0 0 5px rgba(46,93,122,.14);transform:scale(1.05)}
 .pdot-wrap.done .pdot{background:var(--grn);border-color:var(--grn);color:#fff}
 .plabel{font-size:11px;font-weight:600;color:var(--ink4);letter-spacing:.2px;text-align:center}
 .pdot-wrap.active .plabel{color:var(--primary);font-weight:700}
@@ -77,7 +77,7 @@ button,input{font-family:var(--font)}
 .screen.on{display:flex;flex-direction:column;align-items:center;justify-content:center}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .card{background:var(--white);border-radius:24px;border:1px solid var(--line);
-  box-shadow:0 8px 40px rgba(28,25,22,.08),0 2px 10px rgba(28,25,22,.04);
+  box-shadow:0 8px 40px rgba(26,26,25,.08),0 2px 10px rgba(26,26,25,.04);
   width:100%;padding:40px 46px;max-height:100%;overflow-y:auto}
 .eyebrow{font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;
   color:var(--primary);margin-bottom:10px;display:block}
@@ -93,8 +93,8 @@ button,input{font-family:var(--font)}
 .w-btn{background:var(--white);border:1.5px solid var(--line);border-radius:20px;
   padding:26px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;
   cursor:pointer;transition:all .2s;min-height:150px;justify-content:center;
-  box-shadow:0 2px 10px rgba(28,25,22,.04)}
-.w-btn:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(81,71,196,.14);border-color:var(--accent)}
+  box-shadow:0 2px 10px rgba(26,26,25,.04)}
+.w-btn:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(46,93,122,.14);border-color:var(--accent)}
 .w-btn:active{transform:translateY(0) scale(.98)}
 .w-ico{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--accent));
   display:flex;align-items:center;justify-content:center;font-size:26px}
@@ -128,7 +128,7 @@ button,input{font-family:var(--font)}
 .key{height:64px;border-radius:14px;background:var(--iv2);border:1px solid var(--line);
   font-size:22px;font-weight:600;color:var(--ink);cursor:pointer;transition:all .12s;
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 1px 3px rgba(28,25,22,.05)}
+  box-shadow:0 1px 3px rgba(26,26,25,.05)}
 .key:hover{background:var(--white);border-color:var(--line2)}
 .key:active{transform:scale(.94);background:var(--line)}
 .key-clear{background:rgba(147,34,34,.05);border-color:rgba(147,34,34,.18);color:var(--red);font-size:14px;font-weight:700}
@@ -137,9 +137,9 @@ button,input{font-family:var(--font)}
 .btn{height:56px;border-radius:14px;border:none;font-size:15px;font-weight:700;cursor:pointer;
   transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font)}
 .btn-primary{flex:1;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;
-  box-shadow:0 6px 18px rgba(81,71,196,.28)}
+  box-shadow:0 6px 18px rgba(46,93,122,.28)}
 .btn-primary:disabled{background:var(--iv2);box-shadow:none;color:var(--ink4);cursor:not-allowed}
-.btn-primary:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(81,71,196,.34)}
+.btn-primary:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(46,93,122,.34)}
 .btn-secondary{background:var(--iv2);border:1px solid var(--line2);color:var(--ink3);padding:0 22px}
 .btn-secondary:hover{background:var(--line);color:var(--ink)}
 .hint{font-size:12px;color:var(--ink4);text-align:center;margin-top:14px}
@@ -161,7 +161,7 @@ button,input{font-family:var(--font)}
   display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:var(--ink4);transition:all .3s}
 .ver-step.active .vs-dot{background:var(--primary);border-color:var(--primary);color:#fff;animation:pulse2 1s ease-in-out infinite}
 .ver-step.done .vs-dot{background:var(--grn);border-color:var(--grn);color:#fff}
-@keyframes pulse2{0%,100%{box-shadow:0 0 0 0 rgba(81,71,196,.35)}50%{box-shadow:0 0 0 6px rgba(81,71,196,0)}}
+@keyframes pulse2{0%,100%{box-shadow:0 0 0 0 rgba(46,93,122,.35)}50%{box-shadow:0 0 0 6px rgba(46,93,122,0)}}
 .vs-label{font-size:14px;color:var(--ink3);font-weight:500}
 .ver-step.active .vs-label{color:var(--ink);font-weight:600}
 
@@ -191,7 +191,7 @@ button,input{font-family:var(--font)}
 .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .svc-btn{background:var(--white);border:1.5px solid var(--line);border-radius:18px;padding:24px 14px;
   display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:all .18s;min-height:120px;justify-content:center}
-.svc-btn:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 20px rgba(81,71,196,.12)}
+.svc-btn:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 20px rgba(46,93,122,.12)}
 .svc-ico{font-size:28px}
 .svc-name{font-size:13px;font-weight:700;text-align:center;color:var(--ink2)}
 
@@ -217,7 +217,7 @@ button,input{font-family:var(--font)}
 .tk-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
   letter-spacing:1.4px;text-transform:uppercase;padding:6px 16px;border-radius:99px;margin-bottom:18px}
 .tk-badge.pref{background:var(--gbg);color:var(--grn);border:1px solid var(--gbd)}
-.tk-badge.gen{background:rgba(81,71,196,.08);color:var(--primary);border:1px solid rgba(81,71,196,.22)}
+.tk-badge.gen{background:rgba(46,93,122,.08);color:var(--primary);border:1px solid rgba(46,93,122,.22)}
 .tk-num-box{border-radius:22px;padding:30px 20px;margin-bottom:18px;color:#fff}
 .tk-num{font-size:72px;font-weight:800;letter-spacing:-2px;line-height:1}
 .tk-svc{font-size:14px;opacity:.85;margin-top:8px;font-weight:500}
@@ -238,7 +238,7 @@ button,input{font-family:var(--font)}
 .ftr-clock{font-variant-numeric:tabular-nums;font-weight:600}
 
 /* ===== OVERLAYS ===== */
-.overlay{position:fixed;inset:0;background:rgba(28,25,22,.72);z-index:100;
+.overlay{position:fixed;inset:0;background:rgba(26,26,25,.72);z-index:100;
   display:none;align-items:center;justify-content:center;animation:fadeIn .25s ease}
 .overlay.on{display:flex}
 .ov-card{background:var(--white);border-radius:24px;padding:40px 44px;max-width:420px;width:90%;text-align:center;
@@ -618,7 +618,7 @@ async function loadConfig(){
     const r = await fetch(`${API}/api/kiosco/config`);
     CONFIG = await r.json();
   }catch(e){
-    CONFIG = {branding:{clinicName:'Arthemis Health', primaryColor:'#5147C4', accentColor:'#7269D8', darkBg:'#1C1916', footerMsg:'Su salud, nuestra prioridad'},
+    CONFIG = {branding:{clinicName:'Arthemis Health', primaryColor:'#2E5D7A', accentColor:'#3A7A9B', darkBg:'#1A1A19', footerMsg:'Su salud, nuestra prioridad'},
       consent:{title:'Autorización para el tratamiento de datos personales', body:'', checkboxLabel:'Acepto el tratamiento de mis datos personales y de salud', nit:'', email:''},
       whatsapp:{enabled:false, countryCode:'+57', businessNumber:''}, lang:'es', adminPin:'1234',
       adRotationSeconds:6, idleTimeoutMs:50000, countdownSeconds:10};

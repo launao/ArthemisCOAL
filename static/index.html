@@ -4,43 +4,277 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Arthemis Health · COAL</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',system-ui,sans-serif;background:#FAF8F4;color:#1C1916;
-  display:flex;align-items:center;justify-content:center;min-height:100vh}
-.wrap{text-align:center;max-width:460px;padding:40px}
-.logo{width:64px;height:64px;border-radius:16px;
-  background:linear-gradient(145deg,#5147C4,#7269D8);
-  display:inline-flex;align-items:center;justify-content:center;
-  font-size:28px;font-weight:700;color:#fff;margin-bottom:20px}
-h1{font-size:24px;margin-bottom:8px}
-p{font-size:14px;color:#6B6460;line-height:1.6;margin-bottom:28px}
-.links{display:flex;flex-direction:column;gap:12px;align-items:center}
-a{display:inline-block;padding:12px 28px;border-radius:12px;
-  color:#fff;text-decoration:none;font-weight:600;font-size:14px;
-  transition:all .2s;width:100%;max-width:280px;text-align:center}
-a:hover{transform:translateY(-1px)}
-.primary{background:linear-gradient(135deg,#5147C4,#7269D8);
-  box-shadow:0 6px 18px rgba(81,71,196,.25)}
-.primary:hover{box-shadow:0 10px 26px rgba(81,71,196,.32)}
-.secondary{background:#1C1916;box-shadow:0 4px 12px rgba(28,25,22,.15)}
-.secondary:hover{box-shadow:0 8px 20px rgba(28,25,22,.2)}
-.tertiary{background:#2D7A4F;box-shadow:0 4px 12px rgba(45,122,79,.2)}
-.tertiary:hover{box-shadow:0 8px 20px rgba(45,122,79,.25)}
-.version{margin-top:24px;font-size:11px;color:#A09890}
+body{font-family:'Inter',system-ui,sans-serif;background:#FAF9F5;color:#1A1A19;min-height:100vh}
+
+/* Header */
+.header{background:#1A1A19;color:#fff;padding:20px 32px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.header img{height:48px;border-radius:8px;background:#fff;padding:4px}
+.header-text{flex:1}
+.header h1{font-size:18px;font-weight:700;letter-spacing:-0.3px}
+.header .sub{font-size:13px;opacity:0.6;margin-top:2px}
+.header .badge{background:#2E5D7A;color:#fff;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600}
+.header-right{display:flex;align-items:center;gap:12px}
+#userInfo{font-size:13px;opacity:0.7}
+.btn-logout{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;transition:all .2s}
+.btn-logout:hover{background:rgba(255,255,255,0.2)}
+
+/* Login overlay */
+.login-overlay{position:fixed;inset:0;background:rgba(26,26,25,0.6);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:100}
+.login-card{background:#fff;border-radius:16px;padding:40px 36px;max-width:400px;width:90%;box-shadow:0 24px 60px rgba(0,0,0,0.15)}
+.login-card img{height:40px;margin-bottom:16px}
+.login-card h2{font-size:20px;font-weight:700;margin-bottom:4px}
+.login-card .login-sub{font-size:13px;color:#6B6460;margin-bottom:24px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:600;margin-bottom:4px;color:#1A1A19}
+.field input{width:100%;padding:10px 14px;border:1px solid #E9E6DB;border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border .2s}
+.field input:focus{border-color:#2E5D7A}
+.btn-login{width:100%;padding:12px;background:#2E5D7A;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-login:hover{background:#245068}
+.btn-login:disabled{opacity:0.6;cursor:not-allowed}
+.login-error{color:#C24444;font-size:13px;margin-top:12px;display:none;text-align:center}
+
+/* Main content */
+.content{max-width:960px;margin:0 auto;padding:32px 24px}
+.section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#6B6460;margin:28px 0 12px;padding-left:4px}
+.section-title:first-child{margin-top:0}
+
+/* Module grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.mod{background:#fff;border:1px solid #E9E6DB;border-radius:12px;padding:18px 16px;text-decoration:none;color:#1A1A19;transition:all .2s;cursor:pointer;display:block}
+.mod:hover{border-color:#2E5D7A;box-shadow:0 4px 16px rgba(46,93,122,0.1);transform:translateY(-2px)}
+.mod-ico{font-size:24px;margin-bottom:8px}
+.mod-name{font-size:14px;font-weight:600;margin-bottom:3px}
+.mod-desc{font-size:12px;color:#6B6460;line-height:1.4}
+.mod.disabled{opacity:0.4;pointer-events:none}
+.mod-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;margin-top:8px}
+.tag-public{background:#E6F4EA;color:#16a34a}
+.tag-auth{background:#EDF4F7;color:#2E5D7A}
+.tag-admin{background:#FDF2E9;color:#C6672B}
+
+/* Divider */
+.divider{height:1px;background:#E9E6DB;margin:8px 0}
+
+/* Footer */
+.footer{text-align:center;padding:24px;font-size:11px;color:#A09890}
+.footer a{color:#2E5D7A;text-decoration:none}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1A1A19;color:#fff;padding:12px 24px;border-radius:10px;font-size:13px;opacity:0;transition:all .3s;z-index:200;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.error{background:#C24444}
+
+@media(max-width:600px){
+  .header{padding:16px}
+  .content{padding:20px 16px}
+  .grid{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="logo">A</div>
-  <h1>Arthemis Health</h1>
-  <p>Sistema de Información en Salud — Centro Ocular</p>
-  <div class="links">
-    <a href="/kiosco" class="primary">Abrir Kiosco</a>
-    <a href="/kiosco/tv" class="secondary">Pantalla Sala de Espera</a>
-    <a href="/kiosco/admin" class="tertiary">Panel Administrador</a>
+
+<!-- HEADER -->
+<div class="header">
+  <img src="/static/logo_coal.png" alt="COAL" id="clinicLogo">
+  <div class="header-text">
+    <h1>COAL · Arthemis Health</h1>
+    <div class="sub">Clínica de Ortopedia y Accidentes Laborales</div>
   </div>
-  <div class="version">v2.0 · ArthemisCOAL</div>
+  <div class="header-right">
+    <span id="userInfo"></span>
+    <button class="btn-logout" id="btnLogout" style="display:none" onclick="doLogout()">Cerrar sesión</button>
+  </div>
 </div>
+
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <img src="/static/logo_coal.png" alt="COAL">
+    <h2>Arthemis Health</h2>
+    <div class="login-sub">Inicie sesión para acceder a los módulos del sistema</div>
+    <form id="loginForm">
+      <div class="field">
+        <label>Usuario</label>
+        <input type="text" id="inputUser" placeholder="Ingrese su usuario" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="inputPass" placeholder="Ingrese su contraseña" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn-login" id="btnLogin">Ingresar</button>
+    </form>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+  <div class="section-title">Kiosco · Acceso público</div>
+  <div class="grid">
+    <a class="mod" href="/kiosco">
+      <div class="mod-ico">🏥</div>
+      <div class="mod-name">Kiosco Paciente</div>
+      <div class="mod-desc">Registro de llegada y generación de turno</div>
+      <span class="mod-tag tag-public">Público</span>
+    </a>
+    <a class="mod" href="/kiosco/tv" target="_blank">
+      <div class="mod-ico">📺</div>
+      <div class="mod-name">Pantalla TV</div>
+      <div class="mod-desc">Display de sala de espera con turnos en tiempo real</div>
+      <span class="mod-tag tag-public">Público</span>
+    </a>
+    <a class="mod" href="/kiosco/admin">
+      <div class="mod-ico">⚙️</div>
+      <div class="mod-name">Admin Kiosco</div>
+      <div class="mod-desc">Configurar servicios, anuncios y branding del kiosco</div>
+      <span class="mod-tag tag-admin">Admin</span>
+    </a>
+  </div>
+
+  <div class="section-title">Atención clínica</div>
+  <div class="grid">
+    <a class="mod" href="/atencion/triage">
+      <div class="mod-ico">🩺</div>
+      <div class="mod-name">Triage</div>
+      <div class="mod-desc">Clasificación de urgencias Res. 5596/2015</div>
+      <span class="mod-tag tag-auth">Requiere login</span>
+    </a>
+    <a class="mod" href="/atencion/admisiones">
+      <div class="mod-ico">📋</div>
+      <div class="mod-name">Admisiones</div>
+      <div class="mod-desc">Vinculación de paciente, pagador y copago</div>
+      <span class="mod-tag tag-auth">Requiere login</span>
+    </a>
+    <a class="mod" href="/atencion/consulta">
+      <div class="mod-ico">👨‍⚕️</div>
+      <div class="mod-name">Consulta Médica</div>
+      <div class="mod-desc">HC, evoluciones, órdenes, interconsultas y egreso</div>
+      <span class="mod-tag tag-auth">Requiere login</span>
+    </a>
+    <a class="mod" href="/laboratorio">
+      <div class="mod-ico">🧪</div>
+      <div class="mod-name">Laboratorio</div>
+      <div class="mod-desc">Worklist, resultados y validación</div>
+      <span class="mod-tag tag-auth">Requiere login</span>
+    </a>
+    <a class="mod" href="/interconsultas">
+      <div class="mod-ico">🔄</div>
+      <div class="mod-name">Interconsultas</div>
+      <div class="mod-desc">Solicitud, aceptación y respuesta entre especialidades</div>
+      <span class="mod-tag tag-auth">Requiere login</span>
+    </a>
+  </div>
+
+  <div class="section-title">Administración</div>
+  <div class="grid">
+    <a class="mod" href="/facturacion">
+      <div class="mod-ico">💰</div>
+      <div class="mod-name">Facturación</div>
+      <div class="mod-desc">Pre-facturas, RIPS y resumen diario</div>
+      <span class="mod-tag tag-auth">Requiere login</span>
+    </a>
+    <a class="mod" href="/admin/dashboard">
+      <div class="mod-ico">📊</div>
+      <div class="mod-name">Dashboard</div>
+      <div class="mod-desc">Estadísticas en tiempo real, alertas y endpoints</div>
+      <span class="mod-tag tag-admin">Superadmin</span>
+    </a>
+    <a class="mod" href="/admin/usuarios">
+      <div class="mod-ico">👥</div>
+      <div class="mod-name">Usuarios y Roles</div>
+      <div class="mod-desc">RBAC: 15 roles, 28 permisos, campos configurables</div>
+      <span class="mod-tag tag-admin">Superadmin</span>
+    </a>
+    <a class="mod" href="/admisiones/dashboard">
+      <div class="mod-ico">📈</div>
+      <div class="mod-name">Dashboard Admisiones</div>
+      <div class="mod-desc">KPIs, flujo de pacientes y alertas de espera</div>
+      <span class="mod-tag tag-auth">Requiere login</span>
+    </a>
+  </div>
+</div>
+
+<div class="footer">
+  Arthemis Health v2.0 · <a href="https://github.com/launao/ArthemisCOAL" target="_blank">ArthemisCOAL</a> · COAL - Clínica de Ortopedia y Accidentes Laborales
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '';
+let USER = null;
+
+function toast(msg, isErr) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isErr ? ' error' : '');
+  setTimeout(() => t.className = 'toast', 3500);
+}
+
+async function checkAuth() {
+  try {
+    const r = await fetch(API + '/api/auth/me', { credentials: 'include' });
+    const d = await r.json();
+    if (d.autenticado) {
+      USER = d;
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('userInfo').textContent = (d.nombre || d.usuario) + ' · ' + (d.rol || '');
+      document.getElementById('btnLogout').style.display = '';
+    } else {
+      document.getElementById('loginOverlay').style.display = 'flex';
+    }
+  } catch(e) {
+    document.getElementById('loginOverlay').style.display = 'flex';
+  }
+}
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btnLogin');
+  const err = document.getElementById('loginError');
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Ingresando...';
+  try {
+    const r = await fetch(API + '/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        usuario: document.getElementById('inputUser').value,
+        password: document.getElementById('inputPass').value
+      })
+    });
+    const d = await r.json();
+    if (r.ok && d.success) {
+      USER = d;
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('userInfo').textContent = (d.nombre || d.usuario) + ' · ' + (d.rol || '');
+      document.getElementById('btnLogout').style.display = '';
+      toast('Sesión iniciada');
+    } else {
+      err.textContent = d.error || 'Credenciales incorrectas';
+      err.style.display = 'block';
+    }
+  } catch(ex) {
+    err.textContent = 'Error de conexión';
+    err.style.display = 'block';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Ingresar';
+});
+
+async function doLogout() {
+  try { await fetch(API + '/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch(e) {}
+  USER = null;
+  document.getElementById('loginOverlay').style.display = 'flex';
+  document.getElementById('btnLogout').style.display = 'none';
+  document.getElementById('userInfo').textContent = '';
+}
+
+checkAuth();
+</script>
 </body>
 </html>

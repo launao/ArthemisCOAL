@@ -89,7 +89,7 @@ def init_db():
 
     tables = f"""
 CREATE TABLE IF NOT EXISTS pacientes(id {S},tipo_doc TEXT DEFAULT 'CC',num_doc TEXT UNIQUE NOT NULL,nombres TEXT NOT NULL,apellidos TEXT NOT NULL,fecha_nacimiento TEXT,genero TEXT,telefono TEXT,celular TEXT,email TEXT,direccion TEXT,ciudad TEXT DEFAULT 'Bogotá',eps TEXT,tipo_afiliado TEXT DEFAULT 'Contributivo',estado TEXT DEFAULT 'activo',creado_en {T} {D},actualizado_en {T} {D});
-CREATE TABLE IF NOT EXISTS medicos(id {S},nombres TEXT,especialidad TEXT,modulo TEXT,activo INTEGER DEFAULT 1,color TEXT DEFAULT '#5147C4');
+CREATE TABLE IF NOT EXISTS medicos(id {S},nombres TEXT,especialidad TEXT,modulo TEXT,activo INTEGER DEFAULT 1,color TEXT DEFAULT '#2E5D7A');
 CREATE TABLE IF NOT EXISTS admisiones(id {S},id_adm TEXT UNIQUE NOT NULL,paciente_id INTEGER,fecha_entrada {T} {D},fecha_llamado {T},fecha_admision_inicio {T},fecha_admision_fin {T},fecha_salida {T},estado TEXT DEFAULT 'kiosco',tipo_atencion TEXT,turno TEXT,turno_tipo TEXT DEFAULT 'general',modulo TEXT,tiempo_espera_min INTEGER DEFAULT 0,notif_ticket INTEGER DEFAULT 0,notif_wa INTEGER DEFAULT 0,notif_sms INTEGER DEFAULT 0,celular_notif TEXT,medico_id INTEGER,sede TEXT DEFAULT 'Principal',servicio_nombre TEXT,cod_cups TEXT,copago REAL DEFAULT 0,copago_cobrado INTEGER DEFAULT 0,numero_autorizacion TEXT,eps_validada INTEGER DEFAULT 0,eps_estado TEXT,eps_copago_real REAL,habeas_data INTEGER DEFAULT 0,habeas_data_ts {T},color_alerta TEXT DEFAULT 'yellow',origen TEXT DEFAULT 'kiosco',doc_num_temp TEXT,doc_type_temp TEXT,nombre_temp TEXT,triage_nivel TEXT,triage_notas TEXT,triage_ts TEXT,triage_enfermera TEXT,destino TEXT,llamado_count INTEGER DEFAULT 0,creado_en {T} {D});
 CREATE TABLE IF NOT EXISTS citas(id {S},paciente_id INTEGER NOT NULL,medico_id INTEGER,fecha TEXT NOT NULL,hora_inicio TEXT NOT NULL,hora_fin TEXT,servicio_nombre TEXT,cod_cups TEXT,tipo_cita TEXT DEFAULT 'consulta',estado TEXT DEFAULT 'programada',notas TEXT,celular_notif TEXT,recordatorio_enviado INTEGER DEFAULT 0,creado_en {T} {D},actualizado_en {T} {D});
 CREATE TABLE IF NOT EXISTS consentimientos_catalogo(id {S},codigo TEXT UNIQUE,titulo TEXT,texto TEXT,requerido INTEGER DEFAULT 1,orden INTEGER DEFAULT 0);
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS firmas_consentimiento(id {S},admision_id INTEGER,cons
 CREATE TABLE IF NOT EXISTS audit_trail(id {S},entidad TEXT,entidad_id TEXT,accion TEXT,detalle TEXT,usuario TEXT DEFAULT 'sistema',ts TEXT,ip TEXT);
 CREATE TABLE IF NOT EXISTS notificaciones(id {S},tipo TEXT,destinatario TEXT,mensaje TEXT,admision_id INTEGER,leida INTEGER DEFAULT 0,creado_en {T} {D});
 CREATE TABLE IF NOT EXISTS modulos_config(id {S},tenant_id TEXT DEFAULT 'default',modulo TEXT NOT NULL,activo INTEGER DEFAULT 1,configuracion TEXT DEFAULT '{{}}');
-CREATE TABLE IF NOT EXISTS tenant_config(id {S},tenant_id TEXT UNIQUE DEFAULT 'default',nombre_clinica TEXT DEFAULT 'Arthemis Health',nit TEXT DEFAULT '',email_habeas_data TEXT DEFAULT 'privacidad@arthemishealth.co',telefono TEXT DEFAULT '',direccion TEXT DEFAULT '',ciudad TEXT DEFAULT 'Bogotá',logo_url TEXT,color_primario TEXT DEFAULT '#5147C4',color_secundario TEXT DEFAULT '#7269D8');
+CREATE TABLE IF NOT EXISTS tenant_config(id {S},tenant_id TEXT UNIQUE DEFAULT 'default',nombre_clinica TEXT DEFAULT 'Arthemis Health',nit TEXT DEFAULT '',email_habeas_data TEXT DEFAULT 'privacidad@arthemishealth.co',telefono TEXT DEFAULT '',direccion TEXT DEFAULT '',ciudad TEXT DEFAULT 'Bogotá',logo_url TEXT,color_primario TEXT DEFAULT '#2E5D7A',color_secundario TEXT DEFAULT '#3A7A9B');
 CREATE TABLE IF NOT EXISTS roles(id {S},nombre TEXT UNIQUE NOT NULL,descripcion TEXT,permisos TEXT DEFAULT '[]',es_sistema INTEGER DEFAULT 0,creado_en {T} {D});
 CREATE TABLE IF NOT EXISTS usuarios(id {S},usuario TEXT UNIQUE NOT NULL,nombre TEXT,email TEXT,pass_hash TEXT,rol_id INTEGER,rol_nombre TEXT,activo INTEGER DEFAULT 1,ultimo_acceso {T},creado_en {T} {D});
 CREATE TABLE IF NOT EXISTS copago_param(id {S},anio INTEGER,concepto TEXT,rango TEXT,pct REAL DEFAULT 0,valor REAL DEFAULT 0,tope_evento REAL DEFAULT 0,tope_anio REAL DEFAULT 0,fuente TEXT,activo INTEGER DEFAULT 1);
@@ -178,10 +178,10 @@ CREATE TABLE IF NOT EXISTS pre_factura_items(id {S},pre_factura_id INTEGER NOT N
     cur.execute("SELECT COUNT(*) FROM medicos")
     if cur.fetchone()[0] == 0:
         for m in [
-            ('Dra. Andrea Martínez', 'Optometría', 'Módulo 1'),
-            ('Dr. Felipe Rincón', 'Oftalmología', 'Módulo 2'),
-            ('Dra. Claudia Herrera', 'Optometría', 'Módulo 3'),
-            ('Dr. Sergio Montoya', 'Baja Visión', 'Módulo 4'),
+            ('Dra. Andrea Martínez', 'Medicina General', 'Consultorio 3'),
+            ('Dr. Carlos Méndez', 'Ortopedia', 'Consultorio 1'),
+            ('Dra. Claudia Herrera', 'Medicina General', 'Consultorio 4'),
+            ('Dr. Sergio Montoya', 'Ortopedia', 'Consultorio 2'),
         ]:
             cur.execute(core.adapt("INSERT INTO medicos(nombres,especialidad,modulo)VALUES(?,?,?)", db), m)
 
@@ -211,15 +211,15 @@ CREATE TABLE IF NOT EXISTS pre_factura_items(id {S},pre_factura_id INTEGER NOT N
 
     cur.execute("SELECT COUNT(*) FROM tenant_config")
     if cur.fetchone()[0] == 0:
-        cur.execute("INSERT INTO tenant_config(tenant_id,nombre_clinica)VALUES('default','Centro Ocular Dr. Rincón')")
+        cur.execute("INSERT INTO tenant_config(tenant_id,nombre_clinica)VALUES('default','COAL - Clínica de Ortopedia y Accidentes Laborales')")
 
     # Kiosco servicios seed
     cur.execute("SELECT COUNT(*) FROM kiosco_servicios")
     if cur.fetchone()[0] == 0:
         for s in [
-            ('oft', 'Oftalmología', '👁️', 1, 0, 'consulta'),
-            ('opt', 'Optometría', '👓', 1, 1, 'consulta'),
-            ('ort', 'Ortóptica', '🔬', 1, 2, 'consulta'),
+            ('ort', 'Ortopedia', '🦴', 1, 0, 'consulta'),
+            ('med', 'Medicina General', '🩺', 1, 1, 'consulta'),
+            ('fis', 'Fisioterapia', '💪', 1, 2, 'consulta'),
             ('cir', 'Cirugía', '🏥', 1, 3, 'cirugia'),
             ('lab', 'Laboratorio', '🧪', 1, 4, 'diagnostico'),
             ('img', 'Imágenes diagnósticas', '📷', 1, 5, 'diagnostico'),
@@ -249,8 +249,8 @@ CREATE TABLE IF NOT EXISTS pre_factura_items(id {S},pre_factura_id INTEGER NOT N
     cur.execute("SELECT COUNT(*) FROM kiosco_anuncios")
     if cur.fetchone()[0] == 0:
         for a in [
-            ('Cirugía láser', 'Corrección visual con tecnología de última generación', 'none', '', 1, 0),
-            ('Lentes de contacto', 'Adaptación personalizada con los mejores materiales', 'none', '', 1, 1),
+            ('Rehabilitación integral', 'Programas de fisioterapia con tecnología de última generación', 'none', '', 1, 0),
+            ('Atención de urgencias', 'Servicio especializado en accidentes laborales y trauma', 'none', '', 1, 1),
         ]:
             cur.execute(core.adapt("INSERT INTO kiosco_anuncios(titulo,descripcion,media_type,media_url,activo,orden)VALUES(?,?,?,?,?,?)", db), a)
 

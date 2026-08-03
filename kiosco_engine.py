@@ -368,8 +368,8 @@ def kiosco_config_get():
         'branding': {
             'clinicName': tenant.get('nombre_clinica', 'Arthemis Health'),
             'logo': tenant.get('logo_url'),
-            'primaryColor': tenant.get('color_primario', '#5147C4'),
-            'accentColor': tenant.get('color_secundario', '#7269D8'),
+            'primaryColor': tenant.get('color_primario', '#2E5D7A'),
+            'accentColor': tenant.get('color_secundario', '#3A7A9B'),
             'bgColor': kiosco_cfg.get('bgColor', '#FAF8F4'),
             'darkBg': kiosco_cfg.get('darkBg', '#1C1916'),
             'welcomeMsg': kiosco_cfg.get('welcomeMsg', 'Bienvenido a su cita'),
