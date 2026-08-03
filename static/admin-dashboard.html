@@ -11,7 +11,6 @@
 body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
 .top-bar{background:var(--dark);color:var(--white);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .top-bar h1{font-size:18px;font-weight:600;display:flex;align-items:center;gap:8px}
-.top-bar .logo{width:28px;height:28px;background:var(--primary);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
 .top-bar .user-info{display:flex;align-items:center;gap:16px;font-size:13px}
 .top-bar .user-info .role-badge{background:var(--primary);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
 .top-bar .btn-logout{background:transparent;border:1px solid rgba(255,255,255,.3);color:var(--white);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px}
@@ -27,7 +26,8 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
 .grid-2{grid-template-columns:repeat(auto-fit,minmax(400px,1fr))}
 .card{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:20px}
 .card h3{font-size:13px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
-.stat-card{text-align:center}
+.stat-card{text-align:center;cursor:pointer;transition:all .2s}
+.stat-card:hover{border-color:var(--primary);box-shadow:0 2px 12px rgba(46,93,122,.15);transform:translateY(-2px)}
 .stat-card .value{font-size:32px;font-weight:700;color:var(--primary)}
 .stat-card .label{font-size:12px;color:var(--ink3);margin-top:4px}
 .stat-card.alert .value{color:var(--danger)}
@@ -47,12 +47,15 @@ table tr:hover{background:var(--iv2)}
 .badge-warn{background:#fefce8;color:#854d0e}
 .badge-info{background:#eff6ff;color:#1e40af}
 .chart-bar{display:flex;align-items:flex-end;gap:6px;height:120px;padding-top:8px}
-.chart-bar .bar{flex:1;background:var(--primary);border-radius:4px 4px 0 0;min-height:4px;position:relative;transition:height .3s}
+.chart-bar .bar{flex:1;background:var(--primary);border-radius:4px 4px 0 0;min-height:4px;position:relative;transition:height .3s;cursor:pointer}
 .chart-bar .bar:hover{opacity:.85}
 .chart-bar .bar .bar-label{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--ink4);white-space:nowrap}
 .chart-bar .bar .bar-value{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:600;color:var(--ink2)}
 .triage-dist{display:flex;gap:8px;flex-wrap:wrap}
-.triage-chip{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;color:var(--white)}
+.triage-chip{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;color:var(--white);cursor:pointer;transition:transform .15s,box-shadow .15s}
+.triage-chip:hover{transform:scale(1.05);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.estado-row{cursor:pointer;transition:background .15s}
+.estado-row:hover{background:var(--iv2) !important}
 .endpoint-group{margin-bottom:16px}
 .endpoint-group summary{font-weight:600;font-size:14px;cursor:pointer;padding:8px 0;color:var(--ink2)}
 .endpoint-group summary:hover{color:var(--primary)}
@@ -84,7 +87,35 @@ table tr:hover{background:var(--iv2)}
 .loading{text-align:center;padding:40px;color:var(--ink4)}
 .loading::after{content:'';display:inline-block;width:20px;height:20px;border:2px solid var(--line);border-top-color:var(--primary);border-radius:50%;animation:spin .6s linear infinite;margin-left:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:768px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}.content{padding:16px}}
+
+/* Date range bar */
+.date-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.date-bar label{font-size:12px;color:var(--ink3);font-weight:500}
+.date-bar input[type="date"]{border:1px solid var(--line);border-radius:6px;padding:5px 10px;font-size:12px;font-family:inherit;color:var(--ink);background:var(--white)}
+.date-bar input[type="date"]:focus{outline:none;border-color:var(--primary)}
+.date-bar .preset-btn{background:var(--iv2);border:1px solid var(--line);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;color:var(--ink2);font-weight:500;transition:all .15s}
+.date-bar .preset-btn:hover,.date-bar .preset-btn.active{background:var(--primary);color:var(--white);border-color:var(--primary)}
+.date-bar .clear-btn{background:none;border:none;color:var(--ink4);font-size:11px;cursor:pointer;text-decoration:underline}
+.date-bar .clear-btn:hover{color:var(--danger)}
+
+/* Detail Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:1000;justify-content:center;align-items:flex-start;padding:40px 20px;overflow-y:auto}
+.modal-overlay.active{display:flex}
+.modal-content{background:var(--white);border-radius:16px;width:100%;max-width:1100px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--line)}
+.modal-header h2{font-size:18px;font-weight:700;color:var(--ink)}
+.modal-header .count-badge{background:var(--primary);color:var(--white);padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-left:10px}
+.modal-header .close-btn{background:none;border:none;font-size:24px;color:var(--ink3);cursor:pointer;padding:4px 8px;border-radius:6px}
+.modal-header .close-btn:hover{background:var(--iv2);color:var(--ink)}
+.modal-body{overflow-y:auto;padding:0}
+.modal-body table{font-size:12px}
+.modal-body table th{position:sticky;top:0;background:var(--white);z-index:2}
+.modal-body table td{padding:6px 12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.modal-footer{padding:12px 24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--ink3)}
+.modal-footer .export-btn{background:var(--iv2);border:1px solid var(--line);padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;color:var(--ink2)}
+.modal-footer .export-btn:hover{background:var(--primary);color:var(--white)}
+
+@media(max-width:768px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}.content{padding:16px}.date-bar{flex-direction:column;align-items:flex-start}}
 </style>
 </head>
 <body>
@@ -114,11 +145,29 @@ table tr:hover{background:var(--iv2)}
 
 <!-- ═══ OVERVIEW TAB ═══ -->
 <div class="tab-panel active" id="tab-overview">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
     <h2 class="section-title" style="margin:0">Panel de Control</h2>
     <div style="display:flex;gap:8px;align-items:center">
       <span style="font-size:11px;color:var(--ink4)" id="lastUpdate">-</span>
       <button class="refresh-btn" onclick="loadAll()">Actualizar</button>
+    </div>
+  </div>
+
+  <!-- Date Range Bar -->
+  <div class="card" style="padding:12px 20px;margin-bottom:16px">
+    <div class="date-bar">
+      <label>Desde:</label>
+      <input type="date" id="dateDesde" onchange="onDateChange()">
+      <label>Hasta:</label>
+      <input type="date" id="dateHasta" onchange="onDateChange()">
+      <div style="display:flex;gap:4px;margin-left:8px">
+        <button class="preset-btn active" data-preset="hoy" onclick="setPreset('hoy')">Hoy</button>
+        <button class="preset-btn" data-preset="semana" onclick="setPreset('semana')">7 días</button>
+        <button class="preset-btn" data-preset="mes" onclick="setPreset('mes')">30 días</button>
+        <button class="preset-btn" data-preset="todo" onclick="setPreset('todo')">Todo</button>
+      </div>
+      <button class="clear-btn" onclick="clearDates()" id="clearDatesBtn" style="display:none">Limpiar filtro</button>
+      <span style="font-size:11px;color:var(--ink4);margin-left:auto" id="dateRangeLabel">Mostrando: Hoy</span>
     </div>
   </div>
 
@@ -128,11 +177,11 @@ table tr:hover{background:var(--iv2)}
 
   <div class="grid grid-2" style="margin-top:16px">
     <div class="card">
-      <h3>Admisiones - Últimos 7 días</h3>
+      <h3>Admisiones — Tendencia</h3>
       <div class="chart-bar" id="chartAdmisiones"><div class="no-data">Cargando...</div></div>
     </div>
     <div class="card">
-      <h3>Triage Hoy por Nivel</h3>
+      <h3>Triage por Nivel</h3>
       <div class="triage-dist" id="triageDist"><span class="no-data">Cargando...</span></div>
     </div>
   </div>
@@ -244,10 +293,212 @@ table tr:hover{background:var(--iv2)}
 
 </div>
 
+<!-- ═══ DETAIL MODAL ═══ -->
+<div class="modal-overlay" id="detailModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center">
+        <h2 id="modalTitle">Detalle</h2>
+        <span class="count-badge" id="modalCount">0</span>
+      </div>
+      <button class="close-btn" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <table>
+        <thead id="modalThead"><tr></tr></thead>
+        <tbody id="modalTbody"><tr><td class="loading">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <span id="modalInfo">-</span>
+      <button class="export-btn" onclick="exportCSV()">Exportar CSV</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const API = '';
 let currentUser = null;
 let auditOffset = 0;
+let lastDetailData = null;
+
+// ── Date Range ──
+function getDateParams() {
+  const desde = document.getElementById('dateDesde').value;
+  const hasta = document.getElementById('dateHasta').value;
+  let params = '';
+  if (desde) params += '&desde=' + desde;
+  if (hasta) params += '&hasta=' + hasta;
+  return params;
+}
+
+function fmtDate(d) {
+  return d.toISOString().slice(0, 10);
+}
+
+function setPreset(preset) {
+  const now = new Date();
+  const desdeEl = document.getElementById('dateDesde');
+  const hastaEl = document.getElementById('dateHasta');
+  const label = document.getElementById('dateRangeLabel');
+  const clearBtn = document.getElementById('clearDatesBtn');
+
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.preset-btn[data-preset="${preset}"]`).classList.add('active');
+
+  if (preset === 'hoy') {
+    desdeEl.value = '';
+    hastaEl.value = '';
+    label.textContent = 'Mostrando: Hoy';
+    clearBtn.style.display = 'none';
+  } else if (preset === 'semana') {
+    const d = new Date(now); d.setDate(d.getDate() - 7);
+    desdeEl.value = fmtDate(d);
+    hastaEl.value = fmtDate(now);
+    label.textContent = 'Mostrando: Últimos 7 días';
+    clearBtn.style.display = '';
+  } else if (preset === 'mes') {
+    const d = new Date(now); d.setDate(d.getDate() - 30);
+    desdeEl.value = fmtDate(d);
+    hastaEl.value = fmtDate(now);
+    label.textContent = 'Mostrando: Últimos 30 días';
+    clearBtn.style.display = '';
+  } else if (preset === 'todo') {
+    desdeEl.value = '2020-01-01';
+    hastaEl.value = fmtDate(now);
+    label.textContent = 'Mostrando: Todo el histórico';
+    clearBtn.style.display = '';
+  }
+  loadAll();
+}
+
+function onDateChange() {
+  const desde = document.getElementById('dateDesde').value;
+  const hasta = document.getElementById('dateHasta').value;
+  const label = document.getElementById('dateRangeLabel');
+  const clearBtn = document.getElementById('clearDatesBtn');
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+
+  if (desde && hasta) {
+    label.textContent = `Mostrando: ${desde} a ${hasta}`;
+    clearBtn.style.display = '';
+  } else if (desde) {
+    label.textContent = `Mostrando: Desde ${desde}`;
+    clearBtn.style.display = '';
+  } else if (hasta) {
+    label.textContent = `Mostrando: Hasta ${hasta}`;
+    clearBtn.style.display = '';
+  } else {
+    label.textContent = 'Mostrando: Hoy';
+    clearBtn.style.display = 'none';
+  }
+  loadAll();
+}
+
+function clearDates() {
+  document.getElementById('dateDesde').value = '';
+  document.getElementById('dateHasta').value = '';
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.preset-btn[data-preset="hoy"]').classList.add('active');
+  document.getElementById('dateRangeLabel').textContent = 'Mostrando: Hoy';
+  document.getElementById('clearDatesBtn').style.display = 'none';
+  loadAll();
+}
+
+// ── Detail Modal ──
+async function openDetail(metric, extraParams) {
+  const modal = document.getElementById('detailModal');
+  const tbody = document.getElementById('modalTbody');
+  const thead = document.getElementById('modalThead');
+  modal.classList.add('active');
+  tbody.innerHTML = '<tr><td class="loading" colspan="20">Cargando...</td></tr>';
+  thead.innerHTML = '<tr><th>Cargando...</th></tr>';
+  document.getElementById('modalTitle').textContent = 'Cargando...';
+  document.getElementById('modalCount').textContent = '';
+
+  let url = API + '/api/admin/stats/detail?metric=' + metric + getDateParams();
+  if (extraParams) url += '&' + extraParams;
+
+  try {
+    const r = await fetch(url);
+    const d = await r.json();
+    if (d.error) { tbody.innerHTML = `<tr><td class="no-data">${d.error}</td></tr>`; return; }
+
+    lastDetailData = d;
+    document.getElementById('modalTitle').textContent = d.title || metric;
+    document.getElementById('modalCount').textContent = d.total + ' registros';
+
+    // Header
+    thead.innerHTML = '<tr>' + (d.columns || []).map(c => `<th>${c}</th>`).join('') + '</tr>';
+
+    // Body
+    if (!d.rows || !d.rows.length) {
+      tbody.innerHTML = '<tr><td colspan="' + (d.columns||[]).length + '" class="no-data">Sin registros</td></tr>';
+    } else {
+      const fields = d.fields || [];
+      tbody.innerHTML = d.rows.map(row => {
+        return '<tr>' + fields.map(f => {
+          let v = row[f];
+          if (v === null || v === undefined) v = '-';
+          // Format dates
+          if (typeof v === 'string' && v.match(/^\d{4}-\d{2}-\d{2}[T ]/)) {
+            try { v = new Date(v).toLocaleString('es-CO', {dateStyle:'short',timeStyle:'short'}); } catch(e) {}
+          }
+          // Format currency
+          if (f === 'total' || f === 'copago' || f === 'monto') {
+            v = '$' + Number(v||0).toLocaleString('es-CO');
+          }
+          // Estado badge
+          if (f === 'estado') {
+            const cls = v === 'atendido' ? 'badge-ok' : v === 'triaje' ? 'badge-warn' : 'badge-info';
+            return `<td><span class="badge ${cls}">${v}</span></td>`;
+          }
+          // Triage badge
+          if (f === 'triage_nivel' && v !== '-') {
+            const colors = {'I':'var(--triage-i)','II':'var(--triage-ii)','III':'var(--triage-iii)','IV':'var(--triage-iv)','V':'var(--triage-v)'};
+            return `<td><span class="badge" style="background:${colors[v]||'var(--ink3)'};color:white">${v}</span></td>`;
+          }
+          return `<td title="${String(v).replace(/"/g,'&quot;')}">${v}</td>`;
+        }).join('') + '</tr>';
+      }).join('');
+    }
+
+    const desde = document.getElementById('dateDesde').value;
+    const hasta = document.getElementById('dateHasta').value;
+    let info = `${d.total} registros`;
+    if (desde || hasta) info += ` | Filtro: ${desde || '...'} a ${hasta || '...'}`;
+    document.getElementById('modalInfo').textContent = info;
+  } catch(e) {
+    console.error(e);
+    tbody.innerHTML = '<tr><td class="no-data">Error al cargar datos</td></tr>';
+  }
+}
+
+function closeModal() {
+  document.getElementById('detailModal').classList.remove('active');
+}
+
+function exportCSV() {
+  if (!lastDetailData || !lastDetailData.rows || !lastDetailData.rows.length) return;
+  const d = lastDetailData;
+  const sep = ';';
+  let csv = d.columns.join(sep) + '\n';
+  for (const row of d.rows) {
+    csv += d.fields.map(f => {
+      let v = row[f];
+      if (v === null || v === undefined) v = '';
+      return String(v).replace(/;/g, ',').replace(/\n/g, ' ');
+    }).join(sep) + '\n';
+  }
+  const blob = new Blob(['﻿' + csv], {type: 'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (d.title || 'detalle').replace(/[^a-zA-Z0-9áéíóúñ ]/g, '_') + '.csv';
+  a.click();
+}
+
+// Close on Escape
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 // ── Auth ──
 async function checkAuth() {
@@ -266,7 +517,6 @@ async function checkAuth() {
 function setupTabsForRole(permisos, rol) {
   const isSuperOrDir = permisos.includes('superadmin') || permisos.includes('director');
   const tabs = document.getElementById('navTabs');
-  // Show role-specific tabs
   if (isSuperOrDir || permisos.includes('historia_clinica') || permisos.includes('coord_medico'))
     tabs.querySelector('[data-tab="medical"]').style.display = '';
   if (isSuperOrDir || permisos.includes('enfermeria') || permisos.includes('coord_enfermeria'))
@@ -275,7 +525,6 @@ function setupTabsForRole(permisos, rol) {
     tabs.querySelector('[data-tab="admissions"]').style.display = '';
   if (isSuperOrDir || permisos.includes('facturacion') || permisos.includes('coord_financiero'))
     tabs.querySelector('[data-tab="finance"]').style.display = '';
-  // Hide superadmin-only tabs for non-admin roles
   if (!isSuperOrDir) {
     tabs.querySelector('[data-tab="endpoints"]').style.display = 'none';
     tabs.querySelector('[data-tab="alerts"]').style.display = 'none';
@@ -294,7 +543,6 @@ document.getElementById('navTabs').addEventListener('click', e => {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   e.target.classList.add('active');
   document.getElementById('tab-'+e.target.dataset.tab).classList.add('active');
-  // Load tab-specific data
   const tab = e.target.dataset.tab;
   if (tab === 'endpoints') loadHealthCheck();
   if (tab === 'alerts') loadAlerts();
@@ -315,7 +563,7 @@ async function loadAll() {
 // ── Stats ──
 async function loadStats() {
   try {
-    const r = await fetch(API+'/api/admin/stats');
+    const r = await fetch(API+'/api/admin/stats?' + getDateParams().replace(/^&/,''));
     const d = await r.json();
     renderStatCards(d);
     renderChart(d.tendencia_admisiones);
@@ -328,19 +576,22 @@ async function loadStats() {
 
 function renderStatCards(d) {
   const cards = [
-    {value: d.pacientes_total, label: 'Pacientes Registrados', cls: ''},
-    {value: d.admisiones_hoy, label: 'Admisiones Hoy', cls: d.admisiones_hoy > 0 ? 'success' : ''},
-    {value: d.hc_abiertas, label: 'HC Abiertas', cls: d.hc_abiertas > 5 ? 'warning' : ''},
-    {value: d.hc_total, label: 'HC Total', cls: ''},
-    {value: d.ordenes_pendientes, label: 'Órdenes Pendientes', cls: d.ordenes_pendientes > 10 ? 'alert' : d.ordenes_pendientes > 0 ? 'warning' : ''},
-    {value: d.interconsultas_pendientes, label: 'Interconsultas Pend.', cls: d.interconsultas_pendientes > 5 ? 'warning' : ''},
-    {value: d.prefacturas_pendientes, label: 'Facturas por Aprobar', cls: d.prefacturas_pendientes > 0 ? 'warning' : ''},
-    {value: '$'+formatNum(d.facturacion_total_aprobada), label: 'Facturación Aprobada', cls: 'success'},
-    {value: d.usuarios_activos, label: 'Usuarios Activos', cls: ''},
-    {value: d.roles_total, label: 'Roles Configurados', cls: ''},
+    {value: d.pacientes_total, label: 'Pacientes Registrados', cls: '', metric: 'pacientes_total'},
+    {value: d.admisiones_hoy, label: 'Admisiones Hoy', cls: d.admisiones_hoy > 0 ? 'success' : '', metric: 'admisiones_hoy'},
+    {value: d.hc_abiertas, label: 'HC Abiertas', cls: d.hc_abiertas > 5 ? 'warning' : '', metric: 'hc_abiertas'},
+    {value: d.hc_total, label: 'HC Total', cls: '', metric: 'hc_total'},
+    {value: d.ordenes_pendientes, label: 'Órdenes Pendientes', cls: d.ordenes_pendientes > 10 ? 'alert' : d.ordenes_pendientes > 0 ? 'warning' : '', metric: 'ordenes_pendientes'},
+    {value: d.interconsultas_pendientes, label: 'Interconsultas Pend.', cls: d.interconsultas_pendientes > 5 ? 'warning' : '', metric: 'interconsultas_pendientes'},
+    {value: d.prefacturas_pendientes, label: 'Facturas por Aprobar', cls: d.prefacturas_pendientes > 0 ? 'warning' : '', metric: 'prefacturas_pendientes'},
+    {value: '$'+formatNum(d.facturacion_total_aprobada), label: 'Facturación Aprobada', cls: 'success', metric: 'facturacion_total_aprobada'},
+    {value: d.usuarios_activos, label: 'Usuarios Activos', cls: '', metric: 'usuarios_activos'},
+    {value: d.roles_total, label: 'Roles Configurados', cls: '', metric: 'roles_total'},
   ];
   document.getElementById('statCards').innerHTML = cards.map(c =>
-    `<div class="card stat-card ${c.cls}"><div class="value">${c.value}</div><div class="label">${c.label}</div></div>`
+    `<div class="card stat-card ${c.cls}" onclick="openDetail('${c.metric}')" title="Click para ver detalle">
+      <div class="value">${c.value}</div>
+      <div class="label">${c.label}</div>
+    </div>`
   ).join('');
 }
 
@@ -352,17 +603,23 @@ function renderChart(data) {
   const max = Math.max(...data.map(d => d.total), 1);
   el.innerHTML = data.map(d => {
     const h = Math.max((d.total/max)*100, 4);
-    const day = d.fecha ? d.fecha.slice(5) : '?';
-    return `<div class="bar" style="height:${h}%"><div class="bar-value">${d.total}</div><div class="bar-label">${day}</div></div>`;
+    const fecha = d.fecha || '?';
+    const day = String(fecha).slice(5) || '?';
+    return `<div class="bar" style="height:${h}%" onclick="openDetail('admisiones_hoy','desde=${fecha}&hasta=${fecha}')" title="Click para ver admisiones del ${fecha}">
+      <div class="bar-value">${d.total}</div>
+      <div class="bar-label">${day}</div>
+    </div>`;
   }).join('');
 }
 
 function renderTriageDist(data, containerId) {
   const el = document.getElementById(containerId);
-  if (!data || !data.length) { el.innerHTML = '<span class="no-data">Sin triage hoy</span>'; return; }
+  if (!data || !data.length) { el.innerHTML = '<span class="no-data">Sin triage</span>'; return; }
   const colors = {'I':'var(--triage-i)','II':'var(--triage-ii)','III':'var(--triage-iii)','IV':'var(--triage-iv)','V':'var(--triage-v)'};
   el.innerHTML = data.map(d =>
-    `<div class="triage-chip" style="background:${colors[d.triage_nivel]||'var(--ink3)'}">Nivel ${d.triage_nivel}: ${d.total}</div>`
+    `<div class="triage-chip" style="background:${colors[d.triage_nivel]||'var(--ink3)'}" onclick="openDetail('triage_hoy','estado=${d.triage_nivel}')" title="Click para ver pacientes Nivel ${d.triage_nivel}">
+      Nivel ${d.triage_nivel}: ${d.total}
+    </div>`
   ).join('');
 }
 
@@ -370,7 +627,10 @@ function renderEstados(data) {
   const el = document.getElementById('estadosDist');
   if (!data || !Object.keys(data).length) { el.innerHTML = '<div class="no-data">Sin datos</div>'; return; }
   el.innerHTML = '<table><tbody>' + Object.entries(data).map(([k,v]) =>
-    `<tr><td style="font-weight:500">${k}</td><td style="text-align:right;font-weight:700;color:var(--primary)">${v}</td></tr>`
+    `<tr class="estado-row" onclick="openDetail('admisiones_por_estado','estado=${k}')" title="Click para ver pacientes en estado: ${k}">
+      <td style="font-weight:500">${k}</td>
+      <td style="text-align:right;font-weight:700;color:var(--primary)">${v}</td>
+    </tr>`
   ).join('') + '</tbody></table>';
 }
 
@@ -439,7 +699,6 @@ async function loadAlerts() {
     const d = await r.json();
     const alerts = [];
 
-    // Generate alerts from stats
     if (d.ordenes_pendientes > 10) alerts.push({level:'critical', msg:`${d.ordenes_pendientes} órdenes médicas pendientes — posible cuello de botella`});
     else if (d.ordenes_pendientes > 5) alerts.push({level:'warning', msg:`${d.ordenes_pendientes} órdenes pendientes`});
 
@@ -454,13 +713,11 @@ async function loadAlerts() {
 
     if (d.usuarios_activos < 2) alerts.push({level:'info', msg:'Solo hay 1 usuario activo — considere crear más cuentas'});
 
-    // Health check
     const hr = await fetch(API+'/api/admin/health-check');
     const hd = await hr.json();
     if (hd.status !== 'ok') alerts.push({level:'critical', msg:`Estado del sistema: ${hd.status} — revisar base de datos`});
     else alerts.push({level:'info', msg:`Sistema operando normalmente — ${hd.total_endpoints} endpoints activos`});
 
-    // Check for tables with errors
     if (hd.database && hd.database.tables) {
       for (const [t, cnt] of Object.entries(hd.database.tables)) {
         if (cnt < 0) alerts.push({level:'critical', msg:`Tabla ${t} inaccesible`});
@@ -619,12 +876,12 @@ checkAuth();
 </script>
 
 <!-- Theme Toggle -->
-<button class="theme-toggle" onclick="(function(){var h=document.documentElement;var t=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',t);localStorage.setItem('arthemis-theme',t);})()" title="Cambiar tema">
+<button class="theme-toggle" onclick="(function(){var h=document.documentElement;var t=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',t);try{localStorage.setItem('arthemis-theme',t)}catch(e){}})()" title="Cambiar tema">
   <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
   <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
 </button>
 <script>
-(function(){var t=localStorage.getItem('arthemis-theme')||'light';document.documentElement.setAttribute('data-theme',t);})();
+(function(){try{var t=localStorage.getItem('arthemis-theme')||'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}})();
 </script>
 </body>
 </html>

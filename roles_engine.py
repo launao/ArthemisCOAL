@@ -447,62 +447,106 @@ def admin_usuarios_password(user_id):
 
 @roles_bp.route('/api/admin/stats')
 def admin_stats():
-    """System statistics for dashboard."""
+    """System statistics for dashboard. Accepts optional ?desde=YYYY-MM-DD&hasta=YYYY-MM-DD"""
     if not _has_admin_permiso():
         return jsonify({'error': 'No autorizado'}), 403
 
     core = _get_deps()
     conn, db = core.get_db()
     cur = conn.cursor()
+    q_ph = core.Q(db)
+
+    desde = request.args.get('desde', '')
+    hasta = request.args.get('hasta', '')
+
+    def _dr(col, extra_cond='', extra_params=None):
+        """Build WHERE with date range + optional extra condition."""
+        parts = []
+        params = []
+        if desde:
+            parts.append(f"{_D(col, db)} >= {q_ph}")
+            params.append(desde)
+        if hasta:
+            parts.append(f"{_D(col, db)} <= {q_ph}")
+            params.append(hasta)
+        if extra_cond:
+            parts.append(extra_cond)
+        if extra_params:
+            params.extend(extra_params)
+        return (" WHERE " + " AND ".join(parts) if parts else ""), params
+
     try:
         stats = {}
 
         # Pacientes
-        r = core.row(cur, "SELECT COUNT(*) as total FROM pacientes")
+        w, p = _dr('creado_en')
+        r = core.row(cur, core.adapt(f"SELECT COUNT(*) as total FROM pacientes{w}", db), p)
         stats['pacientes_total'] = r['total'] if r else 0
 
-        # Admisiones hoy
+        # Admisiones — if date range given, use it; otherwise default to today
         T = core.TODAY(db)
-        r = core.row(cur, f"SELECT COUNT(*) as total FROM admisiones WHERE {_D('creado_en',db)}={T}")
+        if desde or hasta:
+            w, p = _dr('creado_en')
+            r = core.row(cur, core.adapt(f"SELECT COUNT(*) as total FROM admisiones{w}", db), p)
+        else:
+            r = core.row(cur, f"SELECT COUNT(*) as total FROM admisiones WHERE {_D('creado_en',db)}={T}")
+            p = ()
         stats['admisiones_hoy'] = r['total'] if r else 0
 
-        # Admisiones por estado
-        estados = core.rows(cur, "SELECT estado, COUNT(*) as total FROM admisiones GROUP BY estado")
+        # Admisiones por estado (within date range if given)
+        w, p = _dr('creado_en')
+        estados = core.rows(cur, core.adapt(
+            f"SELECT estado, COUNT(*) as total FROM admisiones{w} GROUP BY estado", db), p)
         stats['admisiones_por_estado'] = {e['estado']: e['total'] for e in estados}
 
         # HC abiertas
-        r = core.row(cur, "SELECT COUNT(*) as total FROM historia_clinica WHERE estado='abierta'")
+        w, p = _dr('creado_en', "estado='abierta'")
+        r = core.row(cur, core.adapt(f"SELECT COUNT(*) as total FROM historia_clinica{w}", db), p)
         stats['hc_abiertas'] = r['total'] if r else 0
 
         # HC total
-        r = core.row(cur, "SELECT COUNT(*) as total FROM historia_clinica")
+        w, p = _dr('creado_en')
+        r = core.row(cur, core.adapt(f"SELECT COUNT(*) as total FROM historia_clinica{w}", db), p)
         stats['hc_total'] = r['total'] if r else 0
 
         # Ordenes pendientes
-        r = core.row(cur, "SELECT COUNT(*) as total FROM ordenes_medicas WHERE estado IN ('solicitada','aceptada','en_proceso')")
+        w, p = _dr('creado_en', "estado IN ('solicitada','aceptada','en_proceso')")
+        r = core.row(cur, core.adapt(f"SELECT COUNT(*) as total FROM ordenes_medicas{w}", db), p)
         stats['ordenes_pendientes'] = r['total'] if r else 0
 
         # Interconsultas pendientes
-        r = core.row(cur, "SELECT COUNT(*) as total FROM interconsultas WHERE estado IN ('solicitada','aceptada')")
+        w, p = _dr('creado_en', "estado IN ('solicitada','aceptada')")
+        r = core.row(cur, core.adapt(f"SELECT COUNT(*) as total FROM interconsultas{w}", db), p)
         stats['interconsultas_pendientes'] = r['total'] if r else 0
 
         # Pre-facturas
-        r = core.row(cur, "SELECT COUNT(*) as total FROM pre_factura WHERE estado='borrador'")
+        w, p = _dr('generado_en', "estado='borrador'")
+        r = core.row(cur, core.adapt(f"SELECT COUNT(*) as total FROM pre_factura{w}", db), p)
         stats['prefacturas_pendientes'] = r['total'] if r else 0
-        r = core.row(cur, "SELECT COUNT(*) as total FROM pre_factura WHERE estado='aprobada'")
+
+        w, p = _dr('generado_en', "estado='aprobada'")
+        r = core.row(cur, core.adapt(f"SELECT COUNT(*) as total FROM pre_factura{w}", db), p)
         stats['prefacturas_aprobadas'] = r['total'] if r else 0
+
+        w, p = _dr('generado_en', "estado='aprobada'")
         r = core.row(cur, core.adapt(
-            "SELECT COALESCE(SUM(total),0) as monto FROM pre_factura WHERE estado='aprobada'", db))
+            f"SELECT COALESCE(SUM(total),0) as monto FROM pre_factura{w}", db), p)
         stats['facturacion_total_aprobada'] = r['monto'] if r else 0
 
-        # Usuarios
+        # Usuarios (not date-filtered)
         r = core.row(cur, "SELECT COUNT(*) as total FROM usuarios WHERE activo=1")
         stats['usuarios_activos'] = r['total'] if r else 0
         r = core.row(cur, "SELECT COUNT(*) as total FROM roles")
         stats['roles_total'] = r['total'] if r else 0
 
-        # Admisiones últimos 7 días (para gráfica)
-        if db == 'pg':
+        # Admisiones tendencia (chart) — use date range or default 7 days
+        if desde or hasta:
+            w, p = _dr('creado_en')
+            tendencia = core.rows(cur, core.adapt(
+                f"SELECT {_D('creado_en',db)} as fecha, COUNT(*) as total "
+                f"FROM admisiones{w} "
+                f"GROUP BY {_D('creado_en',db)} ORDER BY fecha", db), p)
+        elif db == 'pg':
             tendencia = core.rows(cur,
                 f"SELECT {_D('creado_en',db)} as fecha, COUNT(*) as total "
                 "FROM admisiones WHERE creado_en >= NOW() - INTERVAL '7 days' "
@@ -514,11 +558,15 @@ def admin_stats():
                 f"GROUP BY {_D('creado_en',db)} ORDER BY fecha")
         stats['tendencia_admisiones'] = tendencia
 
-        # Triage por nivel hoy
-        triage = core.rows(cur,
-            f"SELECT triage_nivel, COUNT(*) as total FROM admisiones "
-            f"WHERE triage_nivel IS NOT NULL AND {_D('creado_en',db)}={T} "
-            "GROUP BY triage_nivel ORDER BY triage_nivel")
+        # Triage por nivel — use date range or default to today
+        if desde or hasta:
+            w, p = _dr('creado_en', 'triage_nivel IS NOT NULL')
+        else:
+            w = f" WHERE triage_nivel IS NOT NULL AND {_D('creado_en',db)}={T}"
+            p = ()
+        triage = core.rows(cur, core.adapt(
+            f"SELECT triage_nivel, COUNT(*) as total FROM admisiones"
+            f"{w} GROUP BY triage_nivel ORDER BY triage_nivel", db), p)
         stats['triage_hoy'] = triage
 
         # Últimos 5 audit entries
@@ -528,8 +576,263 @@ def admin_stats():
 
         stats['timestamp'] = datetime.now().isoformat()
         stats['db_type'] = db
+        stats['filtro_desde'] = desde
+        stats['filtro_hasta'] = hasta
 
         return jsonify(stats)
+    finally:
+        cur.close()
+        core._return_db(conn, db)
+
+
+@roles_bp.route('/api/admin/stats/detail')
+def admin_stats_detail():
+    """Drill-down detail for a dashboard metric. Accepts ?metric=X&desde=YYYY-MM-DD&hasta=YYYY-MM-DD"""
+    if not _has_admin_permiso():
+        return jsonify({'error': 'No autorizado'}), 403
+
+    metric = request.args.get('metric', '')
+    desde = request.args.get('desde', '')
+    hasta = request.args.get('hasta', '')
+    estado_filter = request.args.get('estado', '')
+
+    core = _get_deps()
+    conn, db = core.get_db()
+    cur = conn.cursor()
+    q_ph = core.Q(db)
+
+    try:
+        # Build date range clause
+        date_clauses = []
+        date_params = []
+        date_col = 'creado_en'  # default; overridden per metric
+
+        if desde:
+            date_clauses.append(f"{_D(date_col, db)} >= {q_ph}")
+            date_params.append(desde)
+        if hasta:
+            date_clauses.append(f"{_D(date_col, db)} <= {q_ph}")
+            date_params.append(hasta)
+
+        def _date_where(col='creado_en', extra_clauses=None, extra_params=None):
+            """Build WHERE clause with date range on the given column."""
+            parts = []
+            params = []
+            if desde:
+                parts.append(f"{_D(col, db)} >= {q_ph}")
+                params.append(desde)
+            if hasta:
+                parts.append(f"{_D(col, db)} <= {q_ph}")
+                params.append(hasta)
+            if extra_clauses:
+                parts.extend(extra_clauses)
+            if extra_params:
+                params.extend(extra_params)
+            return (" WHERE " + " AND ".join(parts)) if parts else "", params
+
+        result = {'metric': metric, 'rows': [], 'columns': []}
+
+        if metric == 'pacientes_total':
+            where, params = _date_where('creado_en')
+            rows = core.rows(cur, core.adapt(
+                f"SELECT id, tipo_doc, num_doc, nombres, apellidos, genero, "
+                f"fecha_nacimiento, telefono, email, eps, creado_en "
+                f"FROM pacientes{where} ORDER BY id DESC LIMIT 200", db), params)
+            result['columns'] = ['ID', 'Tipo Doc', 'Documento', 'Nombres', 'Apellidos',
+                                 'Género', 'Fecha Nac.', 'Teléfono', 'Email', 'EPS', 'Registrado']
+            result['fields'] = ['id', 'tipo_doc', 'num_doc', 'nombres', 'apellidos',
+                                'genero', 'fecha_nacimiento', 'telefono', 'email', 'eps', 'creado_en']
+            result['rows'] = rows
+            result['title'] = 'Pacientes Registrados'
+
+        elif metric == 'admisiones_hoy':
+            ecl = []
+            epa = []
+            if estado_filter:
+                ecl.append(f"a.estado = {q_ph}")
+                epa.append(estado_filter)
+            if not desde and not hasta:
+                # Default: today
+                ecl.append(f"{_D('a.creado_en', db)} = {core.TODAY(db)}")
+            where, params = _date_where('a.creado_en', ecl, epa)
+            rows = core.rows(cur, core.adapt(
+                f"SELECT a.id, a.turno, a.estado, a.triage_nivel, "
+                f"p.nombres, p.apellidos, p.num_doc, a.creado_en, a.destino "
+                f"FROM admisiones a LEFT JOIN pacientes p ON a.paciente_id=p.id"
+                f"{where} ORDER BY a.id DESC LIMIT 200", db), params)
+            result['columns'] = ['Turno', 'Estado', 'Triage',
+                                 'Nombres', 'Apellidos', 'Documento', 'Creado', 'Destino']
+            result['fields'] = ['turno', 'estado', 'triage_nivel',
+                                'nombres', 'apellidos', 'num_doc', 'creado_en', 'destino']
+            result['rows'] = rows
+            result['title'] = 'Admisiones' + (' — ' + estado_filter if estado_filter else '')
+
+        elif metric == 'admisiones_por_estado':
+            ecl = []
+            epa = []
+            if estado_filter:
+                ecl.append(f"a.estado = {q_ph}")
+                epa.append(estado_filter)
+            where, params = _date_where('a.creado_en', ecl, epa)
+            rows = core.rows(cur, core.adapt(
+                f"SELECT a.id, a.turno, a.estado, a.triage_nivel, "
+                f"p.nombres, p.apellidos, p.num_doc, a.creado_en, a.destino "
+                f"FROM admisiones a LEFT JOIN pacientes p ON a.paciente_id=p.id"
+                f"{where} ORDER BY a.id DESC LIMIT 200", db), params)
+            result['columns'] = ['Turno', 'Estado', 'Triage',
+                                 'Nombres', 'Apellidos', 'Documento', 'Creado', 'Destino']
+            result['fields'] = ['turno', 'estado', 'triage_nivel',
+                                'nombres', 'apellidos', 'num_doc', 'creado_en', 'destino']
+            result['rows'] = rows
+            result['title'] = 'Admisiones por Estado' + (' — ' + estado_filter if estado_filter else '')
+
+        elif metric == 'hc_abiertas':
+            ecl = [f"hc.estado = {q_ph}"]
+            epa = ['abierta']
+            where, params = _date_where('hc.creado_en', ecl, epa)
+            rows = core.rows(cur, core.adapt(
+                f"SELECT hc.id, p.nombres, p.apellidos, p.num_doc, a.turno, "
+                f"a.triage_nivel, hc.estado, hc.creado_en, hc.medico_nombre "
+                f"FROM historia_clinica hc "
+                f"LEFT JOIN pacientes p ON hc.paciente_id=p.id "
+                f"LEFT JOIN admisiones a ON hc.admision_id=a.id"
+                f"{where} ORDER BY hc.creado_en DESC LIMIT 200", db), params)
+            result['columns'] = ['ID', 'Nombres', 'Apellidos', 'Documento', 'Turno',
+                                 'Triage', 'Estado', 'Creado', 'Médico']
+            result['fields'] = ['id', 'nombres', 'apellidos', 'num_doc', 'turno',
+                                'triage_nivel', 'estado', 'creado_en', 'medico_nombre']
+            result['rows'] = rows
+            result['title'] = 'Historias Clínicas Abiertas'
+
+        elif metric == 'hc_total':
+            where, params = _date_where('hc.creado_en')
+            rows = core.rows(cur, core.adapt(
+                f"SELECT hc.id, p.nombres, p.apellidos, p.num_doc, "
+                f"hc.estado, hc.creado_en, hc.medico_nombre "
+                f"FROM historia_clinica hc "
+                f"LEFT JOIN pacientes p ON hc.paciente_id=p.id"
+                f"{where} ORDER BY hc.creado_en DESC LIMIT 200", db), params)
+            result['columns'] = ['ID', 'Nombres', 'Apellidos', 'Documento',
+                                 'Estado', 'Creado', 'Médico']
+            result['fields'] = ['id', 'nombres', 'apellidos', 'num_doc',
+                                'estado', 'creado_en', 'medico_nombre']
+            result['rows'] = rows
+            result['title'] = 'Historias Clínicas'
+
+        elif metric == 'ordenes_pendientes':
+            ecl = [f"om.estado IN ('solicitada','aceptada','en_proceso')"]
+            where, params = _date_where('om.creado_en', ecl)
+            rows = core.rows(cur, core.adapt(
+                f"SELECT om.id, om.tipo_orden, om.estado, om.nombre_estudio, om.prioridad, "
+                f"om.medico_ordena, p.nombres, p.apellidos, p.num_doc, om.creado_en "
+                f"FROM ordenes_medicas om "
+                f"LEFT JOIN pacientes p ON om.paciente_id=p.id"
+                f"{where} ORDER BY om.id DESC LIMIT 200", db), params)
+            result['columns'] = ['ID', 'Tipo', 'Estado', 'Estudio', 'Prioridad',
+                                 'Médico', 'Nombres', 'Apellidos', 'Documento', 'Creado']
+            result['fields'] = ['id', 'tipo_orden', 'estado', 'nombre_estudio', 'prioridad',
+                                'medico_ordena', 'nombres', 'apellidos', 'num_doc', 'creado_en']
+            result['rows'] = rows
+            result['title'] = 'Órdenes Médicas Pendientes'
+
+        elif metric == 'interconsultas_pendientes':
+            ecl = [f"ic.estado IN ('solicitada','aceptada')"]
+            where, params = _date_where('ic.creado_en', ecl)
+            rows = core.rows(cur, core.adapt(
+                f"SELECT ic.id, ic.especialidad_solicitada, ic.motivo, ic.estado, ic.prioridad, "
+                f"ic.medico_solicitante, p.nombres, p.apellidos, p.num_doc, ic.creado_en "
+                f"FROM interconsultas ic "
+                f"LEFT JOIN pacientes p ON ic.paciente_id=p.id"
+                f"{where} ORDER BY ic.id DESC LIMIT 200", db), params)
+            result['columns'] = ['ID', 'Especialidad', 'Motivo', 'Estado', 'Prioridad',
+                                 'Médico Solicita', 'Nombres', 'Apellidos', 'Documento', 'Creado']
+            result['fields'] = ['id', 'especialidad_solicitada', 'motivo', 'estado', 'prioridad',
+                                'medico_solicitante', 'nombres', 'apellidos', 'num_doc', 'creado_en']
+            result['rows'] = rows
+            result['title'] = 'Interconsultas Pendientes'
+
+        elif metric == 'prefacturas_pendientes':
+            ecl = [f"pf.estado = {q_ph}"]
+            epa = ['borrador']
+            where, params = _date_where('pf.generado_en', ecl, epa)
+            rows = core.rows(cur, core.adapt(
+                f"SELECT pf.id, pf.estado, pf.total, pf.copago, pf.entidad_pagadora, "
+                f"p.nombres, p.apellidos, p.num_doc, pf.generado_en "
+                f"FROM pre_factura pf "
+                f"LEFT JOIN pacientes p ON pf.paciente_id=p.id"
+                f"{where} ORDER BY pf.id DESC LIMIT 200", db), params)
+            result['columns'] = ['ID', 'Estado', 'Total', 'Copago', 'Entidad',
+                                 'Nombres', 'Apellidos', 'Documento', 'Generado']
+            result['fields'] = ['id', 'estado', 'total', 'copago', 'entidad_pagadora',
+                                'nombres', 'apellidos', 'num_doc', 'generado_en']
+            result['rows'] = rows
+            result['title'] = 'Pre-facturas Pendientes'
+
+        elif metric == 'facturacion_total_aprobada':
+            ecl = [f"pf.estado = {q_ph}"]
+            epa = ['aprobada']
+            where, params = _date_where('pf.generado_en', ecl, epa)
+            rows = core.rows(cur, core.adapt(
+                f"SELECT pf.id, pf.estado, pf.total, pf.copago, pf.entidad_pagadora, "
+                f"p.nombres, p.apellidos, p.num_doc, pf.generado_en "
+                f"FROM pre_factura pf "
+                f"LEFT JOIN pacientes p ON pf.paciente_id=p.id"
+                f"{where} ORDER BY pf.id DESC LIMIT 200", db), params)
+            result['columns'] = ['ID', 'Estado', 'Total', 'Copago', 'Entidad',
+                                 'Nombres', 'Apellidos', 'Documento', 'Generado']
+            result['fields'] = ['id', 'estado', 'total', 'copago', 'entidad_pagadora',
+                                'nombres', 'apellidos', 'num_doc', 'generado_en']
+            result['rows'] = rows
+            result['title'] = 'Facturación Aprobada'
+
+        elif metric == 'triage_hoy':
+            ecl = [f"a.triage_nivel IS NOT NULL"]
+            if estado_filter:
+                ecl.append(f"a.triage_nivel = {q_ph}")
+                epa = [estado_filter]
+            else:
+                epa = []
+            if not desde and not hasta:
+                ecl.append(f"{_D('a.creado_en', db)} = {core.TODAY(db)}")
+            where, params = _date_where('a.creado_en', ecl, epa)
+            rows = core.rows(cur, core.adapt(
+                f"SELECT a.id, a.turno, a.triage_nivel, a.estado, "
+                f"p.nombres, p.apellidos, p.num_doc, a.creado_en "
+                f"FROM admisiones a LEFT JOIN pacientes p ON a.paciente_id=p.id"
+                f"{where} ORDER BY a.id DESC LIMIT 200", db), params)
+            result['columns'] = ['Turno', 'Nivel Triage', 'Estado',
+                                 'Nombres', 'Apellidos', 'Documento', 'Creado']
+            result['fields'] = ['turno', 'triage_nivel', 'estado',
+                                'nombres', 'apellidos', 'num_doc', 'creado_en']
+            result['rows'] = rows
+            result['title'] = 'Triage' + (' — Nivel ' + estado_filter if estado_filter else '')
+
+        elif metric == 'usuarios_activos':
+            rows = core.rows(cur, core.adapt(
+                "SELECT u.id, u.usuario, u.nombre, u.email, u.rol_nombre, "
+                "u.ultimo_acceso, u.activo "
+                "FROM usuarios u WHERE u.activo=1 ORDER BY u.nombre", db))
+            result['columns'] = ['ID', 'Usuario', 'Nombre', 'Email', 'Rol',
+                                 'Último Acceso', 'Activo']
+            result['fields'] = ['id', 'usuario', 'nombre', 'email', 'rol_nombre',
+                                'ultimo_acceso', 'activo']
+            result['rows'] = rows
+            result['title'] = 'Usuarios Activos'
+
+        elif metric == 'roles_total':
+            rows = core.rows(cur, core.adapt(
+                "SELECT r.id, r.nombre, r.descripcion, r.es_sistema, r.permisos "
+                "FROM roles r ORDER BY r.nombre", db))
+            result['columns'] = ['ID', 'Nombre', 'Descripción', 'Sistema', 'Permisos']
+            result['fields'] = ['id', 'nombre', 'descripcion', 'es_sistema', 'permisos']
+            result['rows'] = rows
+            result['title'] = 'Roles del Sistema'
+
+        else:
+            return jsonify({'error': f'Métrica no reconocida: {metric}'}), 400
+
+        result['total'] = len(result['rows'])
+        return jsonify(result)
     finally:
         cur.close()
         core._return_db(conn, db)
