@@ -784,7 +784,7 @@ def health():
         conn, db = core.get_db()
         cur = conn.cursor()
         T = core.TODAY(db)
-        D = f"CAST(creado_en AS DATE)" if db == 'pg' else f"DATE(creado_en)"
+        D = f"CAST(creado_en AS DATE)" if db == 'pg' else f"DATE(creado_en,'-5 hours')"
         cur.execute(f"SELECT COUNT(*) FROM admisiones WHERE {D}={T}")
         info['admisiones_hoy'] = cur.fetchone()[0]
         # Show all admissions with their states grouped by estado
@@ -803,7 +803,7 @@ def health():
         if db == 'pg':
             cur.execute("SELECT NOW() as now_ts, CURRENT_DATE as today, current_setting('TIMEZONE') as tz")
         else:
-            cur.execute("SELECT datetime('now') as now_ts, DATE('now') as today, 'UTC' as tz")
+            cur.execute("SELECT datetime('now','-5 hours') as now_ts, DATE('now','-5 hours') as today, 'America/Bogota (UTC-5)' as tz")
         ts_row = cur.fetchone()
         info['db_now'] = ts_row[0] if ts_row else None
         info['db_today'] = str(ts_row[1]) if ts_row else None

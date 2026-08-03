@@ -39,8 +39,8 @@ def _get_deps():
 
 
 def _D(col, db):
-    """DATE extraction compatible with both PG and SQLite."""
-    return f"CAST({col} AS DATE)" if db == 'pg' else f"DATE({col})"
+    """DATE extraction compatible with both PG and SQLite (Colombia TZ)."""
+    return f"CAST({col} AS DATE)" if db == 'pg' else f"DATE({col},'-5 hours')"
 
 
 def _is_authenticated():

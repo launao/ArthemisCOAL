@@ -100,7 +100,7 @@ def NOW(db):
     return 'NOW()' if db == 'pg' else "datetime('now')"
 
 def TODAY(db):
-    return 'CURRENT_DATE' if db == 'pg' else "DATE('now')"
+    return 'CURRENT_DATE' if db == 'pg' else "DATE('now','-5 hours')"
 
 def adapt(q, db):
     if db == 'pg':
