@@ -24,6 +24,7 @@ Endpoints:
 """
 
 import json
+import traceback
 from datetime import datetime
 from flask import Blueprint, request, jsonify, session
 
@@ -516,6 +517,8 @@ def atencion_siguiente():
 
     except Exception as e:
         conn.rollback()
+        print(f"[ATENCION_SIGUIENTE ERROR] {puesto_tipo} puesto_id={puesto_id}: {e}")
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
     finally:
         cur.close()
@@ -847,6 +850,8 @@ def atencion_accion():
 
     except Exception as e:
         conn.rollback()
+        print(f"[ATENCION_ACCION ERROR] {puesto_tipo} turno_id={turno_id}: {e}")
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
     finally:
         cur.close()
@@ -946,3 +951,38 @@ def triage_clinico_get(admision_id):
     if not tc:
         return jsonify({'error': 'No hay triage clínico para esta admisión'}), 404
     return jsonify({'triage': tc})
+
+
+# ── GET /api/atencion/diagnostico — Debug queue state ────────────────────────
+
+@atencion_bp.route('/api/atencion/diagnostico')
+def atencion_diagnostico():
+    """Diagnostic endpoint: show current state of all admisiones for debugging."""
+    if not _is_authenticated():
+        return jsonify({'error': 'No autenticado'}), 401
+    if not _is_admin():
+        return jsonify({'error': 'Solo admin'}), 403
+
+    core = _get_deps()
+    conn, db = core.get_db()
+    cur = conn.cursor()
+    T = core.TODAY(db)
+
+    admisiones = core.rows(cur, core.adapt(
+        f"SELECT a.id, a.id_adm, a.turno, a.estado, a.triage_nivel, a.puesto_id, "
+        f"a.destino, a.nombre_temp, a.creado_en, a.llamado_count, "
+        f"a.admision_completa, a.paciente_id "
+        f"FROM admisiones a ORDER BY a.id DESC LIMIT 20", db))
+
+    # Count by estado
+    counts = core.rows(cur, core.adapt(
+        "SELECT estado, COUNT(*) as n FROM admisiones GROUP BY estado", db))
+
+    cur.close()
+    core._return_db(conn, db)
+    return jsonify({
+        'admisiones': admisiones,
+        'counts_by_estado': {r['estado']: r['n'] for r in counts},
+        'db_type': db,
+        'today': str(T),
+    })
