@@ -20,11 +20,13 @@ load_dotenv()
 import core
 
 app = Flask(__name__, static_folder='static')
-app.secret_key = os.getenv('SECRET_KEY', secrets.token_hex(32))
+# Fixed secret key — random fallback causes session loss on restart
+app.secret_key = os.getenv('SECRET_KEY', 'arthemis-dev-key-change-in-production-2026')
 app.permanent_session_lifetime = timedelta(hours=12)
+_is_https = os.getenv('RAILWAY_PUBLIC_DOMAIN') or os.getenv('FLASK_ENV') == 'production'
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SECURE=os.getenv('FLASK_ENV') == 'production',
+    SESSION_COOKIE_SECURE=bool(_is_https),
     SESSION_COOKIE_SAMESITE='Lax',
 )
 
@@ -42,6 +44,9 @@ def _security_headers(resp):
 # ── CORS ──────────────────────────────────────────────────────────────────────
 
 _default_origins = 'http://localhost:5050,http://127.0.0.1:5050'
+_railway_domain = os.getenv('RAILWAY_PUBLIC_DOMAIN', '')
+if _railway_domain:
+    _default_origins += f',https://{_railway_domain}'
 ALLOWED_ORIGINS = [o.strip() for o in os.getenv('CORS_ORIGINS', _default_origins).split(',') if o.strip()]
 CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
 
