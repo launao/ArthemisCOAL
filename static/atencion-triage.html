@@ -425,8 +425,12 @@ function startClock() {
 
 // ===== AUTH =====
 async function checkAuth() {
-  try { state.user = await api('/api/auth/me'); return true; }
-  catch(e) { return false; }
+  try {
+    const data = await api('/api/auth/me');
+    if (!data || !data.autenticado) return false;
+    state.user = data;
+    return true;
+  } catch(e) { return false; }
 }
 
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
@@ -559,7 +563,7 @@ function renderWorkspace() {
   html += '<div class="patient-header">' +
     '<div class="pat-turno">' + escHtml(p.turno || '—') + '</div>' +
     '<div class="pat-info"><div class="pat-name">' + escHtml(p.paciente_nombre || p.nombre || 'Sin nombre') + '</div>' +
-    '<div class="pat-doc">' + escHtml((p.doc_type_temp || 'CC') + ' ' + (p.doc_num_temp || p.documento || '')) + '</div></div>' +
+    '<div class="pat-doc">' + escHtml((p.doc_tipo || p.doc_type_temp || 'CC') + ' ' + (p.doc_num || p.doc_num_temp || p.documento || '')) + '</div></div>' +
     '<div class="pat-actions-top">' +
       '<button class="btn-sm" onclick="APP.rellamar()">Re-llamar</button>' +
       '<button class="btn-sm danger" onclick="APP.noPresento()">No se presentó</button>' +
@@ -780,7 +784,7 @@ async function siguiente() {
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
   try {
     const data = await api('/api/atencion/siguiente', { method: 'POST' });
-    state.actual = data.turno || data.actual || data;
+    state.actual = data.paciente || data.turno || data.actual || data;
     renderWorkspace();
     refreshCola();
   } catch(err) {

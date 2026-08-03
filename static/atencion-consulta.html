@@ -433,7 +433,7 @@ function renderQueue() {
     return '<div class="q-card">' +
       '<div class="q-turno">' + esc(t.turno) + '</div>' +
       '<div class="q-info">' +
-        '<div class="q-name">' + esc(t.paciente_nombre || 'Paciente') + '</div>' +
+        '<div class="q-name">' + esc(t.paciente_nombre || t.nombre || 'Paciente') + '</div>' +
         '<div class="q-meta">' +
           '<span class="triage-badge triage-' + nv + '">' + nv + ' - ' + (TRIAGE[nv] ? TRIAGE[nv].label : nv) + '</span>' +
         '</div>' +
@@ -480,7 +480,7 @@ function renderWorkspace() {
   h += '<div class="patient-header">' +
     '<div class="pat-turno">' + esc(p.turno || '--') + '</div>' +
     '<div class="pat-info"><div class="pat-name">' + esc(p.paciente_nombre || p.nombre || 'Paciente') + '</div>' +
-    '<div class="pat-doc">' + esc((p.doc_type_temp || 'CC') + ' ' + (p.doc_num_temp || p.documento || '')) +
+    '<div class="pat-doc">' + esc((p.doc_tipo || p.doc_type_temp || 'CC') + ' ' + (p.doc_num || p.doc_num_temp || p.documento || '')) +
     ' <span class="triage-badge triage-' + nv + '">' + nv + '</span></div></div>' +
     '<div class="pat-actions-top">' +
     '<button class="btn-sm" onclick="APP.rellamar()">Re-llamar</button>' +
@@ -1264,7 +1264,7 @@ async function callNext() {
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
   try {
     var data = await api('POST', '/api/atencion/siguiente', {});
-    actual = data.turno || data.actual || data;
+    actual = data.paciente || data.turno || data.actual || data;
     hcId = null; hcData = null; localPrescripciones = [];
     /* Try to load existing HC */
     await tryLoadExistingHC(actual.id);
@@ -1366,7 +1366,9 @@ window.APP = {
    ══════════════════════════════════════════ */
 (async function() {
   try {
-    user = await api('GET', '/api/auth/me');
+    var me = await api('GET', '/api/auth/me');
+    if (!me || !me.autenticado) throw new Error('No autenticado');
+    user = me;
     await checkPuesto();
   } catch(e) {
     showScreen('loginScreen');

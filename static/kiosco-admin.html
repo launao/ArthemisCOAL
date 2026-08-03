@@ -784,7 +784,7 @@ async function api(path, opts={}){
 async function checkAuth(){
   try{
     const me = await api('/api/auth/me');
-    if(me && (me.authenticated || me.ok || me.usuario)){
+    if(me && (me.autenticado || me.authenticated || me.usuario)){
       showApp();
       return;
     }
@@ -881,20 +881,22 @@ async function loadServicios(){
 
 /* ==================== 1. BRANDING ==================== */
 function renderBranding(){
-  document.getElementById('clinicName').value = config.clinicName || '';
-  document.getElementById('welcomeMsg').value = config.welcomeMsg || '';
-  document.getElementById('footerMsg').value = config.footerMsg || '';
+  const b = config.branding || {};
+  document.getElementById('clinicName').value = b.clinicName || config.clinicName || '';
+  document.getElementById('welcomeMsg').value = b.welcomeMsg || config.welcomeMsg || '';
+  document.getElementById('footerMsg').value = b.footerMsg || config.footerMsg || '';
   document.getElementById('adminPin').value = config.adminPin || '';
 
   const colors = config.colors || {};
-  setColorPair('colorPrimary', colors.primary || '#1866C4');
-  setColorPair('colorAccent', colors.accent || '#F2A93B');
-  setColorPair('colorBg', colors.bg || '#F0EDE8');
-  setColorPair('colorDark', colors.dark || '#0D2137');
+  setColorPair('colorPrimary', b.primaryColor || colors.primary || '#2E5D7A');
+  setColorPair('colorAccent', b.accentColor || colors.accent || '#3A7A9B');
+  setColorPair('colorBg', b.bgColor || colors.bg || '#FAF9F5');
+  setColorPair('colorDark', b.darkBg || colors.dark || '#1A1A19');
 
   const preview = document.getElementById('logoPreview');
-  if(config.logo){
-    preview.innerHTML = '<img src="'+config.logo+'" alt="logo">';
+  const logoUrl = b.logo || config.logo;
+  if(logoUrl){
+    preview.innerHTML = '<img src="'+logoUrl+'" alt="logo">';
   } else {
     preview.innerHTML = '<span style="color:#bbb;font-size:11px;">Sin logo</span>';
   }
@@ -918,6 +920,8 @@ function onLogoChange(evt){
   if(!file) return;
   const reader = new FileReader();
   reader.onload = ()=>{
+    config.branding = config.branding || {};
+    config.branding.logo = reader.result;
     config.logo = reader.result;
     document.getElementById('logoPreview').innerHTML = '<img src="'+reader.result+'" alt="logo">';
   };
@@ -925,16 +929,16 @@ function onLogoChange(evt){
 }
 
 async function saveBranding(){
-  config.clinicName = document.getElementById('clinicName').value.trim();
-  config.welcomeMsg = document.getElementById('welcomeMsg').value.trim();
-  config.footerMsg = document.getElementById('footerMsg').value.trim();
+  config.branding = config.branding || {};
+  config.branding.clinicName = document.getElementById('clinicName').value.trim();
+  config.branding.welcomeMsg = document.getElementById('welcomeMsg').value.trim();
+  config.branding.footerMsg = document.getElementById('footerMsg').value.trim();
+  config.branding.primaryColor = document.getElementById('colorPrimary').value;
+  config.branding.accentColor = document.getElementById('colorAccent').value;
+  config.branding.bgColor = document.getElementById('colorBg').value;
+  config.branding.darkBg = document.getElementById('colorDark').value;
+  config.branding.logo = config.branding.logo || config.logo || null;
   config.adminPin = document.getElementById('adminPin').value.replace(/\D/g,'').slice(0,6);
-  config.colors = {
-    primary: document.getElementById('colorPrimary').value,
-    accent: document.getElementById('colorAccent').value,
-    bg: document.getElementById('colorBg').value,
-    dark: document.getElementById('colorDark').value
-  };
   await persistConfig('Marca guardada');
 }
 
@@ -1283,6 +1287,14 @@ function renderConsent(){
   document.getElementById('consentNit').value = c.nit || '';
   document.getElementById('consentEmail').value = c.email || '';
   document.getElementById('consentCheckLabel').value = c.checkboxLabel || 'He leído y acepto el tratamiento de mis datos personales';
+
+  // Watermark defaults
+  const wm = config.watermark || {};
+  document.getElementById('wmPosition').value = wm.position || 'top-left';
+  document.getElementById('wmOpacity').value = wm.opacity || 50;
+  document.getElementById('wmOpacityVal').textContent = wm.opacity || 50;
+  document.getElementById('wmRotation').value = wm.rotationSeconds || 10;
+
   renderConsentPreview();
 }
 
@@ -1512,7 +1524,7 @@ function renderWhatsapp(){
   const wa = config.whatsapp || {};
   document.getElementById('waEnabled').checked = !!wa.enabled;
   document.getElementById('waCountry').value = wa.countryCode || '+57';
-  document.getElementById('waNumber').value = wa.number || '';
+  document.getElementById('waNumber').value = wa.number || wa.businessNumber || '';
   document.getElementById('langSelect').value = config.lang || 'es';
 }
 
